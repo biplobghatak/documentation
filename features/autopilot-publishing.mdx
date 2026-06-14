@@ -1,0 +1,71 @@
+---
+title: "Daily Autopilot Publishing to WordPress, Shopify, or Webflow"
+sidebarTitle: "Autopilot Publishing"
+description: "Spyro pushes finished articles directly to WordPress, Shopify, Webflow, or Wix once per day — complete with images, metadata, links, and schema."
+---
+
+Autopilot Publishing is the final step in Spyro's content pipeline. Once an article clears the draft queue, Autopilot pushes it directly to your CMS at a time you configure — complete with the featured image, meta title, meta description, internal links, and schema markup already in place. You set it up once, and Spyro keeps your site publishing every single day without any ongoing effort from you.
+
+## What Gets Published
+
+Every article Spyro publishes includes the full package your CMS needs to go live correctly:
+
+- **Article body** — the full 2,500–3,000 word GEO-optimized content, formatted for your platform
+- **Featured image** — the AI-generated image, sized and attached automatically
+- **Meta title and meta description** — written to target your keyword while staying within character limits
+- **Internal links** — inserted into the article body, pointing to relevant existing pages on your site
+- **Schema markup** — Article, FAQPage, or HowTo schema embedded in the post, depending on content type
+- **Categories and tags** — assigned automatically based on silo membership
+
+## Supported Platforms
+
+Spyro connects natively to WordPress, Shopify, and Webflow. If your site runs on Wix or another platform, you can receive published articles via the API and Webhooks integration and push them to your CMS programmatically.
+
+<CardGroup cols={2}>
+  <Card title="WordPress" icon="wordpress" href="/integrations/wordpress">
+    Connects to both WordPress.org (self-hosted) and WordPress.com via the REST API. Posts are created as drafts or published directly, depending on your Autopilot settings.
+  </Card>
+  <Card title="Shopify" icon="bag-shopping" href="/integrations/shopify">
+    Publishes to your Shopify blog. Ideal for e-commerce brands building topical authority around their product categories.
+  </Card>
+  <Card title="Webflow" icon="window" href="/integrations/webflow">
+    Pushes content into your Webflow CMS collections via the Webflow API. Spyro maps article fields to your existing collection schema.
+  </Card>
+  <Card title="API & Webhooks" icon="webhook" href="/integrations/api-webhooks">
+    Use Spyro's API and webhooks to publish to any custom CMS — including Wix — or to trigger downstream workflows programmatically.
+  </Card>
+</CardGroup>
+
+## How to Connect Your CMS
+
+Each platform has its own connection guide with step-by-step instructions for generating API credentials and linking your site to Spyro. See the integration cards above for your platform. Once connected, return to **Settings → Autopilot** to configure your publishing schedule.
+
+## Publishing Schedule
+
+Autopilot publishes one article per day at the time you set in **Settings → Autopilot → Schedule**. You choose the publish time; Spyro handles everything else. Articles are pulled from your approved draft queue in priority order — highest citation opportunity first, unless you've manually reordered the queue.
+
+If your draft queue runs dry, Autopilot pauses automatically and notifies you. It resumes as soon as new approved articles are available.
+
+## What Gets Published vs. Reviewed
+
+You control how much human review happens before an article goes live:
+
+| Mode | How It Works |
+|---|---|
+| **Draft mode** | Articles are pushed to your CMS as drafts. You review and publish manually inside your CMS. |
+| **Auto-publish with review** | Articles sit in Spyro's draft queue for a review window you set (e.g., 24 hours). If you don't reject them, Autopilot publishes them automatically. |
+| **Fully automated** | Articles move from generation to publication with no manual step. Best for teams with an established review process or high content volume. |
+
+## Manual Override
+
+You can pause Autopilot at any time without losing your queue or disconnecting your CMS. Go to **Settings → Autopilot** and toggle **Autopilot** off. Your draft queue is preserved, and you can publish articles manually from **Content Engine → Drafts** while Autopilot is paused. Toggle it back on whenever you're ready to resume the daily schedule.
+
+<Warning>
+AI-generated content should be reviewed for factual accuracy before you enable fully automated publishing. Spyro optimizes article structure and citation signals, but it does not verify product details, pricing, legal claims, or other business-specific facts. Enable draft mode or the review window during your first few weeks to calibrate quality before switching to fully automated.
+</Warning>
+
+<Tip>
+Start with **Auto-publish with review** and a 24-hour review window. This gives you the benefits of a fully automated pipeline while keeping a safety net in place until you're confident in the output quality for your brand.
+</Tip>
+
+For background on what makes content GEO-optimized and why article structure affects AI citations, see [GEO Optimization](/concepts/geo-optimization).

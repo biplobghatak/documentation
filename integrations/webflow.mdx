@@ -1,0 +1,100 @@
+---
+title: "Connect Spyro to Webflow for Automated CMS Publishing"
+sidebarTitle: "Webflow"
+description: "Connect Spyro to your Webflow CMS Collection and automatically publish GEO-optimized blog articles with visual field mapping and SEO metadata."
+---
+
+Spyro connects to your Webflow site through the Webflow API and publishes finished articles directly into your CMS Collection — typically your blog or articles collection. Each new CMS item arrives with the article body, featured image, and SEO metadata already mapped to your Collection's fields, so your site's design and layout render everything correctly from the moment it's created.
+
+## What Gets Published
+
+Spyro creates CMS items in your Webflow Collection with the following data:
+
+<CardGroup cols={2}>
+  <Card title="Article Content" icon="file-lines" href="/features/autopilot-publishing">
+    Full article body mapped to your Collection's Rich Text field
+  </Card>
+  <Card title="Featured Image" icon="image" href="/features/autopilot-publishing">
+    AI-generated image mapped to your Collection's Image field
+  </Card>
+  <Card title="SEO Fields" icon="magnifying-glass" href="/features/autopilot-publishing">
+    Meta title and meta description mapped to your Collection's SEO fields
+  </Card>
+  <Card title="Post Metadata" icon="circle-info" href="/features/autopilot-publishing">
+    Slug, publish date, and any other fields you configure in the field mapper
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before connecting, make sure you have:
+
+- A Webflow site on a plan that includes CMS (CMS, Business, or Enterprise)
+- A CMS Collection set up for blog posts with at minimum: a **Name** field, a **Rich Text** field for the body, and an **Image** field for the featured image
+- Webflow account **Admin** or **Editor** access to generate an API key
+
+## Connect Your Webflow Site
+
+<Steps>
+  <Step title="Open Integrations in Spyro">
+    Log in to [app.spyro.app](https://app.spyro.app), go to **Integrations** in the left sidebar, and click **Webflow**.
+  </Step>
+  <Step title="Generate a Webflow API key">
+    In a separate tab, open Webflow and go to **Account Settings → Integrations → API Access**. Click **Generate API Token**, give it a descriptive name (for example, "Spyro Integration"), and copy the token. Keep this tab open — you'll only see the token once.
+  </Step>
+  <Step title="Paste your API key in Spyro">
+    Return to Spyro and paste the API key into the Webflow API Key field, then click **Verify Key**. Spyro confirms the key is valid and loads your Webflow sites.
+  </Step>
+  <Step title="Select your site and CMS Collection">
+    Choose the Webflow site you want to publish to, then select the CMS Collection that holds your blog posts from the dropdown. Spyro loads all the fields defined in that Collection.
+  </Step>
+  <Step title="Map Spyro's fields to your Collection fields">
+    Use Spyro's visual field mapper to connect each piece of content to the correct Collection field:
+
+    | Spyro Field | Maps to |
+    |---|---|
+    | Article Title | Name (or a custom Plain Text field) |
+    | Article Body | Rich Text field |
+    | Featured Image | Image field |
+    | Meta Title | SEO Title field |
+    | Meta Description | SEO Description field |
+    | Slug | Slug field |
+
+    Any Collection fields you don't map are left empty or set to their default values.
+  </Step>
+  <Step title="Test the connection">
+    Click **Test Connection**. Spyro creates a draft CMS item in your selected Collection. Open your Webflow Designer or the CMS editor and confirm the test item appears with all fields populated correctly.
+  </Step>
+</Steps>
+
+<Note>
+  Webflow CMS items created by Spyro start as **drafts** by default — they won't be visible on your published site until you either manually publish them in Webflow or configure Spyro to publish items live. You can toggle this in **Integrations → Webflow → Publishing Settings**.
+</Note>
+
+<Tip>
+  Before running the test, verify that your Collection's field types match what Spyro expects: use a **Rich Text** field (not Plain Text) for the article body, and an **Image** field (not a URL field) for the featured image. Mismatched field types are the most common cause of failed CMS item creation.
+</Tip>
+
+## Field Mapping Reference
+
+The field mapper in your Spyro dashboard shows all available fields in your Webflow Collection. Required mappings (Title and Body) are flagged — the connection test won't pass until those are mapped. All other fields are optional but recommended for complete SEO coverage.
+
+<Tip>
+  If your Webflow Collection has custom fields for things like estimated read time or author name, map the corresponding Spyro metadata fields to populate them automatically.
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="API key verification fails">
+    Confirm you copied the full token from Webflow — they're long strings and easy to accidentally truncate. If the key still fails, generate a new token in Webflow Account Settings and try again. Regenerating a token invalidates the previous one.
+  </Accordion>
+  <Accordion title="My Collection doesn't appear in the dropdown">
+    Spyro only lists Collections that belong to the site associated with your API key. If you manage multiple Webflow sites, make sure you're generating the API key from the correct account and that the target site is listed under that account.
+  </Accordion>
+  <Accordion title="CMS items are created but some fields are empty">
+    Open the field mapper in **Integrations → Webflow** and verify every field you want populated has a mapping set. Fields that show "Not mapped" in the mapper are skipped during publishing.
+  </Accordion>
+</AccordionGroup>
+
+Need help? Reach out to [support@spyro.app](mailto:support@spyro.app).

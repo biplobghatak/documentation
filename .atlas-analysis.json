@@ -1,0 +1,86 @@
+{
+  "projectType": "saas",
+  "projectName": "Spyro",
+  "projectDescription": "Spyro is an AI-powered SEO and GEO (Generative Engine Optimization) platform that tracks AI citations across ChatGPT, Perplexity, Claude, and Gemini, audits content gaps, and automatically publishes optimized articles to your CMS.",
+  "theme": "luma",
+  "primaryColor": "#141414",
+  "lightColor": "#f47c04",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "account-setup"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/ai-citations",
+              "concepts/geo-optimization",
+              "concepts/topical-authority"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/ai-citation-tracker",
+              "features/seo-audit",
+              "features/competitor-gap-analysis",
+              "features/keyword-tracker",
+              "features/content-engine",
+              "features/autopilot-publishing"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/wordpress",
+              "integrations/shopify",
+              "integrations/webflow",
+              "integrations/google-search-console",
+              "integrations/api-webhooks"
+            ]
+          },
+          {
+            "group": "Account & Billing",
+            "pages": [
+              "account/workspaces",
+              "account/plans-billing",
+              "account/team-members"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "help/faq",
+              "help/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "AI Citation Tracker across ChatGPT, Claude, Gemini, Perplexity, and Copilot",
+    "Generative Engine Optimization (GEO) content generation with 2,500+ word articles",
+    "Competitor gap analysis and topical silo mapping",
+    "Keyword position tracking and daily index checks",
+    "Autopilot CMS publishing to WordPress, Shopify, and Webflow",
+    "Weekly AI visibility audits",
+    "Daily citation data refresh",
+    "Automated Google Search Console and indexing audits"
+  ],
+  "publicApiSurface": [
+    "APIs & Webhooks integration",
+    "CMS publishing API (WordPress, Shopify, Webflow)",
+    "Google Search Console integration",
+    "AI engine citation monitoring (ChatGPT, Claude, Gemini, Perplexity, Copilot)"
+  ]
+}

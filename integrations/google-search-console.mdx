@@ -1,0 +1,87 @@
+---
+title: "Connect Google Search Console to Spyro for SEO Data"
+sidebarTitle: "Search Console"
+description: "Connect Google Search Console to give Spyro real keyword impressions, click data, and indexing status for richer tracking and audits."
+---
+
+Connecting Google Search Console gives Spyro access to the real performance data Google has collected for your site — keyword impressions, clicks, average position, and the indexing status of every URL. Spyro layers this data on top of its own AI citation tracking to give you a complete picture: not just whether AI tools are citing your content, but whether that content is actually indexed and performing in traditional search too.
+
+## What Spyro Does with Your GSC Data
+
+<CardGroup cols={2}>
+  <Card title="Keyword Tracking" icon="chart-line" href="/features/keyword-tracker">
+    Enriches Spyro's keyword position data with real impressions and click counts from Google
+  </Card>
+  <Card title="Indexing Audits" icon="circle-check" href="/features/seo-audit">
+    Surfaces pages that aren't indexed so you can fix coverage gaps before they hurt rankings
+  </Card>
+  <Card title="Published Article Validation" icon="file-circle-check" href="/features/autopilot-publishing">
+    Confirms that articles Spyro publishes are picked up and indexed by Google
+  </Card>
+  <Card title="Content Gap Analysis" icon="magnifying-glass-chart" href="/features/competitor-gap-analysis">
+    Identifies queries where you're getting impressions but low clicks — prime targets for GEO optimization
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before connecting, make sure you have:
+
+- A verified property in [Google Search Console](https://search.google.com/search-console) for your domain
+- A Google account with at least **Full User** access to the Search Console property
+- Your site already receiving traffic (GSC data is only available for properties with at least some impression history)
+
+<Tip>
+  If you haven't verified your domain in Google Search Console yet, do that first — verification typically takes a few minutes with DNS or HTML tag methods. Spyro can only pull data for properties that are fully verified.
+</Tip>
+
+## Connect Google Search Console
+
+<Steps>
+  <Step title="Open Integrations in Spyro">
+    Log in to [app.spyro.app](https://app.spyro.app), navigate to **Integrations** in the left sidebar, and click **Google Search Console**.
+  </Step>
+  <Step title="Connect your Google account">
+    Click **Connect Google Account**. A Google OAuth window opens asking you to sign in and grant Spyro permission to access your Search Console data. Spyro requests **read-only** access — it can view your data but cannot make any changes to your Search Console settings.
+  </Step>
+  <Step title="Select your GSC property">
+    After authorization, Spyro loads all the Search Console properties associated with your Google account. Select the property that matches the domain you're tracking in Spyro. If you manage multiple domains, you can connect additional properties later.
+  </Step>
+  <Step title="Wait for the initial data sync">
+    Spyro begins importing your keyword impressions, click data, and indexing status. The initial sync typically takes a few minutes depending on the size of your site. A progress indicator shows when the sync is complete.
+  </Step>
+  <Step title="View your enriched data">
+    Once the sync finishes, open the [Keyword Tracker](/features/keyword-tracker) in Spyro. Your tracked keywords now show real GSC impression and click data alongside Spyro's AI citation tracking.
+  </Step>
+</Steps>
+
+<Note>
+  Spyro only **reads** your Google Search Console data — it never modifies your Search Console properties, submits sitemaps, or changes any indexing settings. The OAuth permission Spyro requests is strictly read-only.
+</Note>
+
+## Data Sync Details
+
+| Data Type | What Spyro Reads | Sync Frequency |
+|---|---|---|
+| Keyword impressions | Query, impressions, clicks, CTR | Daily |
+| Average position | Per-query ranking position | Daily |
+| Indexing status | Indexed / Not indexed per URL | Daily |
+| Coverage errors | Pages with indexing issues | Daily |
+
+GSC data has a natural delay of 2–3 days from Google's side — this is a Google limitation and not specific to Spyro. Data you see in Spyro reflects what's available in GSC at the time of the daily sync.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="I don't see any properties after connecting my Google account">
+    Make sure the Google account you authorized has at least **Full User** access to the Search Console property. If you have multiple Google accounts, check that you signed in with the correct one during OAuth. You can disconnect and reconnect in **Integrations → Google Search Console**.
+  </Accordion>
+  <Accordion title="My domain shows in GSC but not in Spyro's property list">
+    Spyro only lists **verified** properties. If your property shows as "Unverified" in Search Console, complete the verification process there first, then retry the connection in Spyro.
+  </Accordion>
+  <Accordion title="Keyword data looks different in Spyro vs. Search Console">
+    GSC applies sampling for high-volume queries and rounds impression counts. Minor discrepancies between Spyro and the native GSC interface are expected. If you see large differences, check that you've selected the correct property and date range in both tools.
+  </Accordion>
+</AccordionGroup>
+
+Need help? Reach out to [support@spyro.app](mailto:support@spyro.app).

@@ -1,0 +1,118 @@
+---
+title: "Automate Spyro with Custom APIs and Webhook Triggers"
+sidebarTitle: "API & Webhooks"
+description: "Use Spyro's API and webhooks to build custom integrations, push content to any CMS, and trigger automated workflows programmatically."
+---
+
+Spyro's API and webhooks let you connect Spyro to the rest of your stack — without being limited to the native CMS integrations. If you want to push published articles to a headless CMS, fire a Slack notification every time a new article is ready, sync citation data to your analytics platform, or build a trigger in Make or Zapier, webhooks and API keys give you the hooks you need to make it work.
+
+## What You Can Build
+
+<CardGroup cols={2}>
+  <Card title="Custom CMS Publishing" icon="database" href="/features/autopilot-publishing">
+    Push finished articles to any CMS or content platform via API when Spyro publishes
+  </Card>
+  <Card title="Slack & Team Notifications" icon="bell" href="/features/content-engine">
+    Send a message to Slack or Teams the moment a new article or audit is ready
+  </Card>
+  <Card title="Analytics Sync" icon="chart-bar" href="/features/keyword-tracker">
+    Pipe citation data and keyword tracking updates into your existing analytics stack
+  </Card>
+  <Card title="No-Code Automations" icon="bolt" href="/features/autopilot-publishing">
+    Connect Spyro to Make, Zapier, or n8n workflows with a simple webhook trigger
+  </Card>
+</CardGroup>
+
+## Webhook Events
+
+Spyro can notify your endpoint when any of the following events occur:
+
+| Event | Description |
+|---|---|
+| `article.published` | A new article has been published to your connected CMS |
+| `audit.complete` | A content gap audit has finished running |
+| `citation.updated` | Citation data has been refreshed across AI platforms |
+| `indexing.error` | An indexing error has been detected for a tracked URL |
+
+## Set Up a Webhook
+
+<Steps>
+  <Step title="Open API & Webhooks in Spyro">
+    Log in to [app.spyro.app](https://app.spyro.app), go to **Integrations → API & Webhooks** in the left sidebar.
+  </Step>
+  <Step title="Add a new webhook endpoint">
+    Click **Add Webhook**, then enter the URL of the endpoint you want Spyro to call. This should be a publicly reachable HTTPS URL — for example, an endpoint in your own backend or a workflow URL from Make or Zapier.
+  </Step>
+  <Step title="Select the events to subscribe to">
+    Check the events you want this webhook to fire for. You can subscribe one endpoint to multiple events, or create separate webhooks for different events if you want to route them to different destinations.
+  </Step>
+  <Step title="Save and activate">
+    Click **Save Webhook**. Spyro immediately begins sending POST requests to your endpoint whenever a subscribed event fires. The webhook list shows the last delivery status so you can confirm events are reaching your endpoint.
+  </Step>
+</Steps>
+
+<Tip>
+  Use a free tool like [webhook.site](https://webhook.site) to create a temporary inspection URL during setup. Paste it as your endpoint URL in Spyro, trigger a test event, and inspect the full JSON payload before you wire it into your production system.
+</Tip>
+
+## Webhook Payload Format
+
+Spyro sends a `POST` request with a `Content-Type: application/json` header. The body is a JSON object with an `event` field identifying the type, a `timestamp`, your `workspace_id`, and event-specific data.
+
+Here's an example payload for an `article.published` event:
+
+```json
+{
+  "event": "article.published",
+  "timestamp": "2025-01-28T09:14:32Z",
+  "workspace_id": "ws_4f8a2c1d9e7b",
+  "article_id": "art_7c3e1a5d2f0b",
+  "article_title": "How to Optimize E-Commerce Product Pages for AI Search",
+  "cms_url": "https://yourdomain.com/blog/optimize-ecommerce-product-pages-ai-search"
+}
+```
+
+Your endpoint should return a `2xx` HTTP status code to acknowledge receipt. Spyro retries failed deliveries up to three times with exponential backoff.
+
+## API Access
+
+For programmatic access — querying your tracked keywords, pulling citation reports, or triggering actions via code — generate an API key from your Spyro account.
+
+<Steps>
+  <Step title="Generate an API key">
+    Go to **Settings → API** in your Spyro dashboard and click **Generate API Key**. Give the key a descriptive name so you can identify it later (for example, "Make Integration" or "Internal Dashboard").
+  </Step>
+  <Step title="Use the key in your requests">
+    Include the API key in the `Authorization` header of every request:
+    ```
+    Authorization: Bearer YOUR_API_KEY
+    ```
+  </Step>
+  <Step title="Revoke keys when no longer needed">
+    In **Settings → API**, you can revoke any key at any time. Revoked keys stop working immediately.
+  </Step>
+</Steps>
+
+<Warning>
+  Treat your API keys like passwords. Never hardcode them in front-end JavaScript, commit them to a public repository, or share them in chat. If a key is exposed, revoke it immediately in **Settings → API** and generate a new one.
+</Warning>
+
+<Note>
+  Full API reference documentation — including all available endpoints, request parameters, and response schemas — is available for your plan. Email [support@spyro.app](mailto:support@spyro.app) to request access to the API docs.
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="My webhook endpoint isn't receiving events">
+    Verify that your endpoint URL is publicly reachable over HTTPS and returns a `2xx` status code. Use webhook.site or a similar tool to test the URL in isolation. Check the delivery log in **Integrations → API & Webhooks** for error codes on failed attempts.
+  </Accordion>
+  <Accordion title="Webhook deliveries are showing 401 or 403 errors">
+    Your endpoint may require authentication. If your server expects a shared secret or token, add the validation logic on your server side — Spyro sends a standard POST request without additional auth headers by default. Contact [support@spyro.app](mailto:support@spyro.app) to discuss HMAC signature verification for webhook payloads.
+  </Accordion>
+  <Accordion title="API key requests are returning 401 Unauthorized">
+    Confirm you're passing the key in the `Authorization: Bearer` header, not as a query parameter. Also check that the key hasn't been revoked in **Settings → API**.
+  </Accordion>
+</AccordionGroup>
+
+Need help? Reach out to [support@spyro.app](mailto:support@spyro.app).
