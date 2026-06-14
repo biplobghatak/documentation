@@ -1,0 +1,142 @@
+---
+title: "Troubleshooting Guide: Fix Common Spyro Issues Fast"
+sidebarTitle: "Troubleshooting"
+description: "Step-by-step fixes for the most common Spyro issues — citation tracking delays, auto-publishing failures, login problems, and billing errors."
+---
+
+Most issues with Spyro have a quick fix. Work through the relevant section below, and if a problem persists after following the steps, reach out — the support team is always happy to dig in with you.
+
+<Note>
+  For urgent issues — especially if your auto-publishing is broken or your account is locked — email [support@spyro.app](mailto:support@spyro.app) directly and include your account email and workspace domain. This gets you to the front of the queue.
+</Note>
+
+## Citation & Audit Issues
+
+<AccordionGroup>
+
+  <Accordion title="No citation data after 24 hours">
+    Citation data typically appears within 24 hours of completing the initial workspace audit. If you're past that window and still see nothing, work through these checks:
+
+    1. **Verify your domain is entered correctly.** Go to **Settings → Workspace** and confirm the domain matches exactly what's live (e.g., `https://yoursite.com` vs. `https://www.yoursite.com`).
+    2. **Confirm the initial audit completed.** On the workspace dashboard, look for a green "Audit Complete" status badge. If the audit is still in progress or shows an error, see the "Audit stuck in progress" entry below.
+    3. **Check your keyword list.** Citation monitoring only runs against keywords you've added. Make sure at least a few keywords are active in your workspace.
+    4. **Wait one more cycle.** Daily sampling runs on a fixed schedule. If you set up your workspace late in the day, your first full sample may arrive in the next 24-hour window.
+
+    If none of these resolve it, email [support@spyro.app](mailto:support@spyro.app) with your workspace domain and account email.
+  </Accordion>
+
+  <Accordion title="Citation data looks wrong or unexpectedly low">
+    Low citation frequency doesn't mean your site is never cited — it means you were cited in a smaller proportion of the daily query samples. A few things to keep in mind:
+
+    - **AI engines are probabilistic.** Each engine produces different answers on different runs. A frequency of 15% is meaningful data, not an error.
+    - **Sample size grows over time.** Fresh workspaces have smaller sample sizes. Wait 3–5 days for your frequency scores to stabilize before drawing conclusions.
+    - **Check your keyword relevance.** If your tracked keywords don't closely match your content and product, the AI engines may not surface your site. Try adding more specific, long-tail keywords.
+    - **Review competitors' scores.** If competitors have high citation frequency on the same keywords, that's a content gap Spyro can help you close with optimized articles.
+
+    If scores look implausible (e.g., 0% across all keywords after two weeks of data), contact [support@spyro.app](mailto:support@spyro.app).
+  </Accordion>
+
+  <Accordion title="Audit stuck in progress">
+    The initial workspace audit — which includes a site crawl, competitor mapping, and topical planning — normally completes within a few minutes.
+
+    1. **Refresh the dashboard.** Sometimes the status indicator needs a page reload to update.
+    2. **Wait up to one hour.** Large or complex sites can take longer.
+    3. **If the audit has been running for more than one hour,** email [support@spyro.app](mailto:support@spyro.app) with your workspace domain. The team can manually trigger a fresh audit run.
+  </Accordion>
+
+</AccordionGroup>
+
+## Publishing Issues
+
+<AccordionGroup>
+
+  <Accordion title="Articles not publishing to WordPress">
+    WordPress publishing uses the WordPress Application Password system. If articles aren't going through, check the following:
+
+    1. **Verify the Application Password is correct.** Go to **Integrations → WordPress** in your workspace and re-enter or regenerate the Application Password from your WordPress user profile (`Users → Your Profile → Application Passwords`).
+    2. **Check the WordPress user role.** The user whose credentials you provided must have the **Editor** or **Author** role (or higher). Subscriber and Contributor roles cannot publish posts via the API.
+    3. **Re-test the connection.** In **Integrations → WordPress**, click **Test Connection**. A green confirmation means Spyro can reach your site. A red error usually includes a specific message pointing to the issue.
+    4. **Check for security plugins.** Some security plugins (e.g., Wordfence, iThemes Security) block REST API access or Application Passwords. Temporarily disable them to test, then whitelist Spyro's IP if needed.
+
+    Still stuck? Email [support@spyro.app](mailto:support@spyro.app) with a screenshot of the error message in Integrations.
+  </Accordion>
+
+  <Accordion title="Articles not publishing to Shopify">
+    Shopify publishing uses OAuth authorization. If articles aren't appearing in your Shopify blog:
+
+    1. **Re-authorize the Shopify connection.** Go to **Integrations → Shopify** and click **Reconnect**. This refreshes the OAuth token, which can expire or be revoked if your Shopify password changed.
+    2. **Verify the selected blog section exists.** Spyro publishes to a specific Shopify blog (not your product catalog). Confirm that the blog you selected during setup still exists in your Shopify admin under **Online Store → Blog Posts**.
+    3. **Check your Shopify plan.** Ensure your Shopify plan still includes the blog feature — some legacy or Starter plans have limited blogging capabilities.
+
+    If the issue continues after reconnecting, email [support@spyro.app](mailto:support@spyro.app).
+  </Accordion>
+
+  <Accordion title="Articles not publishing to Webflow">
+    Webflow publishing uses the Webflow CMS API. If articles aren't appearing:
+
+    1. **Check field mapping.** Go to **Integrations → Webflow** and confirm that the Spyro fields (Title, Body, Slug, etc.) are correctly mapped to your Webflow CMS Collection fields. A mismatch will silently fail.
+    2. **Verify the CMS Collection is not locked.** Webflow allows editors to lock collections. Check in your Webflow dashboard that the target collection is editable.
+    3. **Confirm your API key has write access.** The Webflow API key used during setup must have **Content** and **CMS** write permissions. Regenerate the key in Webflow if you're unsure, and update it in **Integrations → Webflow**.
+    4. **Check your Webflow plan.** CMS API publishing is only available on Webflow's CMS plan or higher.
+
+    Email [support@spyro.app](mailto:support@spyro.app) with your Webflow site name if the above steps don't resolve it.
+  </Accordion>
+
+</AccordionGroup>
+
+## Account & Billing Issues
+
+<AccordionGroup>
+
+  <Accordion title="Can't log in to my account">
+    Try these steps in order:
+
+    1. **Use the correct login method.** If you originally signed up with Google ("Continue with Google"), use that same button — a separate email/password account won't exist.
+    2. **Reset your password.** On the login page at [app.spyro.app](https://app.spyro.app), click **Forgot password?** and follow the instructions sent to your email.
+    3. **Check your spam folder.** Password reset emails and invitation emails occasionally land in spam.
+    4. **Try a different browser or incognito mode.** Browser extensions can sometimes interfere with authentication.
+    5. **Still locked out?** Email [support@spyro.app](mailto:support@spyro.app) from the email address associated with your Spyro account and the team will restore your access manually.
+  </Accordion>
+
+  <Accordion title="My payment failed and my account is read-only">
+    When a payment fails, Spyro retries the charge automatically. In the meantime, your account enters **read-only mode** — you can view your data but cannot generate new articles or publish content.
+
+    To restore full access:
+
+    1. Go to **Settings → Billing** in the app.
+    2. Click **Update Payment Method** and enter a valid card.
+    3. Once a successful payment is processed, your account returns to full access immediately.
+
+    If you believe the charge failed in error (e.g., your card was recently replaced), contact your bank first to confirm there are no blocks on international or subscription charges, then update the card in Spyro.
+  </Accordion>
+
+  <Accordion title="I've used up my article allowance for the month">
+    Each Pro plan includes **30 articles per month**. Allowances reset at the start of your next billing period and do **not** roll over — unused articles from the current period are not carried forward.
+
+    Your options:
+
+    - **Wait for the reset.** Check your billing renewal date in **Settings → Billing** to see exactly when your allowance refreshes.
+    - **Contact support about your account.** In some cases the team can review your usage and advise on the best path forward.
+    - **Manage your queue.** Review the content queue and prioritize the topics that will have the most impact before the reset.
+
+    <Note>
+      If you're consistently hitting your limit each month, this is a good signal that Spyro is working. Email [support@spyro.app](mailto:support@spyro.app) to discuss higher-volume options.
+    </Note>
+  </Accordion>
+
+</AccordionGroup>
+
+## General
+
+<AccordionGroup>
+
+  <Accordion title="How do I contact Spyro support?">
+    The Spyro support team is available by email:
+
+    - **Support & billing:** [support@spyro.app](mailto:support@spyro.app)
+    - **General enquiries:** [hello@spyro.app](mailto:hello@spyro.app)
+
+    When emailing about a technical issue, include your **account email address**, the **workspace domain** affected, and a brief description of what you expected to happen versus what actually happened. Screenshots or screen recordings are always helpful and speed up resolution.
+  </Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Spyro",
+  "theme": "luma",
+  "colors": {
+    "primary": "#141414",
+    "light": "#f47c04"
+  },
+  "logo": {
+    "light": "https://media.brand.dev/f625a23d-23e8-420d-9098-0c12b8ef77be.svg",
+    "dark": "https://media.brand.dev/f625a23d-23e8-420d-9098-0c12b8ef77be.svg"
+  },
+  "favicon": "https://media.brand.dev/880d9180-6ddb-46bd-9a1e-3fcc10514f0f.png",
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get Started Free",
+      "href": "https://spyro.app/signup"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "account-setup"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/ai-citations",
+              "concepts/geo-optimization",
+              "concepts/topical-authority"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/ai-citation-tracker",
+              "features/seo-audit",
+              "features/competitor-gap-analysis",
+              "features/keyword-tracker",
+              "features/content-engine",
+              "features/autopilot-publishing"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/wordpress",
+              "integrations/shopify",
+              "integrations/webflow",
+              "integrations/google-search-console",
+              "integrations/api-webhooks"
+            ]
+          },
+          {
+            "group": "Account & Billing",
+            "pages": [
+              "account/workspaces",
+              "account/plans-billing",
+              "account/team-members"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "help/faq",
+              "help/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

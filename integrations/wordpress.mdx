@@ -1,0 +1,97 @@
+---
+title: "Connect Spyro to WordPress and Auto-Publish Articles"
+sidebarTitle: "WordPress"
+description: "Connect Spyro to WordPress.org or WordPress.com and automatically publish GEO-optimized articles — with meta tags and schema — every day."
+---
+
+Spyro integrates directly with both WordPress.org (self-hosted) and WordPress.com, so every article your content pipeline produces lands on your site without manual copy-pasting. Once connected, Spyro publishes one finished article per day at a time you choose — complete with featured image, meta title, meta description, internal links, and schema markup.
+
+## What Gets Published
+
+Each article Spyro sends to WordPress includes:
+
+<CardGroup cols={2}>
+  <Card title="Content" icon="file-lines" href="/features/autopilot-publishing">
+    Post title, full body content, and AI-generated featured image
+  </Card>
+  <Card title="SEO Fields" icon="magnifying-glass" href="/features/autopilot-publishing">
+    Meta title, meta description, schema markup, and internal links
+  </Card>
+  <Card title="Taxonomy" icon="tags" href="/features/autopilot-publishing">
+    Categories and tags configured in your publishing settings
+  </Card>
+  <Card title="Authorship" icon="user" href="/features/autopilot-publishing">
+    Author attribution mapped to any WordPress user you designate
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before connecting, make sure you have the following ready:
+
+- A live WordPress site (self-hosted WordPress.org or WordPress.com Business plan or above)
+- Administrator access to your WordPress dashboard
+- For **WordPress.org**: the Application Passwords feature enabled (built into WordPress 5.6+)
+- For **WordPress.com**: permission to authorize third-party applications via OAuth
+
+## Connect Your WordPress Site
+
+<Steps>
+  <Step title="Open Integrations in Spyro">
+    Log in to [app.spyro.app](https://app.spyro.app), navigate to **Integrations** in the left sidebar, and click **WordPress**.
+  </Step>
+  <Step title="Enter your site URL">
+    Type your full WordPress site URL (for example, `https://yourdomain.com`) in the Site URL field. Spyro uses this to reach your WordPress REST API.
+  </Step>
+  <Step title="Authenticate your site">
+    Choose the method that matches your WordPress platform:
+
+    **WordPress.org (self-hosted)**
+    1. In your WordPress admin, go to **Users → Profile**.
+    2. Scroll to the **Application Passwords** section.
+    3. Enter a name (for example, "Spyro") and click **Add New Application Password**.
+    4. Copy the generated password and paste it into the Spyro connection form along with your WordPress admin username.
+
+    **WordPress.com**
+    1. Click **Authorize with WordPress.com**.
+    2. You'll be redirected to WordPress.com to approve Spyro's access.
+    3. Click **Approve** — you'll return to Spyro automatically.
+  </Step>
+  <Step title="Configure publishing settings">
+    Set your preferences for every article Spyro publishes:
+    - **Default category** — the category applied to all auto-published posts
+    - **Default author** — the WordPress user shown as the post author
+    - **Publish time** — the daily time Spyro sends the article (based on your account timezone)
+  </Step>
+  <Step title="Test the connection">
+    Click **Test Connection**. Spyro sends a draft post to your WordPress site and confirms the API is responding correctly. Check your WordPress **Posts → All Posts** list to see the test draft.
+  </Step>
+</Steps>
+
+<Note>
+  Spyro defaults to publishing articles as **drafts** when you first enable the integration. Review a few posts in WordPress before switching to **Live** publishing mode — you can change this in your WordPress integration settings at any time.
+</Note>
+
+## Publishing Schedule
+
+Spyro publishes one article per day on Autopilot. You control the time of day in your integration settings. If your content queue is empty on a given day, Spyro skips that day and resumes when new articles are ready.
+
+<Tip>
+  Create a dedicated WordPress user account (for example, "Spyro Publisher") and use that account's credentials for the integration. This keeps Spyro's activity separate in your post history and makes it easy to identify auto-published content.
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection test fails for WordPress.org">
+    Confirm that your site URL includes `https://` and that the WordPress REST API is not blocked by a security plugin. Some hosts and firewall plugins (like Wordfence) can restrict REST API access — temporarily disable them to test, then add a Spyro allowlist rule.
+  </Accordion>
+  <Accordion title="Application Password option is missing">
+    Application Passwords require WordPress 5.6 or later and HTTPS. If you're on an older version, update WordPress first. If your host has disabled the feature, you can re-enable it by adding `add_filter('wp_is_application_passwords_available', '__return_true');` to your theme's `functions.php`.
+  </Accordion>
+  <Accordion title="Posts are publishing to the wrong category">
+    Open **Integrations → WordPress** in your Spyro dashboard and verify the Default Category setting. If the category doesn't exist in WordPress yet, create it there first, then refresh the category list in Spyro.
+  </Accordion>
+</AccordionGroup>
+
+Need help? Reach out to [support@spyro.app](mailto:support@spyro.app).
