@@ -1,0 +1,76 @@
+---
+title: "Environment"
+description: "How configuration works in Spyro: the lib/env.ts access layer, the degrade-to-mock philosophy, and which keys turn on which features."
+---
+
+This page explains *how* configuration works in Spyro and which keys light up which features. For the complete, alphabetized list of every variable and its purpose, see the [environment variables reference](/reference/environment-variables). Build your `.env.local` from `.env.local.example` only — never commit real values.
+
+## How configuration works
+
+All environment access goes through one module: **`lib/env.ts`**. Nothing else reads `process.env` for app config. It does three things:
+
+1. **Normalizes access.** A small `opt()` helper returns `undefined` for empty strings, so `""` and "unset" behave identically (`lib/env.ts:8`).
+2. **Exports a typed `env` object.** Every key is read once and grouped (Supabase, DataForSEO, LLM, Dodo, Inngest, …), with defaults applied inline — e.g. `DODO_ENV` defaults to `"test_mode"`, `WORDPRESS_BASE_URL` to `https://blog.spyro.app` (`lib/env.ts:61`).
+3. **Derives `featureFlags`.** A second object computes booleans like `supabaseConfigured`, `dataforseoConfigured`, and `dodoConfigured` from which keys are present (`lib/env.ts:189`). Feature code branches on these flags instead of re-checking raw env vars.
+
+<Tip>
+  When you add a feature that needs a key, add the variable to `lib/env.ts` (and `.env.local.example`), then expose a `featureFlags` boolean. UI and services should gate on the flag, never on a raw `process.env` read. This keeps "is X configured?" in exactly one place.
+</Tip>
+
+<Warning>
+  **`APP_URL` is intentionally lazy.** `env.APP_URL` is a getter that resolves `NEXT_PUBLIC_APP_URL` and throws if it is unset *at use*, not at import (`lib/env.ts:122`). On Vercel it also refuses a localhost value and falls back to `VERCEL_PROJECT_PRODUCTION_URL`, so a copy-paste from the example file can't leak `localhost` into every canonical and `og:url`.
+</Warning>
+
+## The degrade-to-mock philosophy
+
+Spyro's guiding rule is that the app should **boot and be clickable with almost no keys**, so contributors aren't blocked on vendor accounts. Most integrations gate off cleanly: the related button is hidden or the call no-ops. But this is **not** a blanket rule — two core providers throw instead, on purpose, so missing data is never silently faked. Verified against source:
+
+| Behavior when key is missing | Providers | Why |
+| --- | --- | --- |
+| **Throws a real error** (no mock) | DataForSEO (`lib/serp/index.ts:20`), the internal LLM layer (`lib/llm/index.ts:19`) | These return *data the product reports as real*. A mock would mask a broken integration. |
+| **Omitted / gated off** | Dodo billing, Resend, GSC & GA4 OAuth, MailerLite, citation engines, rerank, superadmin panel | The feature simply turns off; the rest of the app runs. |
+| **Has a keyless mock** | The Spyro chat agent (`featureFlags.agentLive`, `lib/env.ts:196`) | Lets you demo the agent with no keys; engine outputs are labelled sample data. |
+
+<Note>
+  The README's line that "most external integrations degrade to a deterministic mock" is true for the *gated-off* group but wrong for DataForSEO and the LLM layer, which throw. Treat the table above (read from the provider entry points) as authoritative.
+</Note>
+
+## Which keys turn on which features
+
+This maps each capability to its `featureFlags` gate in `lib/env.ts:189`. The flag name is what the code actually checks.
+
+| Capability | Env var(s) | `featureFlags` gate |
+| --- | --- | --- |
+| Auth + the whole dashboard | `NEXT_PUBLIC_SUPABASE_URL`, a Supabase key, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` | `supabaseConfigured`, `dbConfigured` |
+| Keyword / SERP / AI-overview / rank data | `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` | `dataforseoConfigured` |
+| Every chat LLM (writer, ideation, agent, citation engines) | `OPENROUTER_API_KEY` | drives `getLLM()` + engine availability |
+| RAG embeddings + LLM/image fallback | `OPENAI_API_KEY` | `openaiConfigured`, `llmConfigured` |
+| Internal LLM fallback (Gemini) | `GOOGLE_GENAI_API_KEY` | `geminiConfigured`, `llmConfigured` |
+| Spyro chat agent (direct) | `MOONSHOT_API_KEY` | `moonshotConfigured`, `agentLive` |
+| Billing: checkout, portal, webhooks | `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_PRODUCT_*` | `dodoConfigured` |
+| Weekly digest email | `RESEND_API_KEY` | `resendConfigured` |
+| Google Search Console connect | `GOOGLE_OAUTH_CLIENT_ID/SECRET`, `GOOGLE_OAUTH_REDIRECT_URI` | `gscOauthConfigured` |
+| GA4 AI-referral connect | `GOOGLE_OAUTH_CLIENT_ID/SECRET`, `GA4_OAUTH_REDIRECT_URI` | `ga4OauthConfigured` |
+| RAG reranking | `OPENROUTER_API_KEY` + `RERANK_*` | `rerankConfigured` |
+| DataForSEO AI search-volume add-on | `DATAFORSEO_AI_VOLUME_ENABLED=true` | `aiVolumeEnabled` |
+| Background jobs in production | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` | (dev needs neither — see below) |
+| Superadmin panel (else 404s) | `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` or `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `ADMIN_TOTP_SECRET` | `adminConfigured` |
+
+<Note>
+  **Inngest in dev needs no keys.** Leave `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` blank and run `pnpm inngest:dev`; the SDK connects to `localhost:8288`. The keys are only for Inngest Cloud (production / branch environments). See [Background jobs](/backend/background-jobs).
+</Note>
+
+## A few configuration facts worth knowing
+
+- **Supabase key flexibility.** `env.SUPABASE_ANON_KEY` accepts either the new `sb_publishable_…` key (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) or the legacy anon JWT (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); whichever is set wins (`lib/env.ts:65`).
+- **Billing is Dodo, not Polar.** The env block is `DODO_*` and the webhook is `app/api/webhooks/dodo`. The README and some legacy `polar_*` columns in `lib/db/schema.ts` are kept only for old data; no new writes go there. Resolve any Polar-vs-Dodo ambiguity from the code.
+- **Embeddings are pinned.** RAG embeddings use `text-embedding-3-small` at 1536 dims (`lib/embed/openai.ts:18`). The `.env.local.example` comment that says "3-large @ 1536" is stale — the code is locked to 3-small.
+- **One Google OAuth client, two features.** GSC and GA4 reuse the same client id/secret and `GSC_OAUTH_STATE_SECRET`; only the redirect URI and scope differ (`lib/env.ts:128`).
+- **Secrets encryption.** Stored publishing/OAuth tokens are AES-encrypted with `INTEGRATION_SECRET` (falling back to `SUPABASE_SERVICE_ROLE_KEY`, then an insecure dev key) — set it before production.
+
+## Related
+
+- [Environment variables reference](/reference/environment-variables) — the full table
+- [Installation](/getting-started/installation) — the minimal set to run locally
+- [Deployment environment checklist](/deployment/environment) — going-live steps
+- [Background jobs](/backend/background-jobs) · [Billing](/backend/billing) · [Security](/backend/security)

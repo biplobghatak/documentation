@@ -1,0 +1,257 @@
+---
+title: "Deploying to Vercel"
+description: "How to deploy the Spyro Next.js app to Vercel: server-external packages, the sharp/libvips file-tracing gotcha, the Gotenberg PDF service, env vars, and common deploy failures."
+---
+
+Spyro is a **Next.js 16 (App Router)** application that runs on Vercel Serverless
+Functions. The Next.js app is the only thing Vercel hosts — everything else is a
+managed service it talks to over the network (Supabase, Inngest Cloud, DataForSEO,
+OpenRouter, Resend, and a self-hosted **Gotenberg** PDF renderer on Railway).
+
+This page covers the deploy-time configuration that is *not obvious from the
+dashboard*: the native-module handling in `next.config.ts`, the PDF service, the
+PostHog rewrite, image domains, and the failure modes you will hit if any of these
+is wrong.
+
+<Note>
+For the full pre-launch checklist (Supabase, billing, Inngest, Resend, keys) see
+[Going live](/deployment/environment). For production-runtime concerns (crons,
+migrations, monitoring) see [Production considerations](/deployment/production).
+</Note>
+
+## What Vercel needs
+
+| Setting | Value | Where it comes from |
+| --- | --- | --- |
+| Framework | Next.js | auto-detected |
+| Build command | `next build` | `package.json` → `scripts.build` |
+| Install command | `pnpm install` | `pnpm-lock.yaml` + `.npmrc` are present |
+| Node.js version | **22.x** (`>=22.17.0`) | `package.json` → `engines.node` |
+| Output | Serverless Functions | App Router default |
+
+`vercel.json` is intentionally a **schema-only stub** — it carries no build, route,
+or cron configuration:
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json"
+}
+```
+
+Everything Vercel needs is inferred from the framework, `package.json`, and
+`next.config.ts`. The Node version is taken from the `engines.node` field; set the
+matching major version in **Project Settings → Node.js Version** if Vercel does not
+pick it up automatically.
+
+<Warning>
+There is **no `crons` array** in `vercel.json`. All scheduled work is declared as
+Inngest cron triggers inside `lib/inngest/fns/*` and runs on **Inngest Cloud**, not
+Vercel Cron. Do not add Vercel crons — see [Background jobs](/backend/background-jobs)
+and [Production](/deployment/production#cron-registration).
+</Warning>
+
+## Native modules: `serverExternalPackages`
+
+Four dependencies use Node-only APIs or native bindings and must **not** be bundled
+by Next.js / Turbopack. They are listed in `serverExternalPackages` so Next leaves
+them as real `require()`s and traces their files into the function bundle instead
+*(`next.config.ts:37`)*:
+
+```ts
+// Server-only packages Next.js must not bundle. @react-pdf/renderer + cheerio +
+// @resvg/resvg-js + sharp use Node-only APIs / native bindings. sharp MUST be
+// external so Next traces its native addon AND the libvips shared objects
+// (libvips-cpp.so) into the function bundle — bundling it triggers
+// ERR_DLOPEN_FAILED on Vercel's linux-x64 runtime.
+serverExternalPackages: ["@react-pdf/renderer", "cheerio", "@resvg/resvg-js", "sharp"],
+```
+
+The same comment notes that PDF generation **no longer bundles Chromium** — it is
+rendered by the external Gotenberg service (below), so `puppeteer-core` /
+`@sparticuz/chromium` and their binary file-tracing are gone.
+
+## The sharp / libvips file-tracing gotcha
+
+This is the single most important Vercel-specific detail in the codebase, and the
+`next.config.ts` comments are worth reading verbatim *(`next.config.ts:38–60`)*:
+
+```ts
+// sharp 0.35 loads libvips-cpp.so from a SEPARATE @img/sharp-libvips-linux-x64
+// package via a native dlopen that Vercel's file tracer (nft) does not reliably
+// follow, so the .so gets dropped from the function bundle → ERR_DLOPEN_FAILED at
+// runtime. Force-include the @img native binaries in EVERY serverless function
+// (not just /api/inngest): sharp runs in the inngest image pipeline AND in
+// request-path server actions (e.g. lib/actions/image-style.ts custom-style
+// upload), so a per-route include silently regresses whenever a new route
+// touches sharp. The "/**" key applies to all routes.
+outputFileTracingIncludes: {
+  "/**": [
+    "./node_modules/@img/sharp-linux-x64/**",
+    "./node_modules/@img/sharp-libvips-linux-x64/**",
+  ],
+},
+```
+
+Three pieces have to line up for this to work, and **all three live outside
+`next.config.ts`**:
+
+<Steps>
+<Step title="One sharp version in the tree">
+`package.json` pins `pnpm.overrides.sharp` to `0.35.2` so Next's own bundled sharp
+cannot pull a *second* `@img/sharp-libvips-linux-x64` with a different
+`libvips-cpp.so` into a competing hoist slot. The config comment records exactly
+the failure this prevents — a `8.18.3-not-found` error when "Next wanted 1.2.4/8.17,
+the app wanted 1.3.1/8.18.3, only one hoists."
+</Step>
+<Step title="Flat, symlink-free node_modules">
+`.npmrc` sets `node-linker=hoisted`. The `@img/*` paths in `outputFileTracingIncludes`
+are **flat, real directories** (not pnpm `.pnpm/` store symlinks), so the literal
+top-level paths resolve. Vercel also rejects symlinked dirs inside a function bundle,
+which is the other reason hoisted linking is mandatory.
+</Step>
+<Step title="The linux-x64 binaries are installed">
+`package.json` → `pnpm.supportedArchitectures` lists `os: ["current", "linux"]` and
+`cpu: ["current", "x64"]`, so `pnpm install` fetches the Linux `@img` binaries even
+when you install on macOS or Windows. Without this the binaries are simply absent
+from the build.
+</Step>
+</Steps>
+
+<Warning>
+**`ERR_DLOPEN_FAILED` at runtime** (typically in the image pipeline or a server
+action that resizes an image) almost always means the `@img/sharp-libvips-linux-x64`
+shared object was dropped from the function bundle. Checklist: `sharp` is still in
+`serverExternalPackages`; the `outputFileTracingIncludes["/**"]` entries are intact;
+`pnpm.overrides.sharp` is set; `.npmrc` has `node-linker=hoisted`. A single mismatch
+in any of these reintroduces the crash.
+</Warning>
+
+## The Gotenberg PDF service
+
+Spyro does not render PDFs inside Vercel functions. Each free-tool report is a full
+HTML/CSS page; the API route POSTs that page's **public URL** to a self-hosted
+[Gotenberg](https://gotenberg.dev) container (headless Chrome, hosted on Railway)
+and streams the resulting PDF back *(`lib/free-tools/shared/pdf/browser.ts:5–17`)*.
+This is why no browser binary ships in the bundle.
+
+Gotenberg is configured by environment variables that are **read in code but are not
+in `.env.local.example`** — you must add them in Vercel by hand:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `GOTENBERG_URL` | Yes (for PDFs) | Base URL of the Gotenberg service on Railway. If unset, every PDF route returns a 500. |
+| `GOTENBERG_USER` | Optional | HTTP basic-auth username, if your Gotenberg enforces it. |
+| `GOTENBERG_PASSWORD` | Optional | HTTP basic-auth password. |
+| `GOTENBERG_REPORT_ORIGIN` | Optional | Override for the **public** origin Gotenberg fetches the report page from. |
+
+The origin resolution order is `GOTENBERG_REPORT_ORIGIN` → `NEXT_PUBLIC_APP_URL` →
+`VERCEL_PROJECT_PRODUCTION_URL` → `VERCEL_URL` → the request host
+*(`browser.ts:42–58`)*.
+
+<Warning>
+Gotenberg runs on Railway and **cannot reach `localhost`**. The render request fails
+with *"No public origin for the report page"* if every candidate is a loopback host.
+On Vercel, set `NEXT_PUBLIC_APP_URL` to your public domain. For local dev, set
+`GOTENBERG_REPORT_ORIGIN` to a public origin (e.g. the production domain, which reads
+the same shared database).
+</Warning>
+
+See [PDF engine](/backend/pdf-engine) for the full render flow and the report pages.
+
+## The PostHog `/ingest` rewrite
+
+`next.config.ts` rewrites a first-party `/ingest` path to PostHog's US cloud so the
+analytics SDK is not blocked by ad/tracker blockers *(`next.config.ts:13–28`)*:
+
+```ts
+async rewrites() {
+  return [
+    { source: "/ingest/static/:path*", destination: "https://us-assets.i.posthog.com/static/:path*" },
+    { source: "/ingest/array/:path*",  destination: "https://us-assets.i.posthog.com/array/:path*" },
+    { source: "/ingest/:path*",        destination: "https://us.i.posthog.com/:path*" },
+  ];
+}
+```
+
+The browser SDK is pointed at `/ingest` via `NEXT_PUBLIC_POSTHOG_HOST`
+(default `https://us.i.posthog.com`) and `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`. These
+rewrites work transparently on Vercel — no extra config needed. More in
+[Logging & analytics](/backend/logging).
+
+## Image optimization domains
+
+`next/image` only optimizes images from hosts you allowlist. Spyro's
+`images.remotePatterns` covers the headless WordPress blog, Gravatar (author
+avatars), Unsplash, and Framer assets *(`next.config.ts:74–85`)*:
+
+```ts
+images: {
+  formats: ["image/avif", "image/webp"],
+  qualities: [75, 85],
+  remotePatterns: [
+    { protocol: "https", hostname: "framerusercontent.com" },
+    { protocol: "https", hostname: "images.unsplash.com" },
+    { protocol: "https", hostname: wordpressImageHost },   // from WORDPRESS_BASE_URL
+    { protocol: "https", hostname: "blog.spyro.app" },
+    { protocol: "https", hostname: "secure.gravatar.com" },
+    { protocol: "https", hostname: "*.gravatar.com" },
+  ],
+}
+```
+
+`wordpressImageHost` is derived from `WORDPRESS_BASE_URL` at config load, falling
+back to `blog.spyro.app` if the env var is missing or malformed *(`next.config.ts:4–10`)*.
+If you point the blog at a new host, set `WORDPRESS_BASE_URL` so its images optimize
+instead of 400-ing.
+
+## Function duration ceiling
+
+The Inngest serve route caps every step at 300 seconds — the Vercel **Hobby** limit
+*(`app/api/inngest/route.ts:14`)*:
+
+```ts
+// Per-invocation ceiling for every Inngest step served here. Capped at 300s —
+// the max allowed on Vercel's Hobby plan. ... (Raise to 800 only after upgrading
+// the Vercel project to Pro.)
+export const maxDuration = 300;
+```
+
+Long jobs are split into one `step.run` per phase so each phase is its own
+sub-300s invocation; Inngest re-invokes for the next step. Raise `maxDuration` to
+`800` only after upgrading the Vercel project to Pro. See
+[scaling notes](/deployment/production#scaling).
+
+## Environment variables in Vercel
+
+Set every variable from [the env reference](/reference/environment-variables) in
+**Project Settings → Environment Variables** (Production + Preview). The few that are
+Vercel-specific:
+
+- **`NEXT_PUBLIC_APP_URL`** — set this to your real public domain. If it is missing
+  or accidentally left pointing at `localhost` on a Vercel deploy, `lib/env.ts`
+  falls back to `VERCEL_PROJECT_PRODUCTION_URL` and logs a warning, because the value
+  feeds every canonical URL, `og:url`, checkout/portal/invite link, and the PDF
+  render origin *(`lib/env.ts:38–59`)*.
+- **`VERCEL_PROJECT_PRODUCTION_URL`** / **`VERCEL_URL`** / **`VERCEL`** — injected by
+  the platform; read as the localhost safety net (above) and as PDF-origin fallbacks.
+  You do not set these.
+- The **superadmin** subdomain (`superadmin.<your-domain>`) must be added as a domain
+  alias on the Vercel project for the panel to be reachable in production — see
+  [Middleware](/backend/middleware).
+
+## Related
+
+<CardGroup cols={2}>
+<Card title="Going live checklist" href="/deployment/environment" icon="list-check">
+Supabase, billing, Inngest, Resend, and keys — in order.
+</Card>
+<Card title="Production considerations" href="/deployment/production" icon="server">
+Crons, migrations, background-job fallback, monitoring, scaling.
+</Card>
+<Card title="Environment variables" href="/reference/environment-variables" icon="key">
+The complete table, grouped by service.
+</Card>
+<Card title="PDF engine" href="/backend/pdf-engine" icon="file-pdf">
+How Gotenberg renders the free-tool reports.
+</Card>
+</CardGroup>

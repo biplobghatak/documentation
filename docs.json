@@ -21,58 +21,71 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Developer Docs",
         "groups": [
           {
             "group": "Get Started",
             "pages": [
               "introduction",
-              "quickstart",
-              "account-setup"
+              "getting-started/installation",
+              "getting-started/project-structure",
+              "getting-started/architecture",
+              "getting-started/environment"
             ]
           },
           {
-            "group": "Core Concepts",
+            "group": "Frontend",
             "pages": [
-              "concepts/ai-citations",
-              "concepts/geo-optimization",
-              "concepts/topical-authority"
+              "frontend/overview",
+              "frontend/routing",
+              "frontend/components",
+              "frontend/ui-system",
+              "frontend/state-management",
+              "frontend/forms",
+              "frontend/performance",
+              "frontend/marketing-site"
             ]
           },
           {
-            "group": "Features",
+            "group": "Backend",
             "pages": [
-              "features/ai-citation-tracker",
-              "features/seo-audit",
-              "features/competitor-gap-analysis",
-              "features/keyword-tracker",
-              "features/content-engine",
-              "features/autopilot-publishing"
+              "backend/overview",
+              "backend/apis",
+              "backend/public-api",
+              "backend/database",
+              "backend/authentication",
+              "backend/authorization",
+              "backend/middleware",
+              "backend/services",
+              "backend/ai",
+              "backend/seo-engine",
+              "backend/geo-engine",
+              "backend/crawler",
+              "backend/audit",
+              "backend/content-engine",
+              "backend/background-jobs",
+              "backend/billing",
+              "backend/integrations",
+              "backend/free-tools",
+              "backend/pdf-engine",
+              "backend/security",
+              "backend/logging"
             ]
           },
           {
-            "group": "Integrations",
+            "group": "Deployment",
             "pages": [
-              "integrations/wordpress",
-              "integrations/shopify",
-              "integrations/webflow",
-              "integrations/google-search-console",
-              "integrations/api-webhooks"
+              "deployment/vercel",
+              "deployment/environment",
+              "deployment/production"
             ]
           },
           {
-            "group": "Account & Billing",
+            "group": "Reference",
             "pages": [
-              "account/workspaces",
-              "account/plans-billing",
-              "account/team-members"
-            ]
-          },
-          {
-            "group": "Help",
-            "pages": [
-              "help/faq",
-              "help/troubleshooting"
+              "reference/environment-variables",
+              "reference/folder-reference",
+              "reference/glossary"
             ]
           }
         ]

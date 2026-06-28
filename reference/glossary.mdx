@@ -1,0 +1,271 @@
+---
+title: "Glossary"
+description: "Definitions of the SEO, GEO/AEO, billing, and architecture terms used throughout Spyro — pulled from how the code and README actually use them."
+---
+
+The domain and architecture vocabulary used across the Spyro docs and codebase.
+Definitions reflect how each term is used **in the source**, not generic industry
+usage, and link to the page that covers it in depth.
+
+## Search & visibility
+
+<AccordionGroup>
+<Accordion title="SEO — Search Engine Optimization">
+Optimizing a site to **rank on Google's classic results** — the keyword, SERP,
+audit, and rank-tracking half of Spyro ("Rank on Google"). Powered by DataForSEO and
+`lib/seo`. See [SEO engine](/backend/seo-engine).
+</Accordion>
+
+<Accordion title="GEO — Generative Engine Optimization">
+Optimizing a site to **be cited by AI answer engines** (ChatGPT, Gemini, Claude,
+Perplexity) — the "Get cited by ChatGPT" half. Spyro measures GEO readiness and AI
+visibility in `lib/geo`. See [GEO engine](/backend/geo-engine).
+</Accordion>
+
+<Accordion title="AEO — Answer Engine Optimization">
+A near-synonym for GEO used in Spyro's positioning ("SEO + AI-visibility (GEO/AEO)").
+Both describe being surfaced in AI-generated answers rather than the ten blue links.
+</Accordion>
+
+<Accordion title="AI Overview">
+Google's AI-generated answer block at the top of a search result. Spyro tracks
+whether a site appears in it as a distinct signal. Internally `ai_overview` is one of
+the **citation-target engines**, queried through the SERP layer rather than the LLM
+layer (README "Architecture notes"). See [GEO engine](/backend/geo-engine).
+</Accordion>
+
+<Accordion title="Citation">
+A mention of (or link to) a site inside an AI engine's answer. A **citation check**
+queries an engine with a tracked prompt and records whether the site was cited.
+Because LLM output is non-deterministic, a check runs the same prompt **N times**
+(N from the plan) and stores a **frequency** ("cited in 2 of 2 runs"), never a
+boolean (README "LLM non-determinism is a product fact"). Stored in
+`citation_checks` / `citation_responses`. See [GEO engine](/backend/geo-engine).
+</Accordion>
+
+<Accordion title="Rank tracker">
+The feature that records a site's Google position for tracked keywords over time
+(`ranks`, `tracked_keywords`), refreshed by a scheduled Inngest job. See
+[SEO engine](/backend/seo-engine) and [Background jobs](/backend/background-jobs).
+</Accordion>
+
+<Accordion title="Keyword difficulty / search intent / cluster">
+Derived SEO metrics computed in `lib/seo`: **difficulty** estimates how hard a
+keyword is to rank for; **intent** classifies the searcher's goal; a **cluster** /
+**silo** groups related keywords/pages around one topic. See
+[SEO engine](/backend/seo-engine).
+</Accordion>
+
+<Accordion title="Topical authority / silo">
+The strategy of covering a topic comprehensively (a cluster of related articles, the
+"silo") so search and AI engines treat the site as authoritative on it. Drives blog
+ideation and the content plan in `lib/seo`. See [Content engine](/backend/content-engine).
+</Accordion>
+
+<Accordion title="CWV — Core Web Vitals">
+Google's page-experience field metrics (LCP, INP, CLS at the p75). Spyro reads them
+preferentially from the **CrUX** API (`CRUX_API_KEY`), falling back to PageSpeed
+Insights, as part of the site audit. See [Audit](/backend/audit).
+</Accordion>
+
+<Accordion title="AI Overview presence vs AI-referral traffic">
+Two different GEO signals: **presence** = whether the site shows up in an engine's
+answer (citation checks / AI Overview); **AI-referral traffic** = real visitors who
+arrived *from* an AI engine, classified from GA4 `sessionSource`
+(`lib/ga4`). See [Integrations](/backend/integrations).
+</Accordion>
+</AccordionGroup>
+
+## Engines, providers & AI
+
+<AccordionGroup>
+<Accordion title="LLM provider (lib/llm) vs citation-target engine (lib/engines)">
+A deliberate distinction in the architecture:
+
+- **LLM provider** (`lib/llm`) — the model Spyro *uses to do work* (write articles,
+  ideate, run the agent). Routed through **OpenRouter** (with Gemini/Moonshot/OpenAI
+  fallbacks).
+- **Citation-target engine** (`lib/engines`) — an AI the app *queries to see whether a
+  site is cited*. The `engine` column is a **free string** (engine-agnostic):
+  `ai_overview`, `gemini`, `chatgpt`, `perplexity`, `claude`.
+
+The same vendor (e.g. Gemini) can appear on both sides for different reasons. See
+[AI providers](/backend/ai).
+</Accordion>
+
+<Accordion title="LLM provider — OpenRouter (not Gemini-only)">
+**OpenRouter** is Spyro's primary chat provider — one key routes the writer,
+ideation, the agent, and all citation engines. The README's claim that Gemini is "the
+only LLM provider" is stale; `GOOGLE_GENAI_API_KEY` and `MOONSHOT_API_KEY` are
+fallbacks used only when `OPENROUTER_API_KEY` is unset (`lib/env.ts`). See
+[AI providers](/backend/ai).
+</Accordion>
+
+<Accordion title="RAG / embeddings">
+**Retrieval-Augmented Generation** — the Spyro agent answers using content retrieved
+from a site's own indexed pages rather than the model's memory. Pages are crawled,
+chunked, turned into **embeddings** (numeric vectors via OpenAI `text-embedding-3`),
+stored in pgvector (`site_indexes` / `site_chunks`), then retrieved by vector
+similarity and optionally **reranked** (Cohere via OpenRouter) before going into the
+LLM context. See [AI providers](/backend/ai).
+</Accordion>
+
+<Accordion title="DataForSEO">
+The single external provider for all SERP and keyword data, behind the `lib/serp`
+abstraction. It has **no mock fallback** — a missing key or failed request surfaces
+as a real error (README "Abstraction layers"). Spending can be capped per UTC day via
+`DATAFORSEO_DAILY_BUDGET_USD`. See [SEO engine](/backend/seo-engine).
+</Accordion>
+
+<Accordion title="Mock / sample data">
+Most integrations **degrade to a deterministic mock** when their key is absent so the
+product is clickable without credentials; such output is labelled **"sample data"** in
+the UI. There is **no fabricated data** elsewhere (real waitlist emails, real
+counts). DataForSEO is the exception — it never mocks. See
+[Production](/deployment/production#degrade-to-mock-behavior).
+</Accordion>
+
+<Accordion title="Gotenberg">
+A self-hosted headless-Chrome service (on Railway) that renders the free-tool report
+HTML pages to PDF, so no browser binary ships in the Vercel bundle. Configured via
+`GOTENBERG_URL` (+ optional auth). See [PDF engine](/backend/pdf-engine).
+</Accordion>
+</AccordionGroup>
+
+## Tenancy & access
+
+<AccordionGroup>
+<Accordion title="Organization vs workspace">
+The two-level tenancy model. An **organization** is the billing + membership boundary
+(an account, possibly a team). A **workspace** is a single tracked site inside an org
+(its own crawl, audits, keywords, ranks, content). URLs are scoped
+`/[org]/[workspace]/…`. Org members may hold roles (owner/admin/manager), and a
+workspace can have direct members too. See [Authorization](/backend/authorization).
+</Accordion>
+
+<Accordion title="RLS — Row-Level Security">
+Postgres policies that restrict which rows a query can see. Spyro's RLS is
+**membership-driven** (org/workspace membership via security-definer helpers
+`org_role()` / `has_workspace_access()`), defined in `drizzle/rls.sql` +
+`drizzle/rls_site_chunks.sql` and run by hand in Supabase. It is **defence-in-depth**:
+the app's own service-role connection *bypasses* RLS, so policies guard only paths
+that use the anon/auth key. See [Authorization](/backend/authorization).
+</Accordion>
+
+<Accordion title="Superadmin / impersonation">
+A separate operator panel (`/superadmin`, or `superadmin.<domain>` in prod) with its
+own **env-only** credentials, TOTP 2FA, and optional IP allowlist — invisible (404s)
+unless fully configured. **Impersonation** lets an operator act as a user for
+support, recorded in an audit log. See [Middleware](/backend/middleware).
+</Accordion>
+</AccordionGroup>
+
+## Billing
+
+<AccordionGroup>
+<Accordion title="Plan (Pro / Agency)">
+The subscription tiers, defined in `lib/plans.ts` and sold through **Dodo Payments**:
+**Pro** ($99/mo flat, 1–2 sites) and **Agency** (per-site pricing with volume
+discounts). The README's Starter/$14/$39/$69 tiers are stale. Limits live in
+`PLANS`/`lib/plans.ts` — never hardcoded in components. See [Billing](/backend/billing).
+</Accordion>
+
+<Accordion title="Trial">
+A new profile gets a **7-day trial with Pro-tier access** (`lib/profile.ts`). Checkout
+opens a Dodo-managed trial and requires a card on file; when it ends with no active
+subscription, the account drops to the base limits plus an upgrade nudge. See
+[Billing](/backend/billing).
+</Accordion>
+
+<Accordion title="Credit pack">
+A one-time purchase that tops up metered credits (e.g. for the AI blog writer),
+defined in `CREDIT_PACKS` (`lib/plans.ts`). Usage is metered per calendar month in
+`usage_counters` (`lib/usage.ts`). See [Billing](/backend/billing).
+</Accordion>
+
+<Accordion title="Merchant of Record (MoR)">
+A billing provider that is the legal seller and handles tax/VAT on your behalf — Dodo
+plays this role for Spyro. See [Billing](/backend/billing).
+</Accordion>
+</AccordionGroup>
+
+## Architecture & background work
+
+<AccordionGroup>
+<Accordion title="Inngest">
+The durable background-job + cron platform. **Long work = Inngest, never request
+handlers** — crawls, citation/rank/AI-Overview checks, blog generation, and digests
+run as functions in `lib/inngest/fns/*`; request handlers enqueue and the UI polls a
+status row. Locally `pnpm inngest:dev`; in production, Inngest Cloud. See
+[Background jobs](/backend/background-jobs).
+</Accordion>
+
+<Accordion title="Dispatcher / fan-out">
+The pattern that replaced global weekly UTC crons: an **hourly dispatcher** lists all
+workspaces, filters to those whose **local** clock matches the job's fire time, and
+emits one per-workspace event — so each workspace runs its weekly jobs on its own
+Monday. Idempotency comes from event IDs keyed on `<jobKey>:<workspaceId>:<isoWeek>`
+(`lib/inngest/fns/dispatcher.ts`). See [Background jobs](/backend/background-jobs).
+</Accordion>
+
+<Accordion title="Inline fallback">
+When Inngest is unreachable, certain on-demand server actions run a **capped inline
+version** of the job so the user still gets a result (mostly a dev/demo convenience) —
+e.g. `lib/actions/audit.ts`. Fire-and-forget emits instead swallow failures because a
+daily safety-sweep cron re-indexes any missed delta. See
+[Production](/deployment/production#background-job-reliability-and-inline-fallback).
+</Accordion>
+
+<Accordion title="Abstraction layer">
+The rule that feature code never imports a vendor SDK directly: it goes through an
+interface (`lib/serp`, `lib/llm`, `lib/engines`) so providers can be swapped without
+touching feature code (README "Abstraction layers"). See [Backend overview](/backend/overview).
+</Accordion>
+
+<Accordion title="Server Components / Server Actions">
+Next.js App Router primitives Spyro relies on: **React Server Components** render on
+the server by default; **Server Actions** (`lib/actions/*`) are server functions
+called from forms/UI to mutate data or enqueue jobs. See [Frontend overview](/frontend/overview).
+</Accordion>
+</AccordionGroup>
+
+## Crawling & security
+
+<AccordionGroup>
+<Accordion title="Crawler / robots / sitemap">
+The audit crawler (`lib/crawler`) fetches a site's pages — respecting `robots.txt`,
+following the `sitemap.xml`, and obeying plan-gated page caps — using Cheerio by
+default and an optional **crawl4ai** server (`CRAWL4AI_API_URL`) to render JS-heavy
+pages. See [Crawler](/backend/crawler).
+</Accordion>
+
+<Accordion title="SSRF — Server-Side Request Forgery">
+The risk that a user-supplied URL (audit target, free-tool input) tricks the server
+into fetching an internal/forbidden address. Because Spyro fetches arbitrary
+user-provided URLs in the crawler and free tools, fetches are validated/guarded against
+SSRF. See [Security](/backend/security).
+</Accordion>
+
+<Accordion title="AI crawler / bot access">
+Whether AI engines' crawlers (e.g. GPTBot, ClaudeBot, PerplexityBot) are *allowed* to
+read a site — a GEO-readiness factor checked by the audit and the **AI Crawler &
+Robots Checker** free tool. See [Audit](/backend/audit) and [Free tools](/backend/free-tools).
+</Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+<Card title="Architecture" href="/getting-started/architecture" icon="sitemap">
+How these concepts connect into one system.
+</Card>
+<Card title="Folder reference" href="/reference/folder-reference" icon="folder-tree">
+Where each term's code lives.
+</Card>
+<Card title="SEO engine" href="/backend/seo-engine" icon="magnifying-glass">
+SEO, keywords, ranks, clusters.
+</Card>
+<Card title="GEO engine" href="/backend/geo-engine" icon="robot">
+GEO/AEO, citations, AI visibility.
+</Card>
+</CardGroup>

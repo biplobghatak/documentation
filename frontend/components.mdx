@@ -1,0 +1,235 @@
+---
+title: "Components"
+description: "Spyro's component catalogue by area — the ui/ design-system primitives and the major app, marketing, shared and admin feature components, with real prop types."
+---
+
+The `components/` directory holds ~228 components split into six areas. This page documents them by
+area: what each area is for, the full list of design-system primitives, and the important feature
+components with their **purpose**, **key props**, and **where they're used**. A few prop types are
+copied verbatim from source.
+
+```
+components/
+  ui/         design-system primitives (Base UI + Radix, shadcn-style)  — 23 files
+  app/        the authenticated product (agent, writer, calendar, …)    — ~128 files
+  marketing/  the public site (landing, blog, pricing, affiliate)       — ~63 files
+  shared/     cross-surface bits (logo)                                  — 1 file
+  admin/      superadmin panel (login, impersonation, charts)           — 11 files
+  contact/    contact form + spinner                                    — 2 files
+```
+
+## `ui/` — design-system primitives
+
+These are the low-level building blocks. They wrap headless primitives from **Base UI**
+(`@base-ui/react`) — and Radix for the tooltip — and add Tailwind classes via
+`class-variance-authority`. Most are client components (15 of the 22 `.tsx` files declare
+`"use client"`); purely presentational wrappers — `button.tsx`, `badge.tsx`, `card.tsx`,
+`input.tsx`, `textarea.tsx`, `skeleton.tsx`, `hugeicons.tsx` — render a client primitive but stay
+Server Components themselves. See [UI system](/frontend/ui-system) for the styling details.
+
+<CodeGroup>
+```text Full ui/ list
+alert-dialog.tsx   avatar.tsx     badge.tsx      button.tsx
+card.tsx           dialog.tsx     dropdown-menu.tsx
+hugeicons.tsx      input.tsx      label.tsx      popover.tsx
+progress.tsx       select.tsx     separator.tsx  sheet.tsx
+skeleton.tsx       switch.tsx     table.tsx      tabs.tsx
+textarea.tsx       tooltip.tsx    sonner.tsx     use-backdrop-scroll-block.ts
+```
+</CodeGroup>
+
+A few notes on individual files:
+
+- **`button.tsx`** wraps `@base-ui/react/button` and exposes `variant`
+  (`default | outline | secondary | ghost | destructive | link`) and `size`
+  (`default | xs | sm | lg | icon | icon-xs | icon-sm | icon-lg`) via `cva`. It supports an
+  `asChild` prop (Radix-style) to render a child element (e.g. a `<Link>`) as the button.
+- **`sonner.tsx`** wraps the Sonner `<Toaster>`, reads `useTheme()` to pick light/dark toast tints,
+  and supplies Tabler icons for each toast level.
+- **`hugeicons.tsx`** is **not** an icon-library import — it is a file of hand-written brand SVG
+  logos (`ChatGptIcon`, `PerplexityAiIcon`, …) typed as `HugeiconType`.
+- **`use-backdrop-scroll-block.ts`** is a colocated hook (not a component) — see
+  [State management](/frontend/state-management#custom-hooks).
+
+## `app/` — the authenticated product
+
+The largest area. These client components implement the product features behind the `(app)` shell.
+Major feature folders:
+
+### Agent (`components/app/agent/`)
+
+The Spyro AI chat agent — a streaming assistant that can call tools (audit, keywords, calendar).
+Files include `agent-chat.tsx`, `agent-markdown.tsx`, `chat-parts.tsx`, `chat-history.tsx`,
+`tool-result.tsx`, `suggested-prompts.tsx`, and an `answer/` subfolder. The core component:
+
+**`AgentChat`** (`components/app/agent/agent-chat.tsx:40`) — the main chat interface. Uses the
+Vercel AI SDK `useChat` hook with a `DefaultChatTransport`. Props (verbatim, `agent-chat.tsx:12`):
+
+```tsx
+interface AgentChatProps {
+  /** Active workspace this thread is bound to (server-resolved + ownership-checked). */
+  workspaceId?: string;
+  /** Active thread id. Persisted turns are written here; switching threads
+   *  remounts this component (keyed by id) with that thread's messages. */
+  conversationId?: string;
+  country?: string;
+  /** Persisted thread for this workspace, server-rendered for instant rehydrate. */
+  initialMessages?: UIMessage[];
+  /** Snapshot-derived prompt tailoring (shown only on an empty thread). Falls
+   *  back to generic discovery prompts when omitted (e.g. onboarding). */
+  promptCtx?: PromptContext;
+  /** Optional opening user-visible message that auto-fires once on mount. */
+  initialPrompt?: string;
+  /** Fired once when a tool call settles (state `output-available`), with the
+   *  tool name. Used by the Calendar panel to refresh after a mutation. */
+  onToolSettled?: (toolName: string) => void;
+}
+```
+
+Used in `app/(app)/[org]/[workspace]/spyro-ai-agent/` and the onboarding flow. The agent's
+server side lives in [AI / agents](/backend/ai).
+
+### Writer (`components/app/writer/`)
+
+The AI article writer — a TipTap editor plus scoring panel. Files: `article-editor.tsx`,
+`article-workspace.tsx`, `blog-panels.tsx`, `reader-top-bar.tsx`, `score-gauge.tsx`,
+`score-panel.tsx`, `slash-command.tsx`, `writer-poller.tsx`.
+
+**`ArticleEditor`** (`components/app/writer/article-editor.tsx:42`) — a TipTap (ProseMirror) markdown
+editor with a toolbar, selection bubble menu and slash commands. Props (verbatim):
+
+```tsx
+export function ArticleEditor({
+  initialMarkdown,
+  onChange,
+}: {
+  // seeded once at mount — TipTap owns the content thereafter
+  initialMarkdown: string;
+  onChange: (md: string) => void;
+})
+```
+
+Note `immediatelyRender: false` in its `useEditor` call — required for TipTap under Next.js SSR.
+Editor typography is styled by the `.article-prose` rules in `app/globals.css`. Used in
+`app/(app)/[org]/[workspace]/writer/`. The drafting/scoring backend is the
+[Content engine](/backend/content-engine).
+
+### Calendar (`components/app/calendar/`)
+
+The content-planning board with drag-and-drop scheduling (built on `@dnd-kit`). Files:
+`calendar-board.tsx`, `calendar-dnd.tsx`, `candidate-card.tsx`, `candidate-rail.tsx`,
+`planner-context.tsx`, `planner-panel.tsx`.
+
+**`CalendarBoard`** (`components/app/calendar/calendar-board.tsx:23`) — the client wrapper that
+bridges live drag-and-drop state into the grid. Props (verbatim):
+
+```tsx
+export interface CalendarBoardProps {
+  entriesByDate: Record<string, CalendarEntry[]>;
+  cells: (number | null)[];
+  dateKeyFor: Record<number, string>;
+  firstWeekday: number;
+  todayKey: string;
+  basePath: string;
+  blogsRemaining: number;
+  resetDate: string;
+  workspaceId: string;
+}
+```
+
+The board's own comment explains the `"use client"` boundary: a Server Component can't pass a
+render-prop child to a Client Component, so the page passes only serializable props and the
+composition happens here. `planner-context.tsx` provides `PlannerProvider` / `usePlanner` — see
+[State management](/frontend/state-management#react-context).
+
+### Onboarding (`components/app/onboarding/`)
+
+The multi-step setup wizard. Files: `onboarding-wizard.tsx`, `onboarding-progress.tsx`, and one
+section component per step — `business-profile-section.tsx`, `audience-section.tsx`,
+`competitors-section.tsx`, `blog-setup-section.tsx`, `article-style-section.tsx`,
+`integration-section.tsx`, `prompts-section.tsx`, `find-us-section.tsx`,
+`setup-assistance-section.tsx`, `custom-style-card.tsx`, `settings-sections.tsx`.
+
+The section components are **pure controlled inputs** — they take a `value` and an `onChange` that
+merges a partial patch, so the same component serves both onboarding and Settings. Example
+(`business-profile-section.tsx:26`, verbatim):
+
+```tsx
+export function BusinessProfileSection({
+  value,
+  onChange,
+  disabled,
+  domain,
+}: {
+  value: BusinessProfileValue;
+  onChange: (patch: Partial<BusinessProfileValue>) => void;
+  disabled?: boolean;
+  domain?: string;
+})
+```
+
+### Audit and analytics (`components/app/` root + `audit/`)
+
+Audit UI: `audit-pages-table.tsx`, `audit-running-banner.tsx`, `issue-list.tsx`,
+`start-audit-button.tsx`, and `audit/fix-text.tsx` (renders an issue's "how to fix" markdown).
+Analytics surfaces are a large family of chart components: `gsc-*` (Google Search Console),
+`ga4-*` (GA4), `dashboard-charts.tsx`, `citation-trend-chart.tsx`, `share-of-voice-chart.tsx`,
+`visibility-report-chart.tsx` — all built on **Recharts**. The audit/SEO/GEO backends are the
+[Audit](/backend/audit), [SEO engine](/backend/seo-engine) and [GEO engine](/backend/geo-engine).
+
+### The app shell
+
+**`AppShell`** (`components/app/app-shell.tsx`) is the chrome for every workspace page — collapsible
+sidebar, org/workspace switchers, user-avatar menu, top-bar crawl progress, and a `banner` slot
+(used for the trial banner). Props (verbatim, `app-shell.tsx:48`):
+
+```tsx
+interface AppShellProps {
+  email: string;
+  avatarUrl?: string;
+  planLabel: string;
+  orgSlug: string;
+  orgs: OrgOpt[];
+  workspaceSlug: string;
+  workspaceId: string;
+  workspaces: WsOpt[];
+  canManageOrg: boolean;
+  banner?: React.ReactNode;
+  children: React.ReactNode;
+}
+```
+
+It is rendered by `app/(app)/[org]/[workspace]/layout.tsx`, which supplies these props from the
+authenticated session.
+
+## `marketing/` — the public site
+
+Landing, blog, pricing and affiliate components. The landing page is assembled from `alytics-*`
+sections (`alytics-homepage.tsx`, `alytics-hero.tsx`, `alytics-features.tsx`, `alytics-pricing.tsx`,
+`alytics-faq.tsx`, `alytics-footer.tsx`, …). Shared chrome: `marketing-shell.tsx` (wraps every
+marketing/home page), `site-header.tsx`, `spyro-nav.tsx`, `mobile-menu.tsx`, `force-light.tsx` /
+`force-dark.tsx`. Pricing: `pricing-table.tsx`, `pricing-section.tsx`. The `free-tools-hub.tsx`
+renders the free-tools landing. The `blog/` subfolder holds the headless-WordPress UI:
+`blog-archive.tsx`, `blog-post-card.tsx`, `blog-pagination.tsx`, `blog-category-nav.tsx`,
+`blog-toc.tsx`, `blog-trending.tsx`, `blog-author.tsx`, `blog-cta-card.tsx`, `blog-image.tsx`,
+`blog-newsletter.tsx` (covered in [Marketing site](/frontend/marketing-site)). The `affiliate/`
+subfolder holds the affiliate program UI including a live earnings calculator.
+
+## `shared/`, `admin/`, `contact/`
+
+- **`shared/logo.tsx`** — the Spyro brand logo, used by both the app shell and marketing header.
+- **`admin/`** — the superadmin panel UI: `login-form.tsx` (username + password + 6-digit TOTP,
+  posts to `/api/admin/login`), `admin-nav.tsx`, `admin-logout.tsx`, `impersonate-button.tsx`,
+  `impersonation-banner.tsx`, and a `charts/` subfolder (`billing-donut.tsx`, `cost-bars.tsx`,
+  `plan-donut.tsx`, `signup-trend.tsx`, `usage-summary.tsx`). See [Middleware](/backend/middleware).
+- **`contact/`** — `contact-form.tsx` (the React Hook Form + Zod support form, documented in
+  [Forms](/frontend/forms)) and `spinner.tsx`.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="UI system" href="/frontend/ui-system">How the `ui/` primitives are styled and tokenized.</Card>
+  <Card title="State management" href="/frontend/state-management">The hooks and contexts these components use.</Card>
+  <Card title="Forms" href="/frontend/forms">The form components and their validation.</Card>
+  <Card title="Marketing site" href="/frontend/marketing-site">The marketing and blog components in context.</Card>
+</CardGroup>

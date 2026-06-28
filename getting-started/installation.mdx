@@ -1,0 +1,119 @@
+---
+title: "Installation"
+description: "Clone Spyro, install dependencies with pnpm, set up Supabase Postgres and RLS, and run the dev and Inngest servers."
+---
+
+This guide takes you from a fresh clone to a running local dev server. Spyro is designed so that the app **boots without most third-party keys** — most integrations degrade to a deterministic mock. The two exceptions are DataForSEO (SERP/keyword data) and the LLM layer, which throw real errors when unconfigured rather than masking missing data.
+
+## Prerequisites
+
+<Note>
+  Spyro uses **pnpm**, not npm. The repo ships a `pnpm-lock.yaml` and an `.npmrc` that pins `node-linker=hoisted` — a flat, symlink-free `node_modules` that Vercel needs so native modules like `sharp` are traced correctly. The README's `npm install` examples predate the pnpm switch; use `pnpm`.
+</Note>
+
+- **Node.js `>=22.17.0`** — enforced by `engines.node` in `package.json:5`.
+- **pnpm** — `corepack enable` (bundled with Node) is the simplest way to get it.
+- **A Supabase project** — for Postgres + Auth. You need the project URL, an anon/publishable key, the service-role key, and the Postgres connection string. The app renders without these, but nothing signed-in works until they are set.
+- (Optional) **DataForSEO credentials** — to use any keyword/SERP feature.
+
+## Set up
+
+<Steps>
+  <Step title="Clone and install">
+    ```bash
+    git clone <your-fork-url> spyro
+    cd spyro
+    pnpm install
+    ```
+    The `pnpm.overrides.sharp` and `supportedArchitectures` blocks in `package.json:8` pin a single `sharp` version across architectures so the Vercel build can trace its native `libvips` binaries.
+  </Step>
+
+  <Step title="Create your env file">
+    ```bash
+    cp .env.local.example .env.local
+    ```
+    Open `.env.local` and fill in at least the Supabase block. `.env.local` is gitignored and must never be committed. See [Environment](/getting-started/environment) for how configuration works and [the full variable reference](/reference/environment-variables) for every key.
+  </Step>
+
+  <Step title="Push the database schema">
+    ```bash
+    pnpm db:push
+    ```
+    This uses Drizzle Kit to create every table from `lib/db/schema.ts` directly in your Supabase Postgres. The config that wires this up is `drizzle.config.ts`, which loads `.env.local` and reads `DATABASE_URL`.
+  </Step>
+
+  <Step title="Apply Row-Level Security">
+    In the **Supabase SQL editor**, run the contents of `drizzle/rls.sql`. This enables Postgres RLS (the `user_id = auth.uid()` policies that scope every row to its owner) and installs the `auth.users` → `profiles` trigger that creates a profile row on signup.
+
+    <Warning>
+      RLS is defence-in-depth. The server-side Drizzle connection uses the service role and **bypasses RLS** (`lib/db/index.ts`), so it must only ever be imported from server code and jobs — never shipped to the client. RLS protects any path that uses the user's own Supabase session.
+    </Warning>
+  </Step>
+
+  <Step title="Run the dev server">
+    ```bash
+    pnpm dev
+    ```
+    The app is at [http://localhost:3000](http://localhost:3000).
+  </Step>
+
+  <Step title="(Optional) Run Inngest for background jobs">
+    In a second terminal:
+    ```bash
+    pnpm inngest:dev
+    ```
+    This starts the local Inngest dev server, which auto-discovers the functions served at `/api/inngest` (`app/api/inngest/route.ts`). With it running, crawls, citation checks, blog generation, and cron jobs fire locally. Without it, on-demand actions fall back to a small capped inline run; scheduled crons do not fire. No Inngest keys are needed in dev — leave `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` blank and the SDK connects to `localhost:8288`.
+  </Step>
+</Steps>
+
+## What runs without keys (verified against code)
+
+The README says "most external integrations degrade to a deterministic mock." That is broadly true, but the real behavior is a **split** — verified against the provider entry points:
+
+| Provider | Missing key behavior | Source |
+| --- | --- | --- |
+| DataForSEO (SERP/keywords) | **Throws** — no mock. Keyword research, SERP analysis, AI Overview, rank tracking error out. | `getSerpProvider()` in `lib/serp/index.ts:20` |
+| LLM (writer, ideation, parsing) | **Throws** — no mock. Provider order is OpenRouter → OpenAI → Gemini; with none set, `getLLM()` throws. | `getLLM()` in `lib/llm/index.ts:19` |
+| Citation engines (ChatGPT / Claude / Perplexity / Gemini) | Engine is simply **omitted** when its key is absent; the `ai_overview` engine carries a `mocked` flag from the SERP layer. | `lib/engines/index.ts` |
+| Spyro chat agent | Has a **keyless demo mock**: Moonshot → OpenAI → mock. | `featureFlags.agentLive` in `lib/env.ts:196` |
+| Dodo billing, Resend email, GSC/GA4 OAuth, MailerLite, etc. | Feature **gates off** (button hidden / no-op), app keeps running. | `featureFlags` in `lib/env.ts:189` |
+
+<Tip>
+  For a genuinely working core flow (signup → onboarding → keyword research → audit → tracking → writer) set the four blocks called out at the top of `.env.local.example`: **Supabase**, **DataForSEO**, **OpenRouter**, and **OpenAI** (embeddings only), then run `pnpm inngest:dev`.
+</Tip>
+
+## npm scripts
+
+Every script from `package.json:17` and what it does:
+
+| Script | Command | Purpose |
+| --- | --- | --- |
+| `pnpm dev` | `next dev` | Start the dev server. |
+| `pnpm dev:fresh` | `rimraf .next && next dev` | Clear the build cache, then start dev. |
+| `pnpm clean` | `rimraf .next` | Delete the `.next` build cache. |
+| `pnpm build` | `next build` | Production build. |
+| `pnpm start` | `next start` | Serve a production build. |
+| `pnpm lint` | `eslint` | Lint (Next core-web-vitals + TS config; see `eslint.config.mjs`). |
+| `pnpm typecheck` | `tsc --noEmit` | Strict type-check with no emit. |
+| `pnpm test` | `vitest run` | Run the test suite once (`vitest.config.ts`). |
+| `pnpm test:watch` | `vitest` | Run tests in watch mode. |
+| `pnpm db:generate` | `drizzle-kit generate` | Generate a migration from `lib/db/schema.ts`. |
+| `pnpm db:migrate` | `drizzle-kit migrate` | Apply generated migrations. |
+| `pnpm db:push` | `drizzle-kit push` | Push the schema straight to the DB (dev). |
+| `pnpm db:studio` | `drizzle-kit studio` | Open Drizzle Studio. |
+| `pnpm inngest:dev` | `npx --yes inngest-cli@latest dev` | Local Inngest dev server. |
+| `pnpm inngest:check` | `tsx scripts/check-inngest.ts` | Sanity-check the Inngest setup (e.g. against an ngrok URL). |
+| `pnpm email:test` | `tsx scripts/send-test-emails.ts` | Send test emails (Resend). |
+| `pnpm blog` | `tsx scripts/write-blog.ts` | Run the blog writer from the CLI. |
+
+<Note>
+  `tsconfig.json` excludes `scripts/`, so the script entries run through `tsx` with their own `scripts/tsconfig.json`.
+</Note>
+
+## Related
+
+- [Project structure](/getting-started/project-structure)
+- [Architecture](/getting-started/architecture)
+- [Environment](/getting-started/environment) · [Environment variables reference](/reference/environment-variables)
+- [Database schema and RLS](/backend/database) · [Background jobs](/backend/background-jobs)
+- [Deployment on Vercel](/deployment/vercel)
