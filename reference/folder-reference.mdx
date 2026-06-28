@@ -1,0 +1,197 @@
+---
+title: "Folder reference"
+description: "A complete, navigable map of the Spyro repository — every top-level area, the App Router route groups, the lib/* business-logic modules, components, database files, and supporting folders, each with a one-line description and deep-dive links."
+---
+
+A folder-by-folder tour of the Spyro repo. Use it to find where a feature lives and
+to jump to the doc that explains it. Paths are relative to the repository root.
+
+<Tip>
+The deepest logic lives under `lib/*` (vendor-agnostic business modules) and `app/*`
+(the App Router UI + route handlers). Most `lib/*` modules have a dedicated backend
+doc — follow the links.
+</Tip>
+
+## Top level
+
+| Path | What it is |
+| --- | --- |
+| `app/` | Next.js App Router — all pages, layouts, and route handlers. |
+| `lib/` | Vendor-agnostic business logic (the "services" layer). |
+| `components/` | React components, grouped by area (`ui`, `marketing`, `app`, `shared`, `admin`). |
+| `drizzle/` | Generated SQL migrations + the hand-run RLS scripts. |
+| `scripts/` | One-off `tsx` maintenance / inspection scripts. |
+| `public/` | Static assets (logos, marketing images, favicons). |
+| `reference/` | Original product planning docs (`nichespy-v3-plan.md`). |
+| `wordpress/` | WordPress `mu-plugins` (REST avatar shim for the headless blog). |
+| `wordpress-plugin/` | The **Spyro Autopilot** WP plugin (auto-publishes generated posts). |
+| `next.config.ts` | Next config — native modules, image hosts, PostHog rewrite ([Vercel](/deployment/vercel)). |
+| `drizzle.config.ts` | Drizzle Kit config (schema path, dialect, `DATABASE_URL`). |
+| `vercel.json` | Schema-only stub — no build/route/cron config. |
+| `.npmrc` / `pnpm-workspace.yaml` | `node-linker=hoisted` + pnpm build allowlist (native-module hoisting). |
+| `.env.local.example` | Template for every env var ([reference](/reference/environment-variables)). |
+
+## `app/` — App Router
+
+Route groups in parentheses don't add URL segments; they scope layouts. See
+[Routing](/frontend/routing).
+
+### Marketing, auth, and home
+
+| Path | What it is |
+| --- | --- |
+| `app/(home)/` | Public landing root. |
+| `app/(marketing)/` | Landing, `pricing`, `about`, `affiliates`, `contact`, `privacy`, `terms`. See [Marketing site](/frontend/marketing-site). |
+| `app/(marketing)/blog/` | Headless-WordPress blog: `[slug]`, `category/[slug]`, `tag/[slug]`, paginated `page/[page]`. |
+| `app/(marketing)/free-tools/` | The 5 public tools: `ai-crawler-robots-checker`, `ai-visibility-checker`, `meta-snippet-preview`, `schema-markup-validator`, `seo-geo-audit`. See [Free tools](/backend/free-tools). |
+| `app/(auth)/` | `login`, `signup`, `reset` (+ `reset/update`), `verify` — Supabase Auth. See [Authentication](/backend/authentication). |
+
+### The authed app
+
+| Path | What it is |
+| --- | --- |
+| `app/(app)/[org]/(dashboard)/` | Org-level dashboard: `settings` (`billing`/`general`/`members`), `usage`. |
+| `app/(app)/[org]/[workspace]/` | The per-workspace product surface (see below). |
+| `app/(app)/[org]/onboarding/` | Org onboarding (`new`). |
+| `app/(app)/onboarding`, `checkout`, `no-workspace`, `dashboard` | Top-level app entry/checkout/empty states. |
+
+Inside `app/(app)/[org]/[workspace]/`: `audit` (+ `p/[pageId]` page audit), `ranks`,
+`prompts/[id]` (AI prompt tracker), `ai-mentions/[id]`, `competitors`, `writer/[id]`
+(+ `docx`/`html` export), `article-planner`, `calendar`, `spyro-ai-agent`, `gsc`,
+`ga4`, and a large `settings/*` tree (api, billing, integrations, text/image
+generation, audience, competitors, team-members, …). See
+[Routing](/frontend/routing) and [Components](/frontend/components).
+
+### Superadmin
+
+| Path | What it is |
+| --- | --- |
+| `app/superadmin/login/` | Dedicated superadmin login (separate from user `/login`). |
+| `app/superadmin/(panel)/` | Panels: `orgs`, `users`, `workspaces`, `usage`, `billing`, `cost`, `audit-log`. Gated by env-only credentials + IP allowlist. See [Middleware](/backend/middleware). |
+
+### Report render pages (for PDF)
+
+`app/pdf-report`, `app/ai-readiness-report`, `app/ai-crawler-report`,
+`app/meta-snippet-report`, `app/schema-report`, `app/hero-preview` — public HTML pages
+Gotenberg fetches and prints to PDF. See [PDF engine](/backend/pdf-engine).
+
+### `app/api/` — route handlers
+
+| Path | What it is |
+| --- | --- |
+| `app/api/inngest/` | The Inngest serve endpoint (whole function registry). See [Background jobs](/backend/background-jobs). |
+| `app/api/webhooks/dodo/` | **Dodo Payments** webhook (billing events). See [Billing](/backend/billing). |
+| `app/api/checkout`, `portal`, `subscription/*` | Checkout, customer portal, subscription status/update. |
+| `app/api/v1/` | The **external** public API: `integrations/register`, `integrations/[id]/heartbeat`, `ping`. See [Public API](/backend/public-api). |
+| `app/api/audit/*` | Audit lifecycle, `[auditId]/pdf`, `suggest-fix`, `ask`. See [Audit](/backend/audit). |
+| `app/api/free-audit`, `ai-visibility`, `ai-crawler-check`, `meta-snippet`, `schema-validator` | Free-tool APIs (each with a `/pdf` sub-route). See [Free tools](/backend/free-tools). |
+| `app/api/gsc/*`, `app/api/ga4/*` | OAuth connect/callback/select-property/disconnect. See [Integrations](/backend/integrations). |
+| `app/api/admin/*` | Superadmin login/logout + impersonate/end-impersonate. See [Middleware](/backend/middleware). |
+| `app/api/onboarding/*`, `site-index/*`, `content-plan/*`, `blog-post/*`, `agent`, `site-brand` | Internal feature endpoints. See [APIs](/backend/apis). |
+| `app/auth/callback`, `app/auth/signout`, `app/invite/[token]` | Supabase auth callback, sign-out, workspace invites. |
+
+## `lib/` — business logic
+
+The vendor-agnostic services layer; feature code never imports a vendor SDK directly.
+
+### Platform & data
+
+| Path | What it is | Deep dive |
+| --- | --- | --- |
+| `lib/env.ts` | Central env access + `featureFlags`. | [Env vars](/reference/environment-variables) |
+| `lib/db/` | Drizzle schema, client, relations. | [Database](/backend/database) |
+| `lib/supabase/` | Supabase server/browser/client helpers. | [Authentication](/backend/authentication) |
+| `lib/auth/` | Auth guards, session/role helpers. | [Authorization](/backend/authorization) |
+| `lib/api/` | Public-API key + request helpers. | [Public API](/backend/public-api) |
+| `lib/admin/` | Superadmin logic (impersonation, panels). | [Middleware](/backend/middleware) |
+| `lib/actions/` | Server actions (enqueue jobs, mutate data, inline fallbacks). | [APIs](/backend/apis) |
+| `lib/scheduling/` | Per-workspace local-time job schedule (`job-schedule.ts`). | [Background jobs](/backend/background-jobs) |
+
+### Engines & intelligence
+
+| Path | What it is | Deep dive |
+| --- | --- | --- |
+| `lib/serp/`, `lib/dataforseo/`, `lib/keyword-data/` | SERP/keyword provider abstraction over DataForSEO. | [SEO engine](/backend/seo-engine) |
+| `lib/seo/` (+ `content-plan/`) | Difficulty, intent, clusters, issues, ideas, content plan. | [SEO engine](/backend/seo-engine) |
+| `lib/geo/` | AI visibility / GEO readiness scoring. | [GEO engine](/backend/geo-engine) |
+| `lib/engines/` | Citation-target engines (ChatGPT/Claude/Gemini/Perplexity/AI-Overview). | [AI providers](/backend/ai) |
+| `lib/citations/` | Citation check runs + frequency storage. | [GEO engine](/backend/geo-engine) |
+| `lib/llm/` | LLM provider abstraction (OpenRouter + fallbacks + mock). | [AI providers](/backend/ai) |
+| `lib/agent/` | The Spyro chat agent + its tools (`spyro-tools.ts`). | [AI providers](/backend/ai) |
+| `lib/embed/`, `lib/vector/`, `lib/rerank/` | RAG embeddings, pgvector search, Cohere rerank. | [AI providers](/backend/ai) |
+| `lib/crawler/`, `lib/site-intel/`, `lib/discovery/` | Crawl flow, robots/sitemap, site intelligence, URL discovery. | [Crawler](/backend/crawler) |
+| `lib/audit/` | Site/page audit, CWV, bot access, AI fix suggestions. | [Audit](/backend/audit) |
+| `lib/brand/` | Brand/palette extraction from crawled pages. | [Crawler](/backend/crawler) |
+| `lib/research/`, `lib/writer/` | Live web research + the AI blog writer pipeline. | [Content engine](/backend/content-engine) |
+| `lib/publish/` (+ `render/`) | Publish to WordPress/Notion + content rendering. | [Content engine](/backend/content-engine) |
+| `lib/images/` | Featured / in-content image generation (sharp pipeline). | [Content engine](/backend/content-engine) |
+| `lib/calendar/`, `lib/onboarding/`, `lib/competitors/` | Content calendar, onboarding, competitor analysis. | [APIs](/backend/apis) |
+| `lib/tracking/`, `lib/url/` | Rank/URL tracking helpers. | [SEO engine](/backend/seo-engine) |
+| `lib/ahrefs/` | Ahrefs-style metric helpers. | [SEO engine](/backend/seo-engine) |
+
+### Background, billing, integrations & tools
+
+| Path | What it is | Deep dive |
+| --- | --- | --- |
+| `lib/inngest/` | Inngest client, `functions.ts` registry, `fns/*` jobs + crons, `emit.ts`. | [Background jobs](/backend/background-jobs) |
+| `lib/billing/`, `lib/dodo/` | Plans/usage/checkout + the Dodo provider. | [Billing](/backend/billing) |
+| `lib/email/` | Resend transactional email (digests). | [Integrations](/backend/integrations) |
+| `lib/gsc/`, `lib/ga4/` | Google Search Console + GA4 OAuth and imports. | [Integrations](/backend/integrations) |
+| `lib/free-tools/` | The 5 public tools + `shared/pdf/browser.ts` (Gotenberg). | [Free tools](/backend/free-tools), [PDF engine](/backend/pdf-engine) |
+| `lib/profile.ts`, `lib/plans.ts`, `lib/usage.ts` | Trial logic, plan config, monthly usage metering. | [Billing](/backend/billing) |
+
+## `components/`
+
+| Path | What it is |
+| --- | --- |
+| `components/ui/` | shadcn / base-ui primitives. See [UI system](/frontend/ui-system). |
+| `components/marketing/` | Landing/blog/affiliate/Framer-port components. |
+| `components/app/` | Authed-app components: `agent`, `audit`, `calendar`, `onboarding`, `writer`. |
+| `components/admin/` | Superadmin panel UI (incl. `charts`). |
+| `components/shared/`, `components/contact/` | Cross-cutting and contact components. See [Components](/frontend/components). |
+
+## `drizzle/`
+
+| Path | What it is |
+| --- | --- |
+| `drizzle/0000_*.sql … 0061_*.sql` | Ordered, generated migrations (incl. `0022_dodo_payments.sql`). |
+| `drizzle/rls.sql` | RLS policies + `auth.users → profiles` trigger (run in Supabase). |
+| `drizzle/rls_site_chunks.sql` | RLS for the pgvector `site_indexes` / `site_chunks` tables. |
+| `drizzle/rls_enable_all.sql`, `cleanup_unconfirmed_signups.sql` | Auxiliary SQL helpers. |
+| `drizzle/meta/` | Drizzle Kit migration journal/snapshots. |
+
+See [Database](/backend/database) and the [migration workflow](/deployment/production#running-migrations).
+
+## `scripts/`
+
+One-off `tsx` utilities (run via `pnpm …` or `tsx`): `check-inngest.ts`
+(`inngest:check`), `setup-admin.ts` / `hash-password.ts` (superadmin credentials),
+`send-test-emails.ts` (`email:test`), `write-blog.ts` (`blog`), plus crawl/report
+inspection scripts (`inspect-*.ts`, `test-*.ts`, `query-reports.ts`).
+
+## `wordpress/` and `wordpress-plugin/`
+
+| Path | What it is |
+| --- | --- |
+| `wordpress/mu-plugins/spyro-rest-avatar.php` | Exposes author avatars over REST for the headless blog. |
+| `wordpress-plugin/spyro-autopilot/` | The **Spyro Autopilot** plugin (v0.2.0) — connects a WP site via a workspace API key and auto-publishes Spyro-generated posts (signature verification, cron heartbeat, receiver). |
+
+The plugin talks to `app/api/v1/*`. See [Public API](/backend/public-api) and
+[Integrations](/backend/integrations).
+
+## Related
+
+<CardGroup cols={2}>
+<Card title="Project structure" href="/getting-started/project-structure" icon="folder-tree">
+The narrative folder tour for newcomers.
+</Card>
+<Card title="Architecture" href="/getting-started/architecture" icon="sitemap">
+System diagrams tying these folders together.
+</Card>
+<Card title="Environment variables" href="/reference/environment-variables" icon="key">
+Every env var `lib/env.ts` reads.
+</Card>
+<Card title="Glossary" href="/reference/glossary" icon="book">
+Domain terms used throughout these folders.
+</Card>
+</CardGroup>

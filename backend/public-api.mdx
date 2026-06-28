@@ -1,0 +1,430 @@
+---
+title: "Public API (/api/v1)"
+description: "The externally-consumable Spyro API: API-key authentication, integration registration, heartbeats, and durable rate limiting."
+---
+
+The `/api/v1/*` routes are the only **externally-consumable** Spyro API. They are
+designed to be called by self-hosted plugins (the WordPress/Shopify connector),
+server-to-server scripts, and webhooks — anything that lives outside the Spyro
+web app and therefore cannot rely on a Supabase session cookie.
+
+Instead of cookies, every `/api/v1` request authenticates with a **workspace API
+key** sent as a `Bearer` token. A key is scoped to exactly one workspace, so the
+key both authenticates *and* selects the tenant.
+
+<Note>
+Everything else under `app/api/*` (audit, agent, onboarding, billing, GA4/GSC…)
+is **internal** — it is called by Spyro's own browser app and authenticates with
+the Supabase session cookie, not an API key. See [Internal APIs](/backend/apis).
+</Note>
+
+## At a glance
+
+| Method | Path | Purpose | Auth |
+| --- | --- | --- | --- |
+| `GET` | `/api/v1/ping` | Verify a key and return its workspace identity | API key |
+| `POST` | `/api/v1/integrations/register` | Register (or reconnect) an integration target | API key |
+| `POST` | `/api/v1/integrations/{id}/heartbeat` | Mark an integration as alive (`last_seen_at`) | API key |
+| `DELETE` | `/api/v1/integrations/{id}` | Delete an integration | API key |
+
+All four run on the Node.js runtime and are never cached:
+
+```ts
+// app/api/v1/ping/route.ts:8-9
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+```
+
+## Authentication
+
+### The header
+
+Send the workspace key in the standard `Authorization` header using the
+`Bearer` scheme:
+
+```bash
+Authorization: Bearer sk_ws_XXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+The token is parsed and validated by `resolveBearer()` (`lib/api/auth.ts:17-32`).
+It enforces, in order, that the header exists, uses the `Bearer ` scheme, and
+that the token starts with the Spyro key prefix `sk_ws_` — failing any of these
+returns **401**:
+
+```ts
+// lib/api/auth.ts:21-28
+if (!header) return { ok: false, status: 401, message: "Missing Authorization header" };
+if (!header.startsWith("Bearer ")) {
+  return { ok: false, status: 401, message: "Expected Bearer scheme" };
+}
+const token = header.slice("Bearer ".length).trim();
+if (!token.startsWith(KEY_PREFIX)) {
+  return { ok: false, status: 401, message: "Invalid token" };
+}
+```
+
+A successful resolution returns the `workspaceId`, `orgId`, `keyId`, and
+`keyName` — which is how every handler knows *which* workspace the request acts on.
+
+### How keys are created
+
+API keys are minted from the Spyro app under **Settings → API** for a workspace
+(`app/(app)/[org]/[workspace]/settings/api/page.tsx`). Creation goes through the
+`createWorkspaceKey` server action, which is gated to **workspace admins** only:
+
+```ts
+// lib/actions/api-keys.ts:58-73
+const access = await requireAccess(orgSlug);
+const { workspace, workspaceRole } = await requireWorkspace(access, workspaceSlug);
+if (workspaceRole !== "admin") {
+  return { ok: false, message: "Only workspace admins can create keys" };
+}
+// …
+if (existing.length >= MAX_WORKSPACE_KEYS) {
+  return {
+    ok: false,
+    message: `You can have at most ${MAX_WORKSPACE_KEYS} API keys. Delete one to create a new one.`,
+  };
+}
+```
+
+A workspace may hold at most **3** keys (`MAX_WORKSPACE_KEYS`, `lib/api/keys.ts:6`).
+Every new workspace is also seeded with a single `"Default key"` by
+`ensureWorkspaceKeysExist()` (`lib/actions/api-keys.ts:147-163`).
+
+### How keys are generated and stored
+
+`generateApiKey()` builds the plaintext as the prefix `sk_ws_` followed by 24
+random Base32 characters, then derives a non-secret lookup prefix and a SHA-256
+hash (`lib/api/keys.ts:17-28`):
+
+```ts
+// lib/api/keys.ts:17-28
+export function generateApiKey(): { plaintext: string; prefix: string; hash: string } {
+  const plaintext = KEY_PREFIX + base32Random(24);
+  return {
+    plaintext,
+    prefix: plaintext.slice(0, 12),
+    hash: hashApiKey(plaintext),
+  };
+}
+export function hashApiKey(plaintext: string): string {
+  return createHash("sha256").update(plaintext).digest("hex");
+}
+```
+
+The plaintext key is shown to you **once** at creation. What gets persisted in
+the `workspace_api_keys` table (`lib/db/schema.ts:865-885`) is:
+
+| Column | Stored value | Why |
+| --- | --- | --- |
+| `token_prefix` | First 12 chars of the key | Fast, non-secret index for lookup |
+| `token_hash` | `sha256(plaintext)` hex | Secret verifier (the key is never stored in clear) |
+| `token_cipher` | AES-256-GCM ciphertext of the key | Lets the UI **reveal** the key again later (`null` for legacy hash-only keys) |
+| `name` | User label | Display only |
+| `last_used_at` | Timestamp | Updated fire-and-forget on every authenticated call |
+
+<Info>
+The `token_cipher` column (added in `drizzle/0045_workspace_api_keys_multi.sql`)
+is encrypted with `encryptSecret()` from `lib/crypto.ts`, so an admin can re-reveal
+a key in the UI. Keys created before that migration are hash-only and cannot be
+revealed — the UI tells you to create a new one.
+</Info>
+
+### How keys are verified
+
+Verification is deliberately resistant to timing attacks. `dbKeyLookup`
+(`lib/api/auth.ts:39-75`) looks up candidate rows by the **non-secret prefix**,
+then does a **constant-time** comparison of the full hash with `safeEqualHex()`:
+
+```ts
+// lib/api/auth.ts:44-59
+const prefix = token.slice(0, 12);
+const computed = hashApiKey(token);
+const rows = await db
+  .select({ /* keyId, name, tokenHash, workspaceId, orgId */ })
+  .from(workspaceApiKeys)
+  .innerJoin(workspaces, eq(workspaces.id, workspaceApiKeys.workspaceId))
+  .where(eq(workspaceApiKeys.tokenPrefix, prefix))
+  .limit(5);
+const row = rows.find((r) => r.orgId && safeEqualHex(r.tokenHash, computed));
+```
+
+`safeEqualHex()` wraps Node's `timingSafeEqual` and returns `false` (never throws)
+on any length/format mismatch (`lib/api/keys.ts:39-48`). On a hit, `last_used_at`
+is updated *fire-and-forget* so it never blocks the request
+(`lib/api/auth.ts:62-67`).
+
+<Warning>
+**Treat the key like a password.** It grants full read/write to its workspace's
+integrations. There is no scope or per-key permission system — possession of the
+key is authorization. Rotate by creating a new key and deleting the old one.
+</Warning>
+
+## Rate limiting
+
+The public surface is protected by a **two-stage, Postgres-backed** fixed-window
+limiter (`lib/api/rate-limit-db.ts`). Unlike the in-memory limiter used elsewhere
+(`lib/rate-limit.ts`), this one is shared by every serverless instance via the
+`api_rate_counters` table (`drizzle/0046_api_rate_counters.sql`), so a flood
+can't slip through by hitting cold instances.
+
+<Steps>
+<Step title="Per-IP throttle (before auth)">
+`ipRateLimit(req)` runs **first**, so a flood of bad-token requests is blunted
+regardless of whether the token is valid. Limit: **120 requests / 60s per IP**
+(`lib/api/rate-limit-db.ts:77-81`).
+</Step>
+<Step title="Per-key throttle (after auth)">
+`keyRateLimit(keyId)` runs **after** the key resolves, so a single valid key
+can't hammer the API. Limit: **240 requests / 60s per key**
+(`lib/api/rate-limit-db.ts:87-90`).
+</Step>
+</Steps>
+
+Both stages share this order in every handler:
+
+```ts
+// app/api/v1/integrations/register/route.ts:20-27
+const ipBlock = await ipRateLimit(req);
+if (ipBlock) return ipBlock;
+
+const r = await resolveBearer(req.headers.get("authorization"), dbKeyLookup);
+if (!r.ok) return NextResponse.json({ error: r.message }, { status: r.status });
+
+const keyBlock = await keyRateLimit(r.keyId);
+if (keyBlock) return keyBlock;
+```
+
+When a window is exceeded the limiter returns **429** with a `Retry-After`
+header (`lib/api/rate-limit-db.ts:65-70`):
+
+```json
+{ "error": "Rate limit exceeded", "code": "rate_limited" }
+```
+
+<Tip>
+The limiter **fails open**: if the database errors while counting, the request is
+allowed through (`lib/api/rate-limit-db.ts:60-62`). A limiter outage must never
+take down legitimate API traffic.
+</Tip>
+
+## Endpoints
+
+### GET /api/v1/ping
+
+Verify a key and discover which workspace it belongs to. This is the canonical
+"is my key valid?" probe.
+
+**Headers**
+
+<ParamField header="Authorization" type="string" required>
+`Bearer sk_ws_…` — a workspace API key.
+</ParamField>
+
+**Response `200`** (`app/api/v1/ping/route.ts:31-37`)
+
+<ResponseField name="workspace_id" type="string">The workspace UUID the key is bound to.</ResponseField>
+<ResponseField name="workspace_slug" type="string | null">The workspace slug (or `null`).</ResponseField>
+<ResponseField name="org_slug" type="string | null">The owning organization's slug.</ResponseField>
+<ResponseField name="api_key_id" type="string">The key's UUID.</ResponseField>
+<ResponseField name="api_key_name" type="string | null">The key's display name.</ResponseField>
+
+<CodeGroup>
+```bash curl
+curl https://www.spyro.app/api/v1/ping \
+  -H "Authorization: Bearer sk_ws_XXXXXXXXXXXXXXXXXXXXXXXX"
+```
+
+```json 200
+{
+  "workspace_id": "8f3c…",
+  "workspace_slug": "acme-blog",
+  "org_slug": "acme",
+  "api_key_id": "0b21…",
+  "api_key_name": "Default key"
+}
+```
+</CodeGroup>
+
+**Errors:** `401` (missing/invalid key), `429` (rate limited).
+
+---
+
+### POST /api/v1/integrations/register
+
+Register an integration target (e.g. a WordPress site that will receive
+published posts), or **reconnect** an existing one. Reconnecting the same
+`(workspace, platform, target_url)` triple is idempotent — it upserts the row.
+
+**Headers** — `Authorization: Bearer sk_ws_…` (required).
+
+**Request body** (`app/api/v1/integrations/register/route.ts:13-17`)
+
+<ParamField body="platform" type="string" required>
+One of `"wordpress_org"`, `"wordpress_com"`, `"shopify"`, `"webhooks"`.
+</ParamField>
+<ParamField body="target_url" type="string (url)" required>
+The integration endpoint. Must be `https` (the only `http` exception is
+`http://localhost` for local development).
+</ParamField>
+<ParamField body="label" type="string" required={false}>
+Optional human label, max 80 chars.
+</ParamField>
+
+**Response `200`**
+
+<ResponseField name="integration_id" type="string">The created/updated integration UUID.</ResponseField>
+<ResponseField name="status" type="string">`"connected"`.</ResponseField>
+
+<CodeGroup>
+```bash curl
+curl -X POST https://www.spyro.app/api/v1/integrations/register \
+  -H "Authorization: Bearer sk_ws_XXXXXXXXXXXXXXXXXXXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "platform": "wordpress_org",
+    "target_url": "https://blog.example.com",
+    "label": "Marketing blog"
+  }'
+```
+
+```json 200
+{ "integration_id": "c4a9…", "status": "connected" }
+```
+</CodeGroup>
+
+**Errors**
+
+| Status | Body | Cause |
+| --- | --- | --- |
+| `400` | `{ "error": "Invalid body", "detail": "…" }` | Zod validation failed |
+| `400` | `{ "error": "target_url must be https" }` | Non-HTTPS, non-localhost URL |
+| `401` | `{ "error": "Invalid token" }` | Bad/missing key |
+| `402` | `{ "error": "Plan limit reached", "code": "plan_limit" }` | Connected-integration count ≥ plan's `integrationsMax` |
+| `404` | `{ "error": "Workspace not found" }` | Key's workspace was deleted |
+| `429` | `{ "error": "Rate limit exceeded", "code": "rate_limited" }` | Throttled |
+
+The plan limit is enforced **before** inserting a brand-new connection, but
+reconnects of an existing target are always allowed
+(`app/api/v1/integrations/register/route.ts:49-74`):
+
+```ts
+// app/api/v1/integrations/register/route.ts:49,69-74
+const limit = planLimits(normalizePlan(orgRow.plan)).integrationsMax;
+// …
+if (!pre && existing >= limit) {
+  return NextResponse.json(
+    { error: "Plan limit reached", code: "plan_limit" },
+    { status: 402 },
+  );
+}
+```
+
+<Info>
+On insert, the route stamps `meta: { signingKeyId: r.keyId }` — the exact key the
+plugin authenticated with. Outbound webhook deliveries to this integration are
+HMAC-signed with `sha256(plaintext key)` so the receiver can verify them
+(`app/api/v1/integrations/register/route.ts:86-88`).
+</Info>
+
+---
+
+### POST /api/v1/integrations/{id}/heartbeat
+
+Mark an integration as alive. The plugin calls this periodically; Spyro records
+`last_seen_at` and uses staleness to surface "disconnected" integrations.
+
+**Path params:** `id` — the integration UUID.
+**Headers:** `Authorization: Bearer sk_ws_…` (required).
+**Body:** none.
+
+**Response `200`** (`app/api/v1/integrations/[id]/heartbeat/route.ts:31-32`)
+
+```json
+{ "ok": true }
+```
+
+The update is scoped to the key's workspace, so a key can only heartbeat its own
+integrations (`app/api/v1/integrations/[id]/heartbeat/route.ts:26-31`):
+
+```ts
+const updated = await db
+  .update(integrations)
+  .set({ lastSeenAt: new Date() })
+  .where(and(eq(integrations.id, id), eq(integrations.workspaceId, r.workspaceId)))
+  .returning({ id: integrations.id });
+if (!updated.length) return NextResponse.json({ error: "Not found" }, { status: 404 });
+```
+
+```bash
+curl -X POST https://www.spyro.app/api/v1/integrations/c4a9…/heartbeat \
+  -H "Authorization: Bearer sk_ws_XXXXXXXXXXXXXXXXXXXXXXXX"
+```
+
+**Errors:** `401` (bad key), `404` (`{ "error": "Not found" }` — id not in this workspace), `429`.
+
+---
+
+### DELETE /api/v1/integrations/{id}
+
+Delete an integration owned by the key's workspace.
+
+**Path params:** `id` — the integration UUID.
+**Headers:** `Authorization: Bearer sk_ws_…` (required).
+
+**Response `200`** (`app/api/v1/integrations/[id]/route.ts:30`)
+
+```json
+{ "ok": true }
+```
+
+```bash
+curl -X DELETE https://www.spyro.app/api/v1/integrations/c4a9… \
+  -H "Authorization: Bearer sk_ws_XXXXXXXXXXXXXXXXXXXXXXXX"
+```
+
+The delete is workspace-scoped — a key cannot delete another workspace's
+integration; that returns `404` (`app/api/v1/integrations/[id]/route.ts:25-29`).
+
+**Errors:** `401` (bad key), `404` (`{ "error": "Not found" }`), `429`.
+
+## Status code reference
+
+| Status | Meaning |
+| --- | --- |
+| `200` | Success |
+| `400` | Malformed body or invalid `target_url` |
+| `401` | Missing, malformed, or unknown API key |
+| `402` | Plan integration limit reached |
+| `404` | Resource not found (or not in this workspace) |
+| `429` | Rate limit exceeded — honor the `Retry-After` header |
+
+## Common mistakes
+
+<AccordionGroup>
+<Accordion title="Sending the key without the Bearer scheme">
+`Authorization: sk_ws_…` returns `401 Expected Bearer scheme`. The prefix
+`Bearer ` is required (`lib/api/auth.ts:22`).
+</Accordion>
+<Accordion title="Using an http:// target URL in production">
+Only `https` (or `http://localhost`) is accepted by `register`. Everything else
+returns `400 target_url must be https`.
+</Accordion>
+<Accordion title="Expecting more than 3 keys per workspace">
+`MAX_WORKSPACE_KEYS = 3`. Delete an existing key before creating another.
+</Accordion>
+<Accordion title="Hammering the API on one key">
+A single key is capped at 240 req/min. Respect `Retry-After` on `429` responses
+and back off.
+</Accordion>
+</AccordionGroup>
+
+## Related
+
+- [Authentication](/backend/authentication) — how the *internal* app authenticates (Supabase cookies).
+- [Authorization](/backend/authorization) — org/workspace roles and plan gating that back the `402 plan_limit`.
+- [Internal APIs](/backend/apis) — the cookie-authenticated `app/api/*` surface.
+- [Integrations](/backend/integrations) — what integrations do once registered.
+- [Security](/backend/security) — rate limiting, SSRF, and secret handling.
+- [Database](/backend/database) — the `workspace_api_keys`, `integrations`, and `api_rate_counters` tables.

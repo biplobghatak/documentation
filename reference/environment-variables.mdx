@@ -1,0 +1,263 @@
+---
+title: "Environment variables"
+description: "The complete reference of every Spyro environment variable, grouped by service, with required/optional status, purpose, and the feature each one enables. Names only — no values."
+---
+
+This is the authoritative list of every environment variable Spyro reads, built
+from `.env.local.example` and cross-checked against `lib/env.ts`. It documents
+**names and purposes only** — never copy a real secret value here, and never open
+`.env.local`.
+
+<Info>
+**How Spyro reads env.** `lib/env.ts` reads each key with a light-touch `opt()`
+helper (empty string ⇒ `undefined`) and **does not throw at import time** for most
+keys — features degrade to mocks when a key is absent. Only `NEXT_PUBLIC_APP_URL` is
+effectively required (it throws when a consumer needs the public origin and no
+Vercel fallback exists) *(`lib/env.ts:1–11,38–59`)*. Feature on/off is decided by the
+`featureFlags` object *(`lib/env.ts:189–222`)*.
+</Info>
+
+<Note>
+**Coverage:** ~70 variables ship in `.env.local.example`. A few more are **read in
+code but not in the example file** — they are listed in their sections and marked
+*(code-only)*. "Default" columns cite values supplied by `lib/env.ts` even when the
+example leaves the line commented.
+</Note>
+
+## Supabase (auth + database)
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | **Required** | Supabase project URL. Auth + the whole dashboard. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | One of these two | New-style `sb_publishable_…` key (**preferred**). |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | One of these two | Legacy anon JWT (fallback if publishable unset). Whichever is set wins *(`lib/env.ts:65–66`)*. |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Required** | Server-side service role (bypasses RLS; also default encryption-key fallback and Storage uploads). |
+| `DATABASE_URL` | **Required** | Postgres connection string used by Drizzle (`drizzle.config.ts`). |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional | Cloudflare Turnstile **site** key — bot/spam widget on auth forms. The secret goes in Supabase, not env. |
+
+See [Authentication](/backend/authentication) and [Database](/backend/database).
+
+## DataForSEO (SERP + keyword data)
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `DATAFORSEO_LOGIN` | **Required** (no mock) | DataForSEO account login. Keyword research, SERP analysis, AI-Overview presence, rank tracking. |
+| `DATAFORSEO_PASSWORD` | **Required** (no mock) | DataForSEO account password. |
+| `DATAFORSEO_DAILY_BUDGET_USD` | Optional | Max spend per UTC day (USD). Circuit breaker; unset = no cap. |
+| `DATAFORSEO_AI_VOLUME_ENABLED` | Optional *(code-only)* | `"true"` enables the AI Optimization `ai_keyword_search_volume` endpoint. Default `"false"` *(`lib/env.ts:164`)*. |
+
+DataForSEO has **no fallback** — see [SEO engine](/backend/seo-engine).
+
+## LLM — OpenRouter (primary chat provider)
+
+One key routes every chat model: blog writer, ideation, the Spyro agent, the
+citation engines, and image generation.
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `OPENROUTER_API_KEY` | **Required** for real LLM output | Routes all chat LLM calls + Seedream image gen. |
+| `OPENROUTER_PREMIUM_MODEL` | Optional | Top-quality model (topic ideas, titles, outline + meta). Default `anthropic/claude-sonnet-4.6`. |
+| `OPENROUTER_CAPABLE_MODEL` | Optional | Bulk blog section drafting. Default `moonshotai/kimi-k2.6`. |
+| `OPENROUTER_FAST_MODEL` | Optional | Parsing / classification. Default `openai/gpt-4.1-mini`. |
+| `OPENROUTER_AGENT_MODEL` | Optional | The Spyro chat agent. Default `moonshotai/kimi-k2.6`. |
+| `OPENROUTER_IMAGE_MODEL` | Optional | Featured + in-content images. Default `bytedance-seed/seedream-4.5`. |
+| `OPENROUTER_IMAGE_SIZE` | Optional | Image output size. Left unset (Seedream is flat-priced). |
+| `AUDIT_ASSISTANT_MODEL` | Optional | Ask-Spyro audit sidebar model. Default `minimax/minimax-m2.7`; GPT-4.1-mini is the runtime fallback *(`lib/env.ts:85`)*. |
+
+See [AI providers](/backend/ai).
+
+## OpenAI (embeddings + LLM fallback)
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Recommended | RAG embeddings (`text-embedding-3` family — the site-index / vector search). Also a tier-3 chat + image fallback when OpenRouter is unset. |
+
+<Note>
+The source disagrees on the embedding model: `.env.local.example` says
+`text-embedding-3-large @ 1536`, `lib/env.ts:87` says `text-embedding-3-small`.
+Confirm in `lib/embed` before relying on a dimension. See [AI providers](/backend/ai).
+</Note>
+
+## LLM fallbacks (only used when OpenRouter is unset)
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `GOOGLE_GENAI_API_KEY` | Optional | Fallback internal LLM (Gemini). |
+| `MOONSHOT_API_KEY` | Optional | Fallback Spyro agent (Kimi K2, direct API). |
+| `MOONSHOT_MODEL` | Optional | Override the Moonshot model. Default `kimi-k2-0905-preview` *(`lib/env.ts:79`)*. |
+| `OPENAI_AGENT_MODEL` | Optional | Agent fallback model on the direct OpenAI API. |
+
+## Billing — Dodo Payments
+
+<Warning>
+The current billing provider is **Dodo**, not Polar — the README's `POLAR_*` vars and
+`/api/webhooks/polar` are stale. See [Billing](/backend/billing).
+</Warning>
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `DODO_API_KEY` | **Required** for live billing | Dodo Payments API key (server-side). |
+| `DODO_WEBHOOK_SECRET` | **Required** for live billing | `whsec_…` Standard Webhooks signing secret for `/api/webhooks/dodo`. |
+| `DODO_ENV` | Optional | `test_mode` (default) or `live_mode` *(`lib/env.ts:95`)*. |
+| `DODO_PRODUCT_PRO_MONTHLY` | Required for that plan | Pro · 1 site · monthly product ID. |
+| `DODO_PRODUCT_PRO_ANNUAL` | Required for that plan | Pro · 1 site · annual product ID. |
+| `DODO_PRODUCT_PRO_2SITE_MONTHLY` | Required for that plan | Pro · 2 sites · monthly product ID. |
+| `DODO_PRODUCT_PRO_2SITE_ANNUAL` | Required for that plan | Pro · 2 sites · annual product ID. |
+| `DODO_PRODUCT_AGENCY_MONTHLY` | Required for that plan | Agency per-site monthly product ID. |
+| `DODO_PRODUCT_AGENCY_ANNUAL` | Required for that plan | Agency per-site annual product ID. |
+| `DODO_DISCOUNT_AGENCY_10` | Optional | 10% Agency volume code (3–5 sites). |
+| `DODO_DISCOUNT_AGENCY_15` | Optional | 15% Agency volume code (6–10 sites). |
+| `DODO_DISCOUNT_AGENCY_20` | Optional | 20% Agency volume code (11–20 sites). |
+
+## Background jobs — Inngest
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `INNGEST_EVENT_KEY` | **Required** in prod | Event Key to **send** events (not the `sk-inn-api…` REST key). |
+| `INNGEST_SIGNING_KEY` | **Required** in prod | `signkey-…` signing key for the serve endpoint. |
+| `INNGEST_ENV` | Optional | Branch-environment name (Inngest Cloud branch envs). |
+| `INNGEST_DEV` | Optional | Set to `0` to force cloud mode in local dev. |
+
+See [Background jobs](/backend/background-jobs).
+
+## Crawler — JS-rendering fallback (crawl4ai)
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `CRAWL4AI_API_URL` | Optional | Self-hosted crawl4ai server (renders JS-heavy pages in audits). Unset = Cheerio-only crawl. |
+| `CRAWL4AI_API_TOKEN` | Optional | Bearer token, only if your crawl4ai server enforces one. |
+
+See [Crawler](/backend/crawler).
+
+## PDF rendering — Gotenberg *(code-only — add by hand)*
+
+Read in `lib/free-tools/shared/pdf/browser.ts`; **not** in `.env.local.example`.
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `GOTENBERG_URL` | **Required** for PDFs | Base URL of the Gotenberg (headless Chrome) service on Railway. Unset ⇒ PDF routes 500. |
+| `GOTENBERG_USER` | Optional | HTTP basic-auth username, if enabled. |
+| `GOTENBERG_PASSWORD` | Optional | HTTP basic-auth password. |
+| `GOTENBERG_REPORT_ORIGIN` | Optional | Override for the public origin Gotenberg fetches the report page from (must be publicly reachable). |
+
+See [PDF engine](/backend/pdf-engine) and [Vercel](/deployment/vercel#the-gotenberg-pdf-service).
+
+## Publishing integrations
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `INTEGRATION_SECRET` | **Set before production** | 32+ random chars; AES-256-GCM key encrypting stored WordPress/Notion publishing tokens and OAuth tokens. Falls back to `SUPABASE_SERVICE_ROLE_KEY`, then an insecure dev key. |
+
+See [Integrations](/backend/integrations).
+
+## Email
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `RESEND_API_KEY` | Optional | Resend — sends the Monday digest and transactional email. Unset = sending skipped. |
+| `MAILERLITE_API_KEY` | Optional | MailerLite — captures free-audit subscribers. |
+| `MAILERLITE_GROUP_ID` | Optional | When set, adds subscribers to that MailerLite group. |
+
+## Rerank (Cohere via OpenRouter)
+
+Improves Spyro Agent answers by reranking pgvector candidates. Reuses
+`OPENROUTER_API_KEY`. All optional; `lib/env.ts` supplies defaults.
+
+| Variable | Required | Purpose / enables (default) |
+| --- | --- | --- |
+| `RERANK_ENABLED` | Optional | On/off. Default `true` *(`lib/env.ts:142`)*. |
+| `RERANK_PROVIDER` | Optional | Default `openrouter`. |
+| `RERANK_MODEL` | Optional | Default `cohere/rerank-4-fast`. |
+| `RERANK_TOP_N` | Optional | Chunks passed to the LLM. Default `8`. |
+| `RERANK_TIMEOUT_MS` | Optional | Rerank request timeout. Default `4000`. |
+| `VECTOR_CANDIDATE_K` | Optional | pgvector candidates fed to the reranker. Default `24`. |
+
+See [AI providers](/backend/ai).
+
+## Google Search Console (read-only OAuth)
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `GOOGLE_OAUTH_CLIENT_ID` | Required for GSC/GA4 | Shared Google OAuth client ID. |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Required for GSC/GA4 | Shared Google OAuth client secret. |
+| `GOOGLE_OAUTH_REDIRECT_URI` | Required for GSC | GSC callback. Default `http://localhost:3000/api/gsc/callback`. |
+| `GSC_OAUTH_STATE_SECRET` | Required for GSC/GA4 | 32+ chars; HMAC key for the OAuth state cookie (shared with GA4). |
+| `GSC_AI_REPORTS_ENABLED` | Optional | Generative-AI performance scaffold. Default `false` (no public API yet) *(`lib/env.ts:135`)*. |
+
+The Connect-GSC flow is hidden until `gscOauthConfigured` is true. See
+[Integrations](/backend/integrations).
+
+## Google Analytics 4 (AI-referral tracking, read-only)
+
+Reuses the same Google OAuth client + `GSC_OAUTH_STATE_SECRET`; only the redirect URI
+differs.
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `GA4_OAUTH_REDIRECT_URI` | Required for GA4 | GA4 callback. Default `http://localhost:3000/api/ga4/callback`. Requires GA4 Data + Admin APIs enabled in GCP. |
+
+## Article pipeline — research & images
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `KIMI_RESEARCH_MODEL` | Optional | Live web-search model (OpenRouter `:online`). Default `moonshotai/kimi-k2.6:online` *(`lib/env.ts:153`)*. |
+| `JINA_API_KEY` | Optional | Jina Reader (`r.jina.ai`) verification layer — higher rate limit. Works keyless. |
+| `SCREENSHOTONE_ACCESS_KEY` | Optional | Real-page screenshots for listicle/comparison/review posts. Unset ⇒ Flux illustration fallback. |
+| `PAGESPEED_API_KEY` | Optional | Google PageSpeed Insights key for Core Web Vitals (legacy fallback). |
+| `CRUX_API_KEY` | Optional | Chrome UX Report API key — **preferred** CWV source (fast p75 field data). |
+
+See [Content engine](/backend/content-engine) and [Audit](/backend/audit).
+
+## App
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_URL` | **Required** | Public origin — feeds canonical URLs, `og:url`, checkout/portal/invite links, and the PDF render origin. |
+| `WORDPRESS_BASE_URL` | Optional | Headless WordPress blog for `/blog`. Default `https://blog.spyro.app` *(`lib/env.ts:182`)*; also derives the `next/image` host. |
+
+Platform-injected on Vercel (you do **not** set these): `VERCEL`,
+`VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL` — read as the localhost safety net and
+PDF-origin fallbacks *(`lib/env.ts:42–48`, `lib/free-tools/shared/pdf/browser.ts:46–47`)*.
+
+## Superadmin panel — dedicated credentials
+
+All env-only (never DB columns). The panel **404s entirely** unless `ADMIN_USERNAME`
++ a password + `ADMIN_SESSION_SECRET` + `ADMIN_TOTP_SECRET` are all set
+(`adminConfigured`, `lib/env.ts:216–221`).
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `ADMIN_USERNAME` | Required for panel | Superadmin login username. |
+| `ADMIN_PASSWORD_HASH` | One of these two | `scrypt:salt:hash` of the password (never plaintext). |
+| `ADMIN_PASSWORD` | One of these two | Plaintext password used directly; wins if both set. |
+| `ADMIN_SESSION_SECRET` | Required for panel | HMAC secret for the 1-hour admin session cookie. |
+| `ADMIN_TOTP_SECRET` | Required for panel | base32 2FA secret (scan into an authenticator). |
+| `ADMIN_IP_ALLOWLIST` | Optional | Comma-separated IPs / IPv4 CIDRs allowed to reach `/superadmin`. Empty = no IP limit. |
+
+See [Middleware](/backend/middleware) and [Security](/backend/security).
+
+## PostHog analytics
+
+| Variable | Required | Purpose / enables |
+| --- | --- | --- |
+| `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` | Optional | PostHog project token. Enables product analytics. |
+| `NEXT_PUBLIC_POSTHOG_HOST` | Optional | PostHog host. Default `https://us.i.posthog.com` *(`lib/env.ts`)*. |
+
+See [Logging & analytics](/backend/logging).
+
+## Related
+
+<CardGroup cols={2}>
+<Card title="Going live checklist" href="/deployment/environment" icon="list-check">
+Where each of these keys gets set, in order.
+</Card>
+<Card title="Environment setup" href="/getting-started/environment" icon="gear">
+The local-dev overview.
+</Card>
+<Card title="Deploying to Vercel" href="/deployment/vercel" icon="triangle">
+Vercel-specific vars and the Gotenberg service.
+</Card>
+<Card title="Folder reference" href="/reference/folder-reference" icon="folder-tree">
+Where `lib/env.ts` and each consumer lives.
+</Card>
+</CardGroup>

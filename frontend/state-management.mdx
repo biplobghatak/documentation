@@ -1,0 +1,188 @@
+---
+title: "State management"
+description: "How Spyro manages state on the frontend: server actions, React Hook Form, URL/search-param state, React context, RSC data fetching, and colocated custom hooks."
+---
+
+Spyro has **no global client store** (no Redux, Zustand or Jotai). State is managed with the
+primitives the App Router gives you, layered by scope:
+
+- **Server state** lives on the server and is mutated through **server actions** (`lib/actions/*`).
+- **Server-rendered data** is fetched directly in **async Server Components**.
+- **URL state** (filters, search, pagination) lives in `searchParams`.
+- **Cross-component UI state** uses small **React contexts**.
+- **Local interaction state** uses `useState` and a handful of **colocated custom hooks**.
+
+## Server actions
+
+Mutations are server actions — functions in files marked `"use server"`, under `lib/actions/`.
+There are ~29 such files (`workspaces.ts`, `audit.ts`, `writer.ts`, `keywords.ts`, `prompts.ts`,
+`onboarding.ts`, `invites.ts`, `auth.ts`, `contact.ts`, `publish.ts`, `ga4.ts`, `gsc.ts`, …).
+
+Most write-actions follow the **`useActionState` shape** — `(prevState, formData) => Promise<Result>`
+— so they bind directly to a `<form action={…}>`. A real signature
+(`lib/actions/workspaces.ts:39`, verbatim):
+
+```ts
+"use server";
+// …
+export async function addWorkspace(
+  _prev: unknown,
+  formData: FormData,
+): Promise<{ ok: boolean; message: string }> {
+  const orgSlug = String(formData.get("orgSlug"));
+  const access = await requireAccess(orgSlug);
+  if (access.orgRole === "member") throw new Error("Not permitted.");
+  const parsed = domainSchema.safeParse(formData.get("domain"));
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid domain." };
+  // …createWorkspace…
+  revalidatePath(`/${orgSlug}`, "layout");
+  return { ok: true, message: `Added ${parsed.data}.` };
+}
+```
+
+Three patterns to notice, all present across `lib/actions/`:
+
+1. **Auth + Zod inside the action.** Every action re-checks access (`requireAccess`) and validates
+   its input with Zod — never trust the client. See [Authorization](/backend/authorization).
+2. **Return a `{ ok, message }` result** rather than throwing, so the client can show a toast.
+3. **`revalidatePath(...)` after a write** so the affected server segments re-render with fresh data
+   (here, the whole `/{org}` layout subtree).
+
+Some actions are invoked as **plain async functions** instead of via a form — e.g. the contact form
+calls `onContactUs(name, email, …)` directly and reads its `{ success }` result. See
+[Forms](/frontend/forms) and the [APIs](/backend/apis) backend.
+
+### Wiring an action to the UI
+
+The reusable `GenericSearchForm` (`components/app/generic-search-form.tsx`) shows the canonical
+client side — `useActionState` drives the pending state, and a `useEffect` turns the result into a
+toast and a `router.refresh()`:
+
+```tsx
+const [state, formAction, pending] = useActionState<Result, FormData>(action, null);
+const router = useRouter();
+useEffect(() => {
+  if (state?.ok) { toast.success(state.message ?? "Done"); router.refresh(); }
+  else if (state && !state.ok) toast.error(state.message ?? "Something went wrong");
+}, [state, router]);
+```
+
+`router.refresh()` re-fetches the current route's Server Components — pairing client feedback with
+server-truth data without a full reload.
+
+## Data fetching in Server Components
+
+Read paths don't use actions — Server Components `await` data directly. The workspace dashboard
+(`app/(app)/[org]/[workspace]/page.tsx:61`) is representative: it awaits `params`, resolves access,
+and fetches in parallel with `Promise.all` (excerpt):
+
+```tsx
+export default async function DashboardPage({ params }: { params: Promise<{ org: string; workspace: string }> }) {
+  const { org, workspace } = await params;
+  const access = await requireAccess(org);
+  const { workspace: ws } = await requireWorkspace(access, workspace);
+  const [data, diagnostics] = await Promise.all([
+    getWorkspaceDashboardData(ws.id, access.userId),
+    onboarding?.insights ? getOnboardingDiagnostics(ws.id) : Promise.resolve([]),
+  ]);
+  // …pass plain data into client components
+}
+```
+
+The same `Promise.all` pattern appears in the layouts (e.g. the workspace layout loads orgs +
+visible workspaces concurrently). Tenant routes are `force-dynamic`, so this runs per request.
+
+## URL / search-param state
+
+For state that should be shareable and bookmarkable, Spyro keeps it in the URL — there is **no
+`nuqs`**; it reads `searchParams` on the server and `useSearchParams`/`useRouter`/`usePathname` on
+the client (used across ~46 files).
+
+The blog archive is the clearest example. The page reads `searchParams`, and **legacy filter params
+are upgraded to canonical archive routes** with a redirect:
+
+```tsx
+// app/(marketing)/blog/page.tsx
+export default async function BlogArchivePage({ searchParams }: { searchParams: BlogArchiveSearchParams }) {
+  const { search, category, tag } = await searchParams;
+  if (category?.trim()) redirect(getCategoryArchiveUrl(category.trim())); // → /blog/category/<slug>
+  if (tag?.trim()) redirect(getTagArchiveUrl(tag.trim()));                // → /blog/tag/<slug>
+  return <BlogArchive scope={{ kind: "blog", search: search?.trim() || undefined }} page={1} />;
+}
+```
+
+Client components that drive their own URL state use `useRouter()` to navigate and
+`router.refresh()` after mutations (e.g. `keyword-research-form.tsx`).
+
+## React context
+
+Context is used sparingly — only for genuinely cross-cutting UI state. Three providers exist:
+
+| Context | File | Holds | Hook |
+| --- | --- | --- | --- |
+| `ThemeContext` | `components/app/theme-provider.tsx:16` | `theme`, `resolvedTheme`, `setTheme` | `useTheme()` |
+| `PlannerContext` | `components/app/calendar/planner-context.tsx:27` | calendar candidates, sort, scheduled keys, panel open state | `usePlanner()` |
+| `TooltipProvider` | `components/ui/tooltip.tsx` | Radix tooltip delay/config | (Radix primitive) |
+
+The **theme provider** is mounted globally in `app/layout.tsx`. It persists the choice to
+`localStorage` under `ns:theme`, applies the `.dark` class to `<html>` with CSS transitions
+suppressed for one frame (to avoid hundreds of color transitions stuttering on heavy pages), and
+exposes a permissive fallback so `useTheme()` works even outside the provider:
+
+```tsx
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) return { theme: "light", resolvedTheme: "light", setTheme: () => {} };
+  return ctx;
+}
+```
+
+The **planner context** is scoped to the calendar feature — `PlannerProvider` wraps the board and
+`usePlanner()` reads/writes the in-flight scheduling state.
+
+## Custom hooks
+
+Hooks are **colocated** with the components that use them, not centralized in a `hooks/` folder.
+The notable ones:
+
+| Hook | File | Purpose |
+| --- | --- | --- |
+| `useBackdropScrollBlock<T>()` | `components/ui/use-backdrop-scroll-block.ts:28` | Returns a ref for a modal backdrop that blocks scroll/pointer/focus on the page behind it; handles stacked modals. |
+| `useTheme()` | `components/app/theme-provider.tsx:83` | Read/set the light/dark theme. |
+| `usePlanner()` | `components/app/calendar/planner-context.tsx:29` | Access the calendar planner state. |
+| `useToolbarState(editor)` | `components/app/writer/article-editor.tsx:146` | Shallow-compared snapshot of TipTap mark/node state for the editor toolbar. |
+| `useLinkHandler(editor)` | `components/app/writer/article-editor.tsx:169` | Prompt-driven link insert/edit for the editor. |
+| `useDebouncedBlocks(src, 32)` | `components/app/agent/agent-markdown.tsx:190` | Debounces markdown block re-parsing during streaming to batch token updates. |
+| `useResizeHandle(setWidth)` | `components/app/calendar/planner-panel.tsx:305` | Mouse-drag width resize (320–900px) for the planner panel. |
+| `useToastResult(state)` | `components/app/workspace-general-cards.tsx:45` | Turns a server-action result into a toast + `router.refresh()`. |
+
+The signature convention is plain — e.g. the backdrop hook (`use-backdrop-scroll-block.ts:28`):
+
+```ts
+export function useBackdropScrollBlock<T extends HTMLElement>() {
+  const ref = React.useRef<T>(null)
+  // …blocks wheel/touchmove, pointer events, sets inert on the background…
+  return ref
+}
+```
+
+## Choosing where state lives
+
+<Tip>
+A quick decision guide, matching how the codebase is written:
+- **Mutating server data?** Write a server action in `lib/actions/`, return `{ ok, message }`, call
+  `revalidatePath`.
+- **Reading server data?** Fetch it in an async Server Component; pass plain props down.
+- **Should it survive refresh / be shareable?** Put it in the URL (`searchParams`).
+- **Cross-component UI flag (theme, panel open)?** A small context.
+- **Local widget state?** `useState` or a colocated hook.
+</Tip>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Forms" href="/frontend/forms">React Hook Form + Zod wired to server actions.</Card>
+  <Card title="Performance" href="/frontend/performance">`revalidatePath`, ISR and caching in depth.</Card>
+  <Card title="Components" href="/frontend/components">The components these hooks and contexts belong to.</Card>
+  <Card title="APIs" href="/backend/apis">The server-side handlers actions call into.</Card>
+</CardGroup>

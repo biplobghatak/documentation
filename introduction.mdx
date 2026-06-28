@@ -1,86 +1,116 @@
 ---
-title: "Spyro: AI Citation Tracking & GEO Optimization Platform"
-sidebarTitle: "Introduction"
-description: "Spyro helps businesses track AI citations, close content gaps, and auto-publish GEO-optimized articles to rank in ChatGPT, Claude, Gemini, and more."
+title: "Spyro"
+description: "A developer's overview of Spyro: what it is, the tech stack, and how the codebase is layered."
 ---
 
-More than half of all search activity now flows through AI engines — and traditional SEO tools can't see any of it. Spyro is an AI-powered SEO and Generative Engine Optimization (GEO) platform built for this new reality. It monitors when and where your brand gets cited across ChatGPT, Claude, Gemini, Perplexity, and Copilot, identifies the content gaps that are costing you visibility, generates publication-ready articles optimized for AI search, and publishes them directly to your CMS — all on autopilot.
+Spyro is a SEO and AI-visibility (GEO/AEO) SaaS. It helps site owners **rank on Google and get cited by AI assistants** (ChatGPT, Gemini, Claude, Perplexity, and Google's AI Overviews). This documentation describes the application as it actually exists in source — it is reverse-engineered from the codebase, not from marketing copy.
 
-## The Problem With Traditional SEO Tools
+<Info>
+  This page is written for engineers working *on* Spyro. If you are looking for the product story, start with the running app. If you want to build or extend a feature, start here and follow the links into the subsystem docs.
+</Info>
 
-Search behavior has fundamentally shifted. When someone asks an AI assistant a question about your industry, product, or competitors, the frequency with which your brand is cited — versus your competitors — determines your AI visibility. Rank trackers, keyword tools, and backlink auditors were built for the old web — they have no visibility into AI-generated responses, which means you're flying blind in the channel that is growing fastest.
+## What Spyro does
 
-Spyro closes that gap. It runs daily queries across every major AI engine, captures citation data in real time, and translates those signals into a clear action plan.
+Spyro runs a set of analysis and content engines against a customer's website:
 
-## How Spyro Works
+- **Keyword research and SERP analysis** — real search volume, difficulty, intent, and live SERP features via DataForSEO.
+- **Website audit** — crawls a site, scores SEO and GEO readiness, checks Core Web Vitals and AI-bot access, and suggests fixes.
+- **AI-visibility tracking** — queries the "citation-target" AIs (ChatGPT, Gemini, Claude, Perplexity, Google AI Overviews) with buyer prompts and records, as a *frequency*, whether the customer's brand is mentioned.
+- **Content engine** — blog ideation, topic clusters, an AI article writer, featured-image generation, and publishing to WordPress / Notion.
+- **Rank tracking and digests** — scheduled rank, citation, and AI-overview checks plus a weekly email digest.
+- **Free public tools** — five no-login marketing tools (AI visibility checker, SEO/GEO audit, schema validator, robots checker, meta-snippet preview).
 
-Spyro operates as a continuous five-stage loop so your AI visibility compounds over time rather than stagnating after a single audit.
+The data model is **multi-tenant**: every customer is an **organization** that owns one or more **workspaces**, and each workspace is exactly one website. See [Architecture](/getting-started/architecture) for the full tenancy model.
 
-| Stage | What Happens |
-|---|---|
-| **Measure** | Spyro queries AI engines daily and records how often your brand and competitors are cited across each engine |
-| **Audit** | It maps those citations against your existing content to surface gaps and missed opportunities |
-| **Create** | The content engine drafts GEO-optimized articles (2,500–3,000 words) targeted at your gaps |
-| **Publish** | Articles are pushed directly to your connected CMS — WordPress, Shopify, or Webflow |
-| **Re-measure** | New citation data flows in within 24 hours, and the loop begins again |
+## Tech stack
 
-## The 8-Step Pipeline
+Everything below is taken from `package.json`, the config files, and the `lib/` source.
 
-Behind that loop is a structured eight-step pipeline that covers everything from your first site crawl to ongoing indexing audits:
+| Layer | Choice | Source |
+| --- | --- | --- |
+| Framework | Next.js 16.2.6 (App Router, React Server Components) | `package.json:74` |
+| UI runtime | React 19.2.4 | `package.json:80` |
+| Language | TypeScript 5, `strict` mode | `tsconfig.json:7` |
+| Styling | Tailwind CSS v4 (via `@tailwindcss/postcss`) + shadcn / Base UI | `postcss.config.mjs`, `package.json` |
+| Database | Supabase Postgres, accessed through Drizzle ORM | `lib/db/index.ts`, `drizzle.config.ts` |
+| Auth | Supabase Auth (`@supabase/ssr`) | `proxy.ts`, `lib/supabase` |
+| Background jobs | Inngest (functions + cron) | `lib/inngest/client.ts` |
+| SERP / keyword data | DataForSEO (behind an abstraction) | `lib/serp/index.ts` |
+| LLMs | OpenRouter (primary) → OpenAI → Gemini (behind an abstraction) | `lib/llm/index.ts` |
+| Billing | Dodo Payments (Merchant of Record) | `lib/dodo`, `app/api/webhooks/dodo` |
+| Email | Resend | `lib/email` |
+| Analytics | PostHog | `next.config.ts` |
+| Package manager | pnpm (`pnpm-lock.yaml`, `.npmrc` `node-linker=hoisted`) | `.npmrc` |
+| Runtime | Node `>=22.17.0` | `package.json:5` |
 
-1. **Audit & Setup** — Crawl your domain and establish your baseline AI Visibility Score
-2. **Gap Discovery** — Identify topics where competitors earn AI citations and you don't
-3. **Silo Mapping** — Organize your content into topical clusters that AI engines reward
-4. **GEO Content** — Generate articles written specifically to be cited by AI responses
-5. **Asset Optimization** — Improve existing pages to increase their citation potential
-6. **Autopilot Sync** — Schedule and publish content to your CMS automatically
-7. **Auditing & Verification** — Confirm published articles are indexed and performing
-8. **Indexing Audits** — Detect and resolve crawl or indexing issues that suppress visibility
+<Note>
+  **README drift.** The in-repo `README.md` is partly stale. It describes billing as **Polar** and LLMs as **Gemini-only**, but the code uses **Dodo Payments** (`app/api/webhooks/dodo`, migration `drizzle/0022_dodo_payments.sql`) and an **OpenRouter-first** LLM stack (`lib/llm/index.ts`). When a doc and the code disagree, this documentation follows the code.
+</Note>
 
-## Key Capabilities
+## High-level architecture
+
+Spyro is a single Next.js application organized in clear layers. Requests flow from React Server Components and route handlers, into a `lib/` service layer that wraps every external vendor behind an interface, down to Drizzle/Postgres. Anything slow runs as an Inngest background job rather than in the request path.
+
+```mermaid
+flowchart TD
+  subgraph Client["Browser"]
+    UI["React Server + Client Components"]
+  end
+  subgraph Edge["Edge"]
+    PX["proxy.ts (auth + admin gate)"]
+  end
+  subgraph App["Next.js App Router"]
+    RSC["RSC pages / layouts"]
+    SA["Server actions (lib/actions)"]
+    RH["Route handlers (app/api)"]
+  end
+  subgraph Services["lib/ service layer"]
+    ABS["Vendor abstractions: lib/serp, lib/llm, lib/engines"]
+    DOMAIN["Domain logic: lib/seo, lib/geo, lib/crawler, lib/writer, lib/billing"]
+  end
+  subgraph Data["Data + jobs"]
+    DB[("Supabase Postgres + RLS")]
+    JOBS["Inngest functions (lib/inngest/fns)"]
+  end
+  UI --> PX --> RSC
+  RSC --> SA
+  UI --> RH
+  SA --> DOMAIN
+  RH --> DOMAIN
+  DOMAIN --> ABS
+  DOMAIN --> DB
+  SA -. enqueue .-> JOBS
+  RH -. enqueue .-> JOBS
+  JOBS --> DOMAIN
+  JOBS --> DB
+```
+
+Three ideas define the codebase:
+
+1. **Vendor abstraction.** Feature code never imports a vendor SDK. It calls `getSerpProvider()`, `getLLM()`, or an engine from `lib/engines`. Each returns an interface, so swapping or adding a provider is a config change, not a rewrite (`lib/serp/index.ts`, `lib/llm/index.ts`, `lib/engines/index.ts`).
+2. **Long work is a background job.** Crawls, citation checks, rank checks, and article generation run as Inngest functions; request handlers enqueue an event and return, and the UI polls a status row (`lib/inngest/client.ts`).
+3. **Degrade, don't crash — selectively.** Many integrations fall back to a mock when their key is absent so you can click through the product. The two core providers (DataForSEO and the LLM layer) are the exception: they throw real errors instead of masking missing data. See [Environment](/getting-started/environment).
+
+## Where to go next
 
 <CardGroup cols={2}>
-  <Card
-    title="AI Citation Tracker"
-    icon="radar"
-    href="/features/ai-citation-tracker"
-  >
-    Monitor your brand's daily citation rate across ChatGPT (GPT-4o), Claude, Gemini, Perplexity, and Copilot from a single dashboard.
+  <Card title="Installation" icon="rocket" href="/getting-started/installation">
+    Clone, install with pnpm, set up the database, and run the dev servers.
   </Card>
-  <Card
-    title="GEO Content Engine"
-    icon="pen-nib"
-    href="/features/content-engine"
-  >
-    Generate 2,500–3,000 word articles optimized for AI citation — one per day, every day, ready to publish without editing.
+  <Card title="Project structure" icon="folder-tree" href="/getting-started/project-structure">
+    A folder-by-folder tour of `app/`, `lib/`, `components/`, and `drizzle/`.
   </Card>
-  <Card
-    title="Competitor Gap Analysis"
-    icon="chart-bar"
-    href="/features/competitor-gap-analysis"
-  >
-    See exactly which topics your competitors are being cited for so you can prioritize the content that closes the gap fastest.
+  <Card title="Architecture" icon="diagram-project" href="/getting-started/architecture">
+    The layered design, request lifecycle, background jobs, and multi-tenancy.
   </Card>
-  <Card
-    title="Autopilot Publishing"
-    icon="bolt"
-    href="/features/autopilot-publishing"
-  >
-    Connect WordPress, Shopify, or Webflow and let Spyro publish on a schedule — no manual uploads, no copy-pasting.
+  <Card title="Environment" icon="key" href="/getting-started/environment">
+    How configuration works and which keys turn on which features.
   </Card>
 </CardGroup>
 
-## Who Spyro Is For
+## Related
 
-Spyro is built for any business or team that needs to be visible in AI-generated answers:
-
-- **Content marketers and SEOs** who want to extend their strategy into the AI search channel
-- **E-commerce brands** on Shopify looking to capture AI-driven product discovery
-- **Agencies** managing multiple client domains from a single platform
-- **Founders and solo operators** who want AI visibility on autopilot without hiring a content team
-
-No technical skills are required. If you can log in and enter a domain name, Spyro handles the rest.
-
-<Note>
-  Spyro offers a **3-day free trial** with no credit card required. Your first AI citation data appears within 24 hours of completing your initial setup. [Start your free trial →](https://spyro.app/signup)
-</Note>
+- [Backend overview](/backend/overview) and the [service map](/backend/services)
+- [Database schema and RLS](/backend/database)
+- [Background jobs](/backend/background-jobs)
+- [Deployment on Vercel](/deployment/vercel)
