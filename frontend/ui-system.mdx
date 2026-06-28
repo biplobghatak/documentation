@@ -1,0 +1,216 @@
+---
+title: "UI system"
+description: "Spyro's design system: Tailwind v4 via CSS @theme, Base UI + Radix primitives, OKLCH theme tokens, the cn() util, class-variance-authority, icons, toasts and animation."
+---
+
+Spyro's UI is built on **Tailwind CSS v4**, **Base UI** headless primitives, and a small set of
+shadcn-style wrapper components. There is no `tailwind.config.js` and no `components.json` — the
+whole design system is configured in CSS. This page documents the setup, the theme tokens, and the
+utilities every component relies on.
+
+## Tailwind v4 setup
+
+Tailwind v4 is wired through PostCSS and configured **in CSS**, not JavaScript.
+
+`postcss.config.mjs` registers the single Tailwind plugin:
+
+```js
+const config = { plugins: { "@tailwindcss/postcss": {} } };
+export default config;
+```
+
+`app/globals.css` imports Tailwind and its companions at the top:
+
+```css
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+```
+
+Three things to note:
+
+- **`tw-animate-css`** provides animation utilities (the successor to `tailwindcss-animate`).
+- **`shadcn/tailwind.css`** is the preset from the `shadcn` npm package — Spyro pulls in shadcn's
+  Tailwind layer this way rather than scaffolding files with the shadcn CLI. (That is why there is
+  no `components.json`.)
+- **`@custom-variant dark`** defines the `dark:` variant as class-based — it activates whenever an
+  ancestor carries the `.dark` class, which the theme provider toggles on `<html>`.
+
+## Theme tokens (`@theme` + CSS variables)
+
+The design tokens live in `app/globals.css` in two layers. First, an `@theme inline` block maps
+Tailwind's color/font/radius utilities onto CSS variables (so `bg-primary`, `text-muted-foreground`,
+`rounded-lg`, `font-heading` all resolve to a variable). Excerpt:
+
+```css
+@theme inline {
+  --color-brand: var(--brand);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  /* …sidebar-*, chart-1..5, card, popover, accent, destructive, border, ring… */
+}
+```
+
+Second, the actual values are defined as **OKLCH** color variables under `:root` (light) and `.dark`
+(dark). The brand is orange:
+
+```css
+:root {
+  /* Spyro brand: orange primary */
+  --brand: oklch(0.65 0.2 45);
+  --brand-2: oklch(0.55 0.18 45);
+  --primary: oklch(0.65 0.2 45);
+  --primary-foreground: oklch(0.962 0.018 272.314);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --radius: 0.625rem;
+  /* …card, popover, secondary, accent, ring, chart-1..5, sidebar-* … */
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --primary: oklch(0.65 0.2 45);   /* brand orange is constant across themes */
+  --border: oklch(1 0 0 / 10%);
+  /* …full dark palette… */
+}
+```
+
+<Note>
+Colors are authored in **OKLCH** (`oklch(L C H)`) for perceptually-uniform lightness, which makes
+the light/dark pairs and opacity mixes (`color-mix(in oklch, …)`) consistent. The brand orange
+(`oklch(0.65 0.2 45)`) is deliberately identical in light and dark mode.
+</Note>
+
+### Typography and base layer
+
+The `@layer base` block in `globals.css` sets the global type system: `html` is `15px` (scaling to
+`16px` at the `lg` breakpoint), body uses `--font-sans` (Inter), and headings use `--font-heading`
+(Lato). Both fonts are loaded in `app/layout.tsx` via `next/font/google` and exposed as the
+`--font-sans` and `--font-heading` CSS variables. The base layer also resets the Recharts focus
+outline and styles links/buttons (`cursor: pointer`).
+
+## Base UI and Radix primitives
+
+The `components/ui/` wrappers are built on headless primitives:
+
+- **Base UI** (`@base-ui/react`) backs most primitives — `button.tsx` imports
+  `@base-ui/react/button`, `dialog.tsx` imports `@base-ui/react/dialog`, `tabs.tsx` imports
+  `@base-ui/react/tabs`, and so on. Base UI is the successor to Radix from the same team.
+- **Radix** is used for one primitive: `tooltip.tsx` imports `@radix-ui/react-tooltip`
+  (`@radix-ui/react-tooltip` is the only Radix package in `package.json`).
+
+Each wrapper applies Tailwind classes on top of the headless behavior. This is the **shadcn pattern**
+(headless primitive + `cva` variants + `cn`), but implemented with Base UI instead of pure Radix and
+without the shadcn CLI scaffolding.
+
+## `cn()` — the class-merge utility
+
+Every component composes classes through `cn()` from `lib/utils.ts` (verbatim):
+
+```ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+`clsx` resolves conditional class objects/arrays into a string; `tailwind-merge` then de-dupes
+conflicting Tailwind classes (e.g. a later `px-4` wins over an earlier `px-2`). This lets a component
+ship a default class string and still accept an overriding `className` prop without specificity
+fights.
+
+## `class-variance-authority` (cva)
+
+Variant-driven components use `cva` to declare a base class plus named `variants`. The `Button`
+config (`components/ui/button.tsx:7`) is the canonical example:
+
+```tsx
+const buttonVariants = cva(
+  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-lg …",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        outline: "border-border bg-background hover:bg-muted …",
+        secondary: "bg-black text-white hover:bg-black/85 …",
+        ghost: "hover:bg-muted hover:text-foreground …",
+        destructive: "bg-destructive/10 text-destructive …",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: { default: "h-10 …", xs: "h-7 …", sm: "h-9 …", lg: "h-12 …", icon: "size-10", /* … */ },
+    },
+    defaultVariants: { variant: "default", size: "default" },
+  },
+);
+```
+
+The component then exposes the typed variants via `VariantProps<typeof buttonVariants>` and merges
+them with the incoming `className` through `cn(buttonVariants({ variant, size }), className)`.
+`badge.tsx` follows the same pattern.
+
+## Icons
+
+Three icon sources are in the dependency tree; usage is very lopsided:
+
+| Library | Import | Real usage |
+| --- | --- | --- |
+| **lucide-react** | `lucide-react` | Primary — imported in ~168 files |
+| **@tabler/icons-react** | `@tabler/icons-react` | Narrow — ~5 files (e.g. the Sonner toast icons in `ui/sonner.tsx`) |
+| **@hugeicons/react** + core | `@hugeicons/*` | ~3 files |
+
+In addition, `components/ui/hugeicons.tsx` is a local file of **hand-written brand SVG logos**
+(ChatGPT, Perplexity, etc.) — not a library import. When in doubt, reach for **lucide-react**; it is
+the de-facto standard across the app.
+
+## Toasts (Sonner)
+
+Notifications use **Sonner**. The `<Toaster>` is mounted once in the root layout
+(`<Toaster richColors closeButton position="top-center" />`). The wrapper in `components/ui/sonner.tsx`
+reads `useTheme()` to switch between light and dark toast tint palettes (so `richColors` toasts stay
+WCAG-AA in both themes) and supplies Tabler icons per level. Components fire toasts with
+`import { toast } from "sonner"` — used widely in app forms and mutation handlers.
+
+## Animation (framer-motion + CSS keyframes)
+
+Two animation systems coexist:
+
+- **`framer-motion`** (`framer-motion@12`) for component-level motion — imported in ~57 files,
+  heavily in the marketing site and the free-tools result/progress UIs.
+- **CSS keyframes in `globals.css`** for the marketing landing: the `mkting-*` family
+  (`mkting-float`, `mkting-fade-up`, `mkting-marquee`, `mkting-bar-grow`, `mkting-score-ring`),
+  the `spyro-*` floating-dashboard drifts, tickers, and the `spyro-shimmer` "agent is working…"
+  text-shimmer used by the chat streaming status. Several respect `prefers-reduced-motion`.
+
+## Responsiveness
+
+Layout responsiveness uses Tailwind's breakpoint utilities (`sm:`, `md:`, `lg:`). Two custom
+breakpoints are handled in CSS in `globals.css`: a **900px navigation breakpoint** (the
+`nav-desktop-*` / `nav-mobile-*` and `spyro-hamburger-btn` utilities swap the marketing nav), and a
+**639px** mobile CTA collapse (`cta-mobile-icon` shrinks the primary CTA to an icon). The base font
+also steps up from 15px to 16px at `min-width: 1024px`.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Components" href="/frontend/components">The primitives and feature components that use these tokens.</Card>
+  <Card title="Overview" href="/frontend/overview">Where the fonts and providers are mounted.</Card>
+  <Card title="State management" href="/frontend/state-management">`useTheme` and the theme provider.</Card>
+  <Card title="Performance" href="/frontend/performance">Font loading and CSS strategy.</Card>
+</CardGroup>

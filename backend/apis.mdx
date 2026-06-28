@@ -1,0 +1,220 @@
+---
+title: "Internal APIs"
+description: "A catalogue of Spyro's internal route handlers (app/api/*), grouped by domain, with method, auth, request, and response for each."
+---
+
+This page catalogues the **internal** route handlers under `app/api/*` — the
+endpoints Spyro's own browser app calls. They authenticate with the Supabase
+session cookie (not an API key), and the [middleware](/backend/middleware) leaves
+`/api` open so each handler enforces its own auth.
+
+<Note>
+The externally-consumable surface is documented separately in
+[Public API](/backend/public-api). This page covers everything else.
+</Note>
+
+## Auth conventions
+
+Internal handlers use one of a few patterns:
+
+| Pattern | Meaning | Typical failure |
+| --- | --- | --- |
+| `getCurrentUser()` | Requires a signed-in user | `401` or `redirect("/login")` |
+| `requireAccess(orgSlug)` | Requires org membership | `403` / `404` |
+| `resolveWorkspaceForUser(workspaceId)` | Requires workspace/org access | `404` |
+| **Public** | No auth — used by marketing/free tools | per-IP rate limit |
+| Webhook signature | Verifies a provider HMAC | `400` invalid signature |
+| Admin session | The `spyro_admin` cookie + TOTP | `404` (hidden) |
+
+A recurring rule: **long, durable work goes to [Inngest](/backend/background-jobs)**;
+short background work on public tools uses Next's `after()` with client polling.
+The "Inngest?" column below flags which is which.
+
+## Onboarding & site setup
+
+These power the signup wizard. All require a signed-in user (`getCurrentUser()`)
+unless noted.
+
+| Method · Path | Purpose | Auth | Inngest? |
+| --- | --- | --- | --- |
+| `POST /api/onboarding/quick-scan` | Tier-1 single homepage fetch (<3s): brand name, colors, logo, sitemap, language | user | no |
+| `POST /api/onboarding/derive` | Tier-2 parallel LLM audience derivation + competitor discovery (fault-isolated) | user | no |
+| `POST /api/onboarding/competitors` | Re-fetch competitors with locale + business context | user | no |
+| `POST /api/onboarding/seed-prompts` | Draft AI-visibility tracked prompts for wizard review | user | no |
+| `GET /api/site-brand` | Best-effort brand name + logo; always returns a fallback | **public** | no |
+| `GET /api/site-index/{siteId}` | Poll onboarding index progress + fan-out track statuses | workspace access | no |
+
+`POST /api/onboarding/derive` returns audience tags, a business description, and
+competitors, with each half fault-isolated so a slow DataForSEO call can't block
+the audience result. `GET /api/site-index/{siteId}` reports `seo`, `geo`, `serp`,
+and `intel` track statuses for the post-onboarding progress UI; it is gated on
+**org** access (not `user_id`) so team members and seeded workspaces can poll.
+
+<Warning>
+`GET /api/site-brand` is **public** and fetches an arbitrary user-supplied
+domain server-side. It is SSRF-guarded and falls back to a domain-derived name +
+favicon on any failure (returns `200` with `ok: false`). See [Security](/backend/security).
+</Warning>
+
+## AI agent & audit
+
+| Method · Path | Purpose | Auth | Notable |
+| --- | --- | --- | --- |
+| `POST /api/agent` | Streams the Spyro AI agent (workspace-scoped tools, RAG, up to 10 tool steps) | user (+ workspace) | `402` when AI credits exhausted |
+| `POST /api/audit/ask` | "Ask Spyro" Q&A over a page/site, optional thread persistence | user + `requireAccess` | `429` on AI-credit limit; meters 1 credit when persisted |
+| `POST /api/audit/{auditId}/suggest-fix` | Streams an AI fix for one audit issue | user (owns audit) | `404` if not owner; `503` if model unconfigured |
+| `GET /api/audit/{auditId}/pdf` | Download a completed audit as PDF | user (owns audit) | `404` unless `status === "done"` |
+
+`POST /api/agent` streams a `UIMessage` response via the AI SDK
+(`toUIMessageStreamResponse()`), persisting the conversation in an `onFinish`
+callback. It enforces a per-workspace AI-credit budget and returns **402** with a
+human message when exhausted. `maxDuration = 300`. These run **inline** (streamed),
+not via Inngest.
+
+## Free public tools
+
+The marketing site's lead-gen tools. All are **public**, per-IP rate-limited, and
+share a "start → poll" shape: `POST` kicks off the work via Next's `after()` and
+returns `202 { state: "running" }`; the client polls `GET` until
+`{ state: "report", report }`. Reports cache with a 24h TTL and a "cooldown"
+upsell window.
+
+| Method · Path | Tool | Per-IP limit |
+| --- | --- | --- |
+| `POST` · `GET /api/free-audit` | Full free SEO/GEO site audit | 8 / 10 min |
+| `POST` · `GET /api/ai-visibility` | AI visibility (LLM citation) check | 6 / 10 min |
+| `POST` · `GET /api/ai-crawler-check` | Robots.txt / AI-crawler access check | 8 / 10 min |
+| `POST` · `GET /api/schema-validator` | schema.org structured-data validation | 6 / 10 min |
+| `POST /api/meta-snippet/extract` | Extract SERP metadata from up to 3 URLs | 30 / 10 min |
+| `POST /api/free-audit/subscribe` | Capture lead email from the cooldown modal | 12 / 10 min |
+
+Each cached-report tool has a sibling **PDF route** (`/api/{tool}/pdf?website=…`)
+that renders the cached report as a downloadable PDF (`404` if missing or
+expired). The exception is `GET /api/meta-snippet/pdf`, which has no cache — it
+generates the PDF on demand from `title`/`description`/`url` query params.
+Mechanism details live in [PDF Engine](/backend/pdf-engine).
+
+<Info>
+`POST /api/free-audit` additionally enforces a **global concurrency cap**
+(`MAX_CONCURRENT = 4`) and returns **503** when the server is busy crawling —
+protecting the shared crawl budget. None of these tools use Inngest; they run in
+`after()` with `maxDuration` of 110–300s.
+</Info>
+
+`POST /api/free-audit/subscribe` validates the email, stores the lead
+synchronously, then best-effort syncs to MailerLite and notifies the team inbox
+without blocking the response.
+
+## Integrations: GA4 & GSC OAuth
+
+Google Analytics 4 and Google Search Console connect via OAuth. Every route
+resolves the workspace with `resolveWorkspaceForUser(workspaceId)`.
+
+| Method · Path | Purpose | Inngest? |
+| --- | --- | --- |
+| `GET /api/ga4/connect` · `GET /api/gsc/connect` | Start OAuth — redirect to Google with a signed, CSRF state cookie (600s TTL) | no |
+| `GET /api/ga4/callback` · `GET /api/gsc/callback` | Validate state, exchange code for tokens, store integration, redirect to property picker | no |
+| `POST /api/ga4/select-property` · `POST /api/gsc/select-property` | Verify the chosen property against Google, store it | **yes** |
+| `POST /api/ga4/disconnect` · `POST /api/gsc/disconnect` | Best-effort revoke at Google, then delete the integration row | no |
+
+The `connect` routes return `503` when OAuth isn't configured
+(`featureFlags.ga4OauthConfigured` / `gscOauthConfigured`). The `select-property`
+routes are the only ones here that **emit Inngest events** —
+`"workspace/ga4.connected"` / `"workspace/gsc.connected"` — to trigger the
+on-connect data import. GSC's `select-property` also returns a `domainMismatch`
+flag. Token exchange failures surface as `502`; a property the account can't
+access is `403`.
+
+## Content & workspace data
+
+| Method · Path | Purpose | Auth |
+| --- | --- | --- |
+| `GET /api/content-plan/{workspaceId}` | Latest content-plan progress (phase, idea/target counts) for the dashboard bar | `requireAccess(orgSlug)` → `403` |
+| `GET /api/blog-post/{postId}` | Poll a blog post's processing status; returns an "Open in Writer" link when ready | user (owns post) |
+| `POST /api/blog/newsletter` | Subscribe an email to the MailerLite newsletter | **public** |
+
+`GET /api/blog-post/{postId}` polls the status created by a prior Inngest writer
+job; `GET /api/content-plan/{workspaceId}` reports `researching` /`scheduling` /
+`ready` / `error` phases.
+
+## Billing & subscription
+
+Spyro bills through **Dodo Payments** (not Polar — the README is stale). See
+[Billing](/backend/billing).
+
+| Method · Path | Purpose | Auth | Errors |
+| --- | --- | --- | --- |
+| `GET /api/checkout` | Create a Dodo checkout session and redirect to it | user | `400` bad plan/interval/sites, `404`, `500` |
+| `GET /api/portal` | Open the Dodo customer portal | user | `400` no billing account, `500` |
+| `GET /api/subscription/status` | `{ active }` — polled after checkout | user | `401` |
+| `POST /api/subscription/update` | Change plan/interval/site count in place | `requireAccess`, **owner** | `403` non-owner, `409` no sub yet, `502` Dodo error |
+| `POST /api/webhooks/dodo` | Dodo webhook — reconcile subscription state, send billing emails | **signature** | `400` invalid signature |
+
+`GET /api/checkout` takes `plan` (`pro`|`agency`), optional `interval`
+(`month`|`year`), and optional `sites`. `POST /api/subscription/update` is
+**owner-only** and writes the org optimistically; the webhook reconciles from
+Dodo metadata.
+
+### The Dodo webhook
+
+`POST /api/webhooks/dodo` is authenticated by **signature verification**, not a
+session — it reads the raw body and calls `verifyDodoWebhook(req, raw)`, returning
+`400` on a bad signature. It then routes on event type:
+
+| Event(s) | Effect |
+| --- | --- |
+| `subscription.active` / `renewed` / `updated` / `plan_changed`, `payment.succeeded` | Activate the plan; re-sync plan/interval/sites from `metadata`; welcome email on first activation only |
+| `subscription.cancelled` / `failed` / `expired` | Deactivate the plan; a cancellation email (with access-end date) is sent for `subscription.cancelled` only |
+| `payment.failed` | Payment-failed email (card last-4, amount) |
+
+The org is keyed by `metadata.org_id`; a missing `org_id` is logged and returns
+`200` (not an error). Billing emails are best-effort and never fail the webhook.
+
+## Admin
+
+The superadmin endpoints. Gated by IP allowlist + the `spyro_admin` session;
+failures return `404` to hide the surface. See
+[Authorization](/backend/authorization#superadmin--impersonation).
+
+| Method · Path | Purpose | Notable |
+| --- | --- | --- |
+| `POST /api/admin/login` | Username + scrypt password + TOTP login | `429` per-IP lockout (5 fails / 15 min); sets `spyro_admin` cookie (1h, `sameSite=strict`) |
+| `POST /api/admin/logout` | Clear the admin cookie | de-escalating, no gate |
+| `POST /api/admin/impersonate` | Start impersonating `targetUserId` (mint magic link, `verifyOtp`) | admin session; `404` if not admin; returns `redirectTo` |
+| `POST /api/admin/end-impersonation` | End impersonation, sign out, mark audit row | de-escalating; clears `spyro_impersonation` |
+
+All three credential factors in `/api/admin/login` are evaluated without
+early-return to avoid timing leaks, and a single generic `"Invalid credentials."`
+is returned regardless of which factor failed.
+
+## Inngest serve endpoint
+
+| Method · Path | Purpose |
+| --- | --- |
+| `GET` · `POST` · `PUT /api/inngest` | The Inngest function server (`serve()` handler) for all background jobs |
+
+`maxDuration = 300`. Long jobs are split into `step.run()` units, each under the
+300s ceiling. This endpoint is how Inngest Cloud invokes registered functions —
+see [Background Jobs](/backend/background-jobs).
+
+## Error-code conventions
+
+| Status | Meaning across internal routes |
+| --- | --- |
+| `400` | Bad input / validation / SSRF rejection |
+| `401` | Not signed in |
+| `402` | Quota/credit limit (AI credits, plan limits) |
+| `403` | Signed in but lacks the required role/membership |
+| `404` | Resource not found, or hidden (admin surface) |
+| `429` | Rate limited (per-IP free tools, AI credits, admin lockout) |
+| `502` | Upstream provider failure (Google, Dodo) |
+| `503` | Feature unconfigured or server busy (concurrency cap) |
+
+## Related
+
+- [Public API](/backend/public-api) — the external `/api/v1` surface and API keys.
+- [Authentication](/backend/authentication) ↔ [Authorization](/backend/authorization) — the auth the handlers enforce.
+- [Background Jobs](/backend/background-jobs) — Inngest functions the routes dispatch to.
+- [Billing](/backend/billing) — checkout, portal, and the Dodo webhook.
+- [Integrations](/backend/integrations) — GA4/GSC and publishing targets.
+- [Overview](/backend/overview) — route handlers vs server actions and the request lifecycle.

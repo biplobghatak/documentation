@@ -1,0 +1,194 @@
+---
+title: "Production considerations"
+description: "Running Spyro in production: dev vs prod environments, degrade-to-mock behavior, Inngest cron registration, running migrations, background-job reliability and inline fallback, monitoring, and scaling."
+---
+
+This page covers what changes once Spyro is live: how environments differ, how
+scheduled work is registered and runs, how to apply schema changes safely, what
+happens when the background-job queue is unreachable, and where to watch for
+trouble.
+
+## Dev vs production environments
+
+Spyro behaves the same in both, but a few things flip:
+
+| Concern | Local dev | Production |
+| --- | --- | --- |
+| Background jobs | `pnpm inngest:dev` (no keys, `localhost:8288`) | Inngest Cloud (`INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY`, synced serve endpoint) |
+| Billing mode | `DODO_ENV=test_mode` | `DODO_ENV=live_mode` |
+| Public origin | `NEXT_PUBLIC_APP_URL=http://localhost:3000` | your public domain (feeds canonical URLs, links, PDF origin) |
+| Schema changes | `pnpm db:push` (fast, destructive-ish) | `pnpm db:migrate` (ordered, committed migrations) |
+| Missing keys | mostly mocked, fine for clicking through | must be real — mocks are labelled "sample data" in the UI |
+
+`lib/env.ts` has a production safety net for the public origin: if
+`NEXT_PUBLIC_APP_URL` is missing or accidentally points at `localhost` on a Vercel
+deploy, it falls back to `VERCEL_PROJECT_PRODUCTION_URL` and logs a warning, rather
+than leaking a localhost origin into every `<link rel="canonical">` and `og:url`
+*(`lib/env.ts:38–59`)*. Setting `NEXT_PUBLIC_APP_URL` correctly remains the real fix.
+
+## Degrade-to-mock behavior
+
+Spyro is built so a missing key degrades a feature instead of crashing the app.
+`lib/env.ts` reads every key with a light-touch `opt()` and exposes `featureFlags`
+that gate features on/off *(`lib/env.ts:189–222`)*:
+
+```ts
+export const featureFlags = {
+  supabaseConfigured: Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY),
+  dataforseoConfigured: Boolean(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD),
+  dodoConfigured: Boolean(env.DODO_API_KEY),
+  resendConfigured: Boolean(env.RESEND_API_KEY),
+  // ...gscOauthConfigured, ga4OauthConfigured, rerankConfigured, adminConfigured...
+};
+```
+
+<Warning>
+**DataForSEO is the one exception** — it has no mock. A missing key or a failed
+request surfaces as a real error in the UI rather than silent sample data, by design
+*(`.env.local.example:36–46`)*. In production, treat `dataforseoConfigured` as
+mandatory. Optionally set `DATAFORSEO_DAILY_BUDGET_USD` as a spend circuit breaker.
+</Warning>
+
+Mocked outputs are always labelled **"sample data"** in the UI, so in production —
+where the keys are real — you should never see that label. If you do, a key is
+missing.
+
+## Cron registration
+
+There is **no Vercel cron**. Every scheduled job is declared as an Inngest `cron:`
+trigger in `lib/inngest/fns/*` and runs on Inngest Cloud. "Registering" the crons
+means **syncing the serve endpoint** `<APP_URL>/api/inngest` in the Inngest
+dashboard — that single route serves the whole function registry
+*(`app/api/inngest/route.ts`, `lib/inngest/functions.ts`)*.
+
+The scheduled functions and their cron expressions (all UTC):
+
+| Function | Cron | What it does |
+| --- | --- | --- |
+| Weekly-job dispatchers (`audit`, `citations`, `tracking`, `site-intel`, `digest`) | `0 * * * *` (hourly) | Fan out per-workspace so each runs on its **own** local Monday *(`fns/dispatcher.ts:24–60`)* |
+| GSC / GA4 import dispatchers | `0 * * * *` (hourly) | Fire a daily import per connected integration once ~23h have passed *(`fns/dispatcher.ts:71–135`)* |
+| `autoGenerateScheduledFn` | `0 * * * *` | Autonomous article generation, top of every hour *(`fns/auto-generate-scheduled.ts:35`)* |
+| `scheduledPublishCronFn` | `*/30 * * * *` | Publish due scheduled posts every 30 min *(`fns/scheduled-publish.ts:21`)* |
+| `competitorSignalsFn` | `0 */6 * * *` | Competitor signal refresh every 6h *(`fns/competitor-signals.ts:24`)* |
+| `freeAuditCleanupFn` | `0 3 * * *` | Daily cleanup of expired free-audit rows *(`fns/free-audit-cleanup.ts:24`)* |
+| `integrationDeliveriesPruneFn` | `0 3 * * *` | Daily prune of delivery records *(`fns/integration-deliver.ts:195`)* |
+| `knowledgeSweepFn` | `0 4 * * *` | Daily re-embed safety sweep *(`fns/indexer.ts:314`)* |
+| `competitorGapAnalysisFn` | `0 3 * * 1` | Weekly competitor gap analysis *(`fns/competitor-gap-analysis.ts:19`)* |
+| `planRefillFn` | `0 7 * * 1` | Weekly Monday plan/credit refill *(`fns/plan-refill.ts:22`)* |
+| `trialReminderFn` | `0 9 * * *` | Daily trial-ending reminder *(`fns/trial-reminders.ts:19`)* |
+
+<Note>
+The weekly jobs were deliberately moved off global UTC crons onto **hourly fan-out
+dispatchers** so each workspace runs on its own timezone's Monday
+*(`fns/dispatcher.ts:1–11`)*. Idempotency is enforced by event IDs keyed on
+`<jobKey>:<workspaceId>:<isoWeek>`, so an at-least-once cron fire collapses to one run
+per workspace per ISO week.
+</Note>
+
+See [Background jobs](/backend/background-jobs) for each function's logic.
+
+## Running migrations in production
+
+Use **committed migrations**, not `db:push`, against a production database:
+
+```bash
+pnpm db:migrate    # drizzle-kit migrate — applies drizzle/*.sql in order
+```
+
+`db:push` (`drizzle-kit push`) diffs the schema straight onto the DB and is for dev
+convenience; `db:migrate` applies the ordered, reviewed migration files in `drizzle/`.
+`drizzle.config.ts` loads `.env.local` then `.env`, so `DATABASE_URL` must be set in
+the environment of wherever you run the command *(`drizzle.config.ts:5–6`)*.
+
+<Warning>
+**RLS is not part of the migrations.** After applying migrations, re-run
+`drizzle/rls.sql` and `drizzle/rls_site_chunks.sql` in the Supabase SQL editor — they
+are idempotent and safe to re-run *(`drizzle/rls.sql:1`)*. New tables added by a
+migration are not protected until their policies exist. See
+[Going live → step 1](/deployment/environment#1-supabase-database-auth).
+</Warning>
+
+See [Database](/backend/database) for the schema, relations, and the full migration
+history.
+
+## Background-job reliability and inline fallback
+
+The contract is **long work = Inngest, never request handlers**. Request handlers
+enqueue an event and return immediately; the UI polls a status row
+*(`lib/inngest/client.ts:3–9`)*.
+
+For on-demand actions, when Inngest is **unreachable**, several server actions fall
+back to a **capped inline run** so the user still gets a result (mostly a dev/demo
+convenience):
+
+- Audits — `runInline(...)` after a warning *"Inngest unavailable — running inline
+  fallback (capped)"* *(`lib/actions/audit.ts:35–37,107–108`)*.
+- Tracked-URL checks — *"Inngest unavailable — running check inline"*
+  *(`lib/actions/tracked-urls.ts:46–52`)*.
+- Prompt/citation checks — run the first check inline if the dispatch fails
+  *(`lib/actions/prompts.ts:82,155`)*.
+- Spyro agent tools — inline fallback when Inngest isn't reachable
+  *(`lib/agent/spyro-tools.ts:210,499`)*.
+
+Fire-and-forget emits (knowledge re-index, initial-insights) **swallow failures
+silently** because a daily safety-sweep cron re-indexes any delta a dropped event
+missed — a lost emit degrades freshness, never correctness
+*(`lib/inngest/emit.ts:5–25`)*.
+
+<Tip>
+In production with Inngest Cloud configured, the inline fallback should rarely
+trigger. If you see the *"Inngest unavailable"* warnings in logs, check that the
+serve endpoint is synced and the `INNGEST_*` keys are correct — the inline path is
+capped and not a substitute for the queue at scale.
+</Tip>
+
+## Monitoring
+
+- **PostHog** — wired up server-side (`posthog-node`) and client-side (`posthog-js`),
+  but currently **dormant**: only user identify/reset is live — there is no
+  `posthog.init()` or `posthog.capture()` in the codebase yet, so no product events are
+  captured (see [Logging](/backend/logging#posthog-analytics)). Browser traffic still routes through the
+  first-party `/ingest` rewrite ([see Vercel](/deployment/vercel#the-posthog-ingest-rewrite));
+  configure with `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST`.
+  See [Logging & analytics](/backend/logging).
+- **API cost tracking** — external-API spend is recorded in `api_cost_events`
+  (migration `drizzle/0041_api_cost_events.sql`) and surfaced in the superadmin
+  **Cost** panel; the DataForSEO daily budget cap reads from the same accounting.
+- **Superadmin panel** — orgs, users, usage, billing, cost, and an audit log at
+  `superadmin.<your-domain>`, gated by a dedicated credential set and optional IP
+  allowlist. See [Middleware](/backend/middleware) and [Logging](/backend/logging).
+- **Inngest dashboard** — per-run logs, retries, and failures for every job; the
+  first place to look when a scheduled task didn't happen.
+
+## Scaling
+
+- **Function duration** is capped at 300s on Vercel Hobby
+  *(`app/api/inngest/route.ts:14`)*. Long jobs are split one `step.run` per phase so
+  each phase is its own sub-300s invocation; Inngest re-invokes for the next. Raise
+  `maxDuration` to `800` only after upgrading the Vercel project to Pro.
+- **Per-workspace fan-out** spreads weekly load across the hours of the week instead
+  of stampeding one global cron tick *(`fns/dispatcher.ts`)*.
+- **DataForSEO spend** is the main external cost lever — use
+  `DATAFORSEO_DAILY_BUDGET_USD` as a hard daily cap.
+- **One sharp version** must stay pinned for the native bundle to keep working at
+  build time — see the [sharp/libvips gotcha](/deployment/vercel#the-sharp-libvips-file-tracing-gotcha).
+- **PDF rendering** is offloaded to the external Gotenberg container, so report
+  generation does not consume Vercel function CPU for headless Chrome — scale
+  Gotenberg (Railway) independently. See [PDF engine](/backend/pdf-engine).
+
+## Related
+
+<CardGroup cols={2}>
+<Card title="Deploying to Vercel" href="/deployment/vercel" icon="triangle">
+Build settings, native modules, function limits.
+</Card>
+<Card title="Going live checklist" href="/deployment/environment" icon="list-check">
+The ordered pre-launch steps.
+</Card>
+<Card title="Background jobs" href="/backend/background-jobs" icon="clock">
+Inngest functions, dispatchers, and crons in depth.
+</Card>
+<Card title="Database" href="/backend/database" icon="database">
+Schema, migrations, and RLS.
+</Card>
+</CardGroup>

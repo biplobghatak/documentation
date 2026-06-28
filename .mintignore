@@ -5,3 +5,8 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Superseded end-user marketing docs (kept for reference, not built).
+# Replaced by the code-derived developer docs in getting-started/, frontend/,
+# backend/, deployment/, and reference/.
+legacy-marketing/

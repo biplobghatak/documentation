@@ -1,0 +1,187 @@
+---
+title: "Backend Overview"
+description: "How Spyro's backend is organized: route handlers vs server actions, the lib service layer, vendor abstractions, and the request lifecycle."
+---
+
+Spyro's backend is a **Next.js App Router** application. There is no separate API
+server — the backend *is* the same Next.js project that renders the frontend,
+running on Vercel's serverless runtime. Business logic lives in a plain TypeScript
+service layer under `lib/`, data is in Postgres (via Drizzle + Supabase), and
+anything slow or scheduled runs out-of-band on [Inngest](/backend/background-jobs).
+
+## The four entry points
+
+Every request enters the backend through one of four mechanisms:
+
+<CardGroup cols={2}>
+<Card title="Route handlers" icon="server">
+`app/api/**/route.ts` — HTTP endpoints (REST-ish). Used for streaming (the AI
+agent), polling, OAuth callbacks, webhooks, PDFs, and the external
+[`/api/v1`](/backend/public-api) API. ~46 handlers, catalogued in
+[Internal APIs](/backend/apis).
+</Card>
+<Card title="Server Actions" icon="bolt">
+`"use server"` functions (e.g. `lib/actions/auth.ts`, `lib/actions/api-keys.ts`).
+Called directly from forms/components — the default for mutations that don't need
+a public URL. Auth, API-key CRUD, and most settings run here.
+</Card>
+<Card title="Server Components" icon="layer-group">
+Pages and layouts read data directly through the `lib/` service layer and the
+[auth guards](/backend/authorization), with no API round-trip.
+</Card>
+<Card title="Inngest functions" icon="clock">
+`lib/inngest/*` — durable, multi-step, and scheduled background work, invoked via
+the `/api/inngest` serve endpoint.
+</Card>
+</CardGroup>
+
+### Route handler vs Server Action — which to use?
+
+| Use a **route handler** when… | Use a **server action** when… |
+| --- | --- |
+| You need a stable URL (webhooks, OAuth callbacks, the public API) | A form or component mutates data |
+| You stream a response (the AI agent, `suggest-fix`) | You want progressive enhancement + type-safe args |
+| An external client (plugin, browser `fetch`, polling) calls it | The caller is Spyro's own React tree |
+| You return a file (PDF download) | You return a small result object |
+
+Both ultimately call the same `lib/` services and the same auth guards, so the
+choice is about the *transport*, not the logic.
+
+## The service layer (`lib/`)
+
+All real work lives in `lib/`, organized by domain, and imported by every entry
+point. A few load-bearing modules:
+
+| Module | Responsibility |
+| --- | --- |
+| `lib/supabase/*` | The three Supabase clients (browser / server / admin) |
+| `lib/auth-guard.ts`, `lib/org.ts`, `lib/workspace.ts`, `lib/profile.ts` | Identity, tenancy, and access resolution |
+| `lib/db/*` | Drizzle schema and the DB connection |
+| `lib/plans.ts`, `lib/usage.ts` | Plan limits and metered usage |
+| `lib/api/*` | The public API's key auth and durable rate limiter |
+| `lib/inngest/*` | Background job client + functions |
+| `lib/engines/*`, `lib/seo`, `lib/geo`, `lib/crawler`, `lib/audit`, `lib/writer` | The SEO/GEO/crawl/content engines |
+
+Server-only modules import `"server-only"` (e.g. `lib/org.ts:1`,
+`lib/usage.ts:1`) so they can never be bundled into client code. A few pure
+helpers deliberately **omit** it because they also run at the edge in
+[`proxy.ts`](/backend/middleware) — notably `lib/admin/ip.ts` and
+`lib/rate-limit.ts`.
+
+## Vendor abstractions
+
+External providers are wrapped so the app depends on intent, not a vendor SDK:
+
+| Concern | Provider (from code) | Notes |
+| --- | --- | --- |
+| Auth & DB | **Supabase** (Postgres + Auth) | App queries bypass RLS; RLS is defense-in-depth |
+| Billing | **Dodo Payments** | `DODO_*` env vars, webhook `app/api/webhooks/dodo` — **not** Polar (README is stale) |
+| Chat LLM | **OpenRouter** (primary) | Gemini/Moonshot are unset-only fallbacks; OpenAI used for embeddings |
+| SERP / keywords | **DataForSEO** | |
+| Email | **Resend** + MailerLite | transactional + newsletter |
+| Background jobs | **Inngest** | all schedules are Inngest `cron:` triggers (no Vercel cron array) |
+| PDF rendering | react-pdf + **Gotenberg** | see [PDF Engine](/backend/pdf-engine) |
+
+<Warning>
+Two stale-README contradictions confirmed in code: billing is **Dodo**, not
+Polar (`lib/env.ts`, `0022_dodo_payments`), and the chat LLM is **OpenRouter**,
+not "Gemini only". When docs and code disagree, the code wins.
+</Warning>
+
+## "Long work = Inngest" — with one real exception
+
+The guiding rule is that **durable, multi-step, or scheduled work runs on
+[Inngest](/backend/background-jobs)**, not inside a request. Article generation,
+data imports, and crons are split into `step.run()` units (each under the 300s
+serverless ceiling) so they survive restarts and retries. The GA4/GSC
+`select-property` routes, for example, emit `workspace/*.connected` events to
+kick off the on-connect import.
+
+There is one honest exception, visible in the code: the **public free tools**
+(`free-audit`, `ai-visibility`, `ai-crawler-check`, `schema-validator`) do *not*
+use Inngest. They run best-effort in Next's `after()` with a `maxDuration` of
+110–300s and a client that polls the `GET` endpoint for the result. That's the
+right tool because the work is a single best-effort invocation tied to one
+visitor, not a durable pipeline.
+
+```mermaid
+flowchart LR
+  subgraph "Inline / streamed"
+    A[POST /api/agent] --> A2[streamText]
+  end
+  subgraph "after() + poll (free tools)"
+    B[POST /api/free-audit] --> B2[after: runFreeAudit]
+    B2 --> B3[(report cache 24h)]
+    C[GET /api/free-audit] --> B3
+  end
+  subgraph "Inngest (durable)"
+    D[select-property / writer] --> D2[emit event]
+    D2 --> E[/api/inngest serve]
+    E --> E2[step.run pipeline]
+  end
+```
+
+**Rule of thumb:** durable/multi-step/scheduled → Inngest; single best-effort
+background task → `after()`; needs to stream → inline in a route handler.
+
+## Request lifecycle
+
+A typical authenticated page request flows like this:
+
+```mermaid
+flowchart TD
+  A[Request] --> B[proxy.ts middleware]
+  B --> C{Public path?}
+  C -- no, no user --> D[Redirect /login]
+  C -- yes / has user --> E[Refresh Supabase cookies]
+  E --> F{Entry point}
+  F -- Server Component --> G[auth guard:<br/>requireAccess / requireWorkspace]
+  F -- Route handler --> H[getCurrentUser /<br/>resolveBearer / webhook sig]
+  F -- Server Action --> G
+  G --> I[lib/* service layer]
+  H --> I
+  I --> J[(Postgres via Drizzle)]
+  I --> K{Slow or scheduled?}
+  K -- yes --> L[Inngest event] --> M[/api/inngest]
+  K -- no --> N[Respond / render]
+  J --> N
+```
+
+1. **Middleware** ([`proxy.ts`](/backend/middleware)) refreshes the session and
+   redirects unauthenticated users away from private paths.
+2. The **entry point** resolves identity — [auth guards](/backend/authorization)
+   for app code, `getCurrentUser()`/`resolveBearer()`/webhook signatures for
+   route handlers.
+3. The **service layer** in `lib/` does the work against Postgres.
+4. Anything slow is **handed off to Inngest** (or `after()` for free tools);
+   everything else responds inline.
+
+## Where to go next
+
+<CardGroup cols={2}>
+<Card title="Internal APIs" icon="server" href="/backend/apis">
+The full catalogue of `app/api/*` route handlers.
+</Card>
+<Card title="Public API" icon="key" href="/backend/public-api">
+The external `/api/v1` surface and API-key auth.
+</Card>
+<Card title="Authentication" icon="lock" href="/backend/authentication">
+Supabase Auth, the OTP signup flow, and sessions.
+</Card>
+<Card title="Authorization" icon="users" href="/backend/authorization">
+Org/workspace roles, RLS, and plan gating.
+</Card>
+<Card title="Middleware" icon="shield" href="/backend/middleware">
+The edge gate in proxy.ts.
+</Card>
+<Card title="Background Jobs" icon="clock" href="/backend/background-jobs">
+Inngest functions, crons, and the dispatcher.
+</Card>
+</CardGroup>
+
+## Related
+
+- [Architecture](/getting-started/architecture) — the system-wide diagrams.
+- [Database](/backend/database) — schema, migrations, and RLS.
+- [Services](/backend/services) — the full `lib/*` module map.
+- [Billing](/backend/billing) — Dodo checkout, portal, and webhooks.
