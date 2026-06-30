@@ -21,6 +21,58 @@
   "navigation": {
     "tabs": [
       {
+        "tab": "Product Guide",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "product/overview",
+              "product/onboarding",
+              "product/dashboard"
+            ]
+          },
+          {
+            "group": "SEO",
+            "pages": [
+              "product/spyro-ai-agent",
+              "product/audit",
+              "product/search-console",
+              "product/rank-tracker"
+            ]
+          },
+          {
+            "group": "AI visibility",
+            "pages": [
+              "product/ai-visibility",
+              "product/prompts",
+              "product/ai-mentions"
+            ]
+          },
+          {
+            "group": "Create",
+            "pages": [
+              "product/calendar",
+              "product/writer",
+              "product/article-settings"
+            ]
+          },
+          {
+            "group": "Account",
+            "pages": [
+              "product/settings",
+              "product/team-members",
+              "product/billing-and-usage"
+            ]
+          },
+          {
+            "group": "Free tools",
+            "pages": [
+              "product/free-tools"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Developer Docs",
         "groups": [
           {

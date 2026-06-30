@@ -1,0 +1,118 @@
+---
+title: "Team members"
+description: "Invite teammates by email, assign organization and workspace roles, decide which workspaces each person can reach, and remove members — how collaboration works in Spyro."
+---
+
+Spyro is built for teams. You invite people by email, give them a role, and
+decide which of your sites they can touch. Roles work on **two levels** — the
+organization and the individual workspace — and understanding how they fit
+together is the whole story.
+
+## Two levels of access
+
+<AccordionGroup>
+  <Accordion title="Organization roles" icon="building">
+    Every member of an org has one **org role**: **owner**, **admin**,
+    **manager**, or **member**. This sets their reach across *all* the org's
+    workspaces. Manage them at **Members** under the org settings
+    (`/{org}/settings/members`).
+  </Accordion>
+  <Accordion title="Workspace roles" icon="folder">
+    Within a single workspace, a person is either an **admin** or a **member**.
+    Manage these on a workspace's **Team members** tab
+    (`/{org}/{workspace}/settings/team-members`).
+  </Accordion>
+</AccordionGroup>
+
+## The role hierarchy
+
+The key rule is which workspaces a person can reach:
+
+| Org role | Reach | What they can do |
+| --- | --- | --- |
+| **Owner** | Every workspace (admin) | Everything, plus billing, plan changes, and transferring ownership. |
+| **Admin** | Every workspace (admin) | Manage members, settings, and content across all sites. |
+| **Manager** | Every workspace (admin) | Admin on every workspace. |
+| **Member** | Only assigned workspaces | Access the specific workspaces they've been added to, at the role they were given. |
+
+In short: **owners, admins, and managers automatically have admin access to every
+workspace** in the org. A plain **member sees only the workspaces they've been
+explicitly assigned to** — and at the admin-or-member role set on each assignment.
+
+<Note>
+There is exactly one **owner** per organization. Only the owner can change the
+plan, manage billing, or transfer ownership.
+</Note>
+
+## Inviting teammates
+
+You can invite from either level, depending on the reach you want to grant.
+
+### Invite to the organization
+
+On **Members** (`/{org}/settings/members`), owners and admins enter an email and
+pick an org role (**admin**, **manager**, or **member**), then send. Spyro emails
+an invite link; you can also **Copy link** to share it yourself.
+
+### Invite to a single workspace
+
+On a workspace's **Team members** tab, a workspace admin enters an email and picks
+**admin** or **member**. If that person is already in the org, they're added to
+this workspace right away. If they're new, Spyro creates an invite that drops them
+straight into *this* workspace once they accept.
+
+<Tip>
+Use a **workspace invite** to give someone access to just one site, and an
+**organization invite** when you want them across everything (or as a manager who
+reaches every workspace).
+</Tip>
+
+## Accepting an invite
+
+<Steps>
+  <Step title="Open the link">
+    The invitee clicks the link in their email (`/invite/{token}`).
+  </Step>
+  <Step title="Sign in with the invited address">
+    If they don't have an account yet, they're sent to sign-up first. They must
+    sign in with **the same email the invite was sent to** — a forwarded link
+    can't be redeemed by a different account.
+  </Step>
+  <Step title="Land in the workspace">
+    On acceptance they join the org at the invited role, get added to any
+    workspaces the invite assigned, and are dropped into a workspace they can
+    access. The person who invited them is notified.
+  </Step>
+</Steps>
+
+<Warning>
+Invites expire after **14 days**. If a link has expired or been revoked, the
+invitee sees an "Invite unavailable" message — just send a fresh one.
+</Warning>
+
+## Changing roles and removing people
+
+- **Change an org role** — on **Members**, owners and admins pick a new role from
+  the dropdown next to a member.
+- **Remove from the org** — the trash icon removes a member from the organization
+  entirely.
+- **Remove from a workspace** — on **Team members**, the trash icon unassigns a
+  member from just that workspace (they keep their org membership).
+- **Revoke a pending invite** — use **Revoke** next to any unaccepted invite at
+  either level.
+- **Transfer ownership** — the owner can hand the org to another member with
+  **Make owner**; the previous owner becomes an admin.
+
+<Note>
+The owner can't be removed or have their role changed. Only **owners and admins**
+manage org members; only **workspace admins** manage a workspace's team.
+</Note>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Authorization" icon="shield-halved" href="/backend/authorization">How roles and access checks are enforced.</Card>
+  <Card title="Workspace settings" icon="gear" href="/product/settings">Account, audience, competitors, and API keys.</Card>
+  <Card title="Plans & billing" icon="credit-card" href="/product/billing-and-usage">Seats, plans, and usage.</Card>
+  <Card title="Product overview" icon="grid-2" href="/product/overview">How orgs and workspaces fit together.</Card>
+</CardGroup>

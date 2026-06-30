@@ -73,13 +73,20 @@ limits (`lib/plans.ts:158-209`):
 | `serpLookupsPerMonth` | `500` | `500` |
 | `auditPages` | `500` | `500` |
 | `blogIdeasPerMonth` | `30` | `30` |
-| `inContentImagesPerPost` | `3` | `3` |
+| `inContentImagesPerPost` _(defined but not enforced)_ | `3` | `3` |
 | `trackedPrompts` | `10` | `10` |
 | `citationCallsPerMonth` | `600` | `600` |
 | `aiCreditsPerMonth` | `200` | `200` |
-| `trackedKeywordsMax` | `50` | `50` |
+| `trackedKeywordsMax` | `500` | `500` |
 | `integrationsMax` | `5` | `5` |
 | `engines` | AI Overview, Gemini, ChatGPT, Claude, Perplexity | same |
+
+<Note>
+`inContentImagesPerPost` (`3`) is **defined but no longer enforced** — the image
+pipeline hardcodes a cap of **6** in-content images per article
+(`lib/inngest/fns/image-pipeline.ts:89`), ignoring this plan value. See
+[Content engine](/backend/content-engine).
+</Note>
 
 <Info>
   **There are no credit packs.** Despite older planning docs, `lib/plans.ts:11` states the

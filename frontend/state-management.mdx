@@ -150,10 +150,9 @@ The notable ones:
 | `useBackdropScrollBlock<T>()` | `components/ui/use-backdrop-scroll-block.ts:28` | Returns a ref for a modal backdrop that blocks scroll/pointer/focus on the page behind it; handles stacked modals. |
 | `useTheme()` | `components/app/theme-provider.tsx:83` | Read/set the light/dark theme. |
 | `usePlanner()` | `components/app/calendar/planner-context.tsx:29` | Access the calendar planner state. |
-| `useToolbarState(editor)` | `components/app/writer/article-editor.tsx:146` | Shallow-compared snapshot of TipTap mark/node state for the editor toolbar. |
-| `useLinkHandler(editor)` | `components/app/writer/article-editor.tsx:169` | Prompt-driven link insert/edit for the editor. |
+| `useToolbarState(editor)` | `components/app/writer/article-editor.tsx:447` | Shallow-compared snapshot of TipTap mark/node state for the editor toolbar. |
 | `useDebouncedBlocks(src, 32)` | `components/app/agent/agent-markdown.tsx:190` | Debounces markdown block re-parsing during streaming to batch token updates. |
-| `useResizeHandle(setWidth)` | `components/app/calendar/planner-panel.tsx:305` | Mouse-drag width resize (320–900px) for the planner panel. |
+| `useResizeHandle(setWidth)` | `components/app/calendar/planner-panel.tsx:136` | Mouse-drag width resize (320–900px) for the planner panel. |
 | `useToastResult(state)` | `components/app/workspace-general-cards.tsx:45` | Turns a server-action result into a toast + `router.refresh()`. |
 
 The signature convention is plain — e.g. the backdrop hook (`use-backdrop-scroll-block.ts:28`):

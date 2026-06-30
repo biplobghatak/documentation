@@ -315,24 +315,54 @@ issues.push({
 
 ## Health scoring
 
-The site health score is `100` minus weighted penalties, scaled by pages crawled
-so one bad page on a big site doesn't tank the score. Severity weights are
-`critical: 12, warning: 4, info: 1`, and **only `category === "seo"` issues count**
-(GEO issues are scored separately by the [GEO engine](/backend/geo-engine)):
+The site health score is the **average of the per-page SEO scores**, with every
+crawled page that has no issues counting as a perfect `100`, then a small
+**capped penalty** for genuinely site-global faults. Averaging keeps the headline
+number consistent with the per-page rows the UI shows and stops one bad page from
+tanking an otherwise healthy site. Severity weights are `critical: 12, warning: 4,
+info: 1`, and **only `category === "seo"` issues count** (GEO issues are scored
+separately by the [GEO engine](/backend/geo-engine)).
+
+Two issue types — `missing_sitemap` and `robots_blocks_assets` — describe the
+site as a whole (they're emitted against the homepage but aren't that page's
+fault), so they are pulled out of the per-page average and applied **once** as a
+capped site penalty (`weight × 2`, never more than `20`) instead of tanking the
+homepage's score:
 
 ```ts
-// lib/seo/health.ts:3-36
+// lib/seo/health.ts:13-48
 const WEIGHT = { critical: 12, warning: 4, info: 1 };
+const SITE_LEVEL_TYPES = new Set(["missing_sitemap", "robots_blocks_assets"]);
+const SITE_PENALTY_MULT = 2;  // weight × this
+const SITE_PENALTY_CAP = 20;  // site-global issues never cost more than this
 
 export function seoHealthScore(issues: DetectedIssue[], pagesCrawled: number): number {
-  const seoIssues = issues.filter((i) => i.category === "seo");
   if (pagesCrawled === 0) return 0;
-  const raw = seoIssues.reduce((sum, i) => sum + WEIGHT[i.severity], 0);
-  const perPage = raw / pagesCrawled;
-  const score = Math.round(100 - Math.min(100, perPage * 12.5)); // 0 issues→100, ~8/page→0
+  const seoIssues = issues.filter((i) => i.category === "seo");
+  const siteIssues = seoIssues.filter((i) => SITE_LEVEL_TYPES.has(i.type));
+  const pageIssues = seoIssues.filter((i) => !SITE_LEVEL_TYPES.has(i.type));
+
+  // Per-page penalty → per-page score (100 − penalty×5), summed; clean pages = 100.
+  const penaltyByUrl = new Map<string, number>();
+  for (const i of pageIssues) penaltyByUrl.set(i.url, (penaltyByUrl.get(i.url) ?? 0) + WEIGHT[i.severity]);
+  let scoreSum = 0;
+  for (const penalty of penaltyByUrl.values()) scoreSum += Math.max(0, 100 - Math.min(100, penalty * 5));
+  const cleanPages = Math.max(0, pagesCrawled - Math.min(penaltyByUrl.size, pagesCrawled));
+  const avg = (scoreSum + 100 * cleanPages) / pagesCrawled;
+
+  const sitePenalty = siteIssues.reduce((sum, i) => sum + WEIGHT[i.severity], 0);
+  const score = Math.round(avg - Math.min(SITE_PENALTY_CAP, sitePenalty * SITE_PENALTY_MULT));
   return Math.max(0, Math.min(100, score));
 }
+```
 
+Cross-page issues (duplicate title/meta, orphan pages) are page-attributed, so
+they're already in the per-page scores and are **not** double-counted. The
+single-page score uses the same `100 − penalty×5` curve directly
+(`seoHealthScoreForPage`, `health.ts:60-65`): one warning ≈ 80, one critical ≈ 40.
+
+```ts
+// lib/seo/health.ts:50-54
 export function scoreBand(score: number) {
   if (score >= 85) return "Excellent";
   if (score >= 70) return "Good";

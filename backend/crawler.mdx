@@ -109,7 +109,7 @@ The primary fetch is native `fetch`. When a `validateUrl` SSRF guard is present,
 redirects are handled **manually** (max 6 hops) so each hop is re-validated:
 
 ```ts
-// lib/crawler/index.ts:239, 92 (UA)
+// lib/crawler/index.ts:268, 92 (UA)
 // UA = "SpyroBot/1.0 (+https://spyro.app/bot)"
 const res = await fetch(current, {
   headers: { "User-Agent": UA, Accept: "text/html,application/xhtml+xml" },
@@ -126,7 +126,7 @@ markers (`__next`, `data-reactroot`, `__nuxt`) are present with `wordCount < 120
 (`lib/crawler/render.ts:37`). The render is POSTed to a self-hosted crawl4ai server:
 
 ```ts
-// lib/crawler/render.ts:99
+// lib/crawler/render.ts:105
 const res = await fetch(`${API_URL}/crawl`, {
   method: "POST",
   headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -148,11 +148,11 @@ A rendered page is **only kept if it yields more words** than the Cheerio parse
 
 ## Parsing with Cheerio
 
-`parsePage` (`lib/crawler/index.ts:294`) loads the HTML with Cheerio and extracts
+`parsePage` (`lib/crawler/index.ts:310`) loads the HTML with Cheerio and extracts
 everything the downstream engines need:
 
 ```ts
-// lib/crawler/index.ts:294
+// lib/crawler/index.ts:310
 export function parsePage(url, html, status, loadMs, redirectChain, origin): CrawledPage {
   const $ = cheerio.load(html);
   const text = $("body").text().replace(/\s+/g, " ").trim();
@@ -174,7 +174,7 @@ export function parsePage(url, html, status, loadMs, redirectChain, origin): Cra
 | `needsJsRender` | `looksJsRendered(...)` |
 
 `normalizeUrl` strips the hash and tracking params (`utm_*`, `fbclid`, `gclid`),
-rejects non-http(s), and trims the trailing slash (`index.ts:224`).
+rejects non-http(s), and trims the trailing slash (`index.ts:240`).
 
 A **separate** Cheerio parse drives RAG chunking (`lib/embed/chunker.ts`):
 `extractBodyText` strips `script/style/nav/header/footer/aside/noscript/form`,
@@ -191,21 +191,21 @@ queue, marking `visited` at dequeue and gating an in-flight `active` count so th
 never overshoots `maxPages`:
 
 ```ts
-// lib/crawler/index.ts:659
+// lib/crawler/index.ts:677
 await Promise.all(Array.from({ length: concurrency }, () => worker()));
 ```
 
 | Limit | Value / source |
 |---|---|
-| Wall-clock per crawl | `CRAWL_MAX_MS = 60_000` (`index.ts:518`) |
+| Wall-clock per crawl | `CRAWL_MAX_MS = 60_000` (`index.ts:535`) |
 | Page cap | `maxPages` (free-audit site = 20, single page = 1) |
 | Queue growth cap | enqueue only while `pages + queue < maxPages * 2` |
 | Per-fetch timeout | 15s |
-| Broken-link sweep | up to `min(maxPages*3, 150)` sampled links, HEAD-then-GET via an **unbounded** `Promise.all` (`index.ts:667-674`); skipped when `checkLinks: false` |
+| Broken-link sweep | up to `min(maxPages*3, 150)` sampled links, HEAD-then-GET via an **unbounded** `Promise.all` (`index.ts:685-692`); skipped when `checkLinks: false` |
 | Skipped paths | `SKIP_PATH_RE` — login/account/legal/cart/search/feed/sitemap |
 
-A generic `mapWithLimit<T>` helper (`index.ts:168`) provides bounded parallelism, but
-it is used by the onboarding `checkLinkStatuses` path (`index.ts:746`), **not** the
+A generic `mapWithLimit<T>` helper (`index.ts:184`) provides bounded parallelism, but
+it is used by the onboarding `checkLinkStatuses` path (`index.ts:762-768`), **not** the
 `crawlSite` broken-link sweep above (which is unbounded).
 
 ## SSRF protection
@@ -213,7 +213,7 @@ it is used by the onboarding `checkLinkStatuses` path (`index.ts:746`), **not** 
 Because the free-tool crawl path is **public and unauthenticated**, it injects an
 SSRF guard (`assertPublicUrl`, `lib/free-tools/shared/ssrf.ts`) as the crawler's
 `validateUrl`, run **before every fetch including each redirect hop**
-(`index.ts:251`). The internal onboarding crawl does not pass a validator because
+(`index.ts:267`). The internal onboarding crawl does not pass a validator because
 its URLs come from trusted sitemap discovery, not user input.
 
 ```ts

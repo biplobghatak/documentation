@@ -43,7 +43,7 @@ This guide takes you from a fresh clone to a running local dev server. Spyro is 
   </Step>
 
   <Step title="Apply Row-Level Security">
-    In the **Supabase SQL editor**, run the contents of `drizzle/rls.sql`. This enables Postgres RLS (the `user_id = auth.uid()` policies that scope every row to its owner) and installs the `auth.users` → `profiles` trigger that creates a profile row on signup.
+    In the **Supabase SQL editor**, run the contents of `drizzle/rls.sql`, then `drizzle/rls_site_chunks.sql` and `drizzle/rls_enable_all.sql`. These enable Postgres RLS — **membership-driven** policies via the `org_role()` / `has_workspace_access()` security-definer helpers (i.e. `auth.uid()` **plus** org/workspace membership, not simple per-row ownership) — and install the `auth.users` → `profiles` trigger that creates a profile row on email confirmation. All three scripts are idempotent.
 
     <Warning>
       RLS is defence-in-depth. The server-side Drizzle connection uses the service role and **bypasses RLS** (`lib/db/index.ts`), so it must only ever be imported from server code and jobs — never shipped to the client. RLS protects any path that uses the user's own Supabase session.

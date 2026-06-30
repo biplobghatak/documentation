@@ -60,8 +60,8 @@ citation engines, and image generation.
 | `OPENROUTER_CAPABLE_MODEL` | Optional | Bulk blog section drafting. Default `moonshotai/kimi-k2.6`. |
 | `OPENROUTER_FAST_MODEL` | Optional | Parsing / classification. Default `openai/gpt-4.1-mini`. |
 | `OPENROUTER_AGENT_MODEL` | Optional | The Spyro chat agent. Default `moonshotai/kimi-k2.6`. |
-| `OPENROUTER_IMAGE_MODEL` | Optional | Featured + in-content images. Default `bytedance-seed/seedream-4.5`. |
-| `OPENROUTER_IMAGE_SIZE` | Optional | Image output size. Left unset (Seedream is flat-priced). |
+| `OPENROUTER_IMAGE_MODEL` | Optional | Featured + in-content images. Code default `google/gemini-2.5-flash-image` (`lib/images/openrouter.ts:13`). *(`.env.local.example` still suggests `bytedance-seed/seedream-4.5` — that comment is stale; the code default wins when unset.)* |
+| `OPENROUTER_IMAGE_SIZE` | Optional | Image aspect/resolution hint (`OPENROUTER_IMAGE_RESOLUTION` too). Usually left unset. |
 | `AUDIT_ASSISTANT_MODEL` | Optional | Ask-Spyro audit sidebar model. Default `minimax/minimax-m2.7`; GPT-4.1-mini is the runtime fallback *(`lib/env.ts:85`)*. |
 
 See [AI providers](/backend/ai).

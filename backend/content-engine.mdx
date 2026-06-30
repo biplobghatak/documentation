@@ -56,7 +56,7 @@ The LLM titles come from `getLLM().generateJson(...)` at the `capable` tier — 
 ## 2. Enqueue and write
 
 Every "write this" action — the writer form, an approved idea, the chat agent, or the
-autonomous cron — funnels through `enqueueArticleWrite()` (`lib/writer/enqueue.ts:42`). It
+autonomous cron — funnels through `enqueueArticleWrite()` (`lib/writer/enqueue.ts:43`). It
 inserts a `blog_posts` row with `status: "queued"`, returns the id immediately, and emits
 `article/write.requested`. The writer UI then polls. If Inngest is unreachable, the same
 function runs the entire writer inline — see the
@@ -74,16 +74,21 @@ under the 300s ceiling) and retry a single failed phase without re-billing the w
     SERP top 10 for the primary keyword, crawl the top 5 results to learn the structure to
     beat, and vector-search the workspace's own site index for internal-link candidates and a
     voice sample (`lib/writer/advanced.ts:1-13`). Live web research runs through
-    `lib/research/web.ts`, which drives **Kimi K2 via OpenRouter's `:online` suffix** (Exa-backed
-    search) with **Jina Reader** as a verification layer — failures degrade to a SERP-only run
-    rather than throwing (`lib/research/web.ts:1-16`).
+    `lib/research/web.ts`, which drives **Kimi K2.6 via OpenRouter's `:online` suffix**
+    (`moonshotai/kimi-k2.6:online`, `web.ts:34`, Exa-backed search) with **Jina Reader** as a
+    verification layer — failures degrade to a SERP-only run rather than throwing
+    (`lib/research/web.ts:1-16`).
   </Step>
   <Step title="Outline">
     A capable model returns a JSON outline (sections, slug).
   </Step>
   <Step title="Write">
     Each section is drafted in parallel (~400 words each → ~2400-2600 total), in the workspace's
-    derived business voice (`req.tone`).
+    derived business voice (`req.tone`). For **comparison / listicle / alternatives / review**
+    article types, the workspace owner's own product is injected at position #1 of the research
+    pack and the outline + section prompts carry an "OWNER'S PRODUCT RULE" to feature it first
+    (`lib/writer/advanced.ts:627-673, 706-727`), threaded in via the site `domain` +
+    `businessDescription` (`lib/writer/enqueue.ts:120-128`, `lib/inngest/fns/article.ts:157-166`).
   </Step>
   <Step title="Quality">
     A self-critique pass (`lib/writer/quality.ts` `checkArticle`) returns a JSON verdict; if it
@@ -99,27 +104,89 @@ under the 300s ceiling) and retry a single failed phase without re-billing the w
 </Steps>
 
 The finished `blog_posts` row is updated with `status: "done"`, `markdown`, `metaTitle`,
-`metaDescription`, `wordCount`, `seoScore`, `qualityChecks`, `slug`, and `articleType`
-(`lib/writer/enqueue.ts:127-142`). On a non-mocked completion the writer meters one blog:
+`metaDescription`, `wordCount`, `seoScore`, `qualityChecks`, `slug`, `articleType`, `modelUsed`,
+and `intent`. The durable Inngest path does this in its `store-and-count` step
+(`lib/inngest/fns/article.ts:290-309`); the inline fallback does the same at
+`lib/writer/enqueue.ts:144-160`. On a non-mocked completion the writer meters one blog:
 
 ```ts
-// lib/writer/enqueue.ts:143
+// lib/writer/enqueue.ts:161
 if (!written.mocked) await addUsage(args.userId, "blogs", 1);
 ```
 
 This is the **core credit-metered unit** — the plan's `blogsPerMonth` allowance (30 on both Pro
 and Agency). See [Billing](/backend/billing#usage-metering--limit-enforcement).
 
-## 4. Images
+## 4. Images — the content-aware pipeline
 
 When a draft finishes, `article-write` emits `image/pipeline.requested`, and the
-`image-pipeline` job runs **director → featured → in-content**. A directing pass plans the
-images; `runImageGeneration` (`lib/images/run.ts:24`) generates the brand-aware featured banner
-(default 1280×720, `:18`) and up to `inContentImagesPerPost` (3) between-section images. The
-module handles generation providers (`lib/images/openai.ts`, `lib/images/openrouter.ts`), alt
-text (`alt.ts`), charts (`chart.ts`), real screenshots (`screenshotone.ts`), and resizing. The
-pipeline owns the post's `imageStatus`, so the editor only opens once every image is finished
-(`lib/images/run.ts:20-23`).
+`image-pipeline` job runs four steps: **plan (director) → featured → in-content → finish**
+(`lib/inngest/fns/image-pipeline.ts`). It owns the post's `imageStatus`, so the editor only
+opens once every image is finished, and image failures never fail the article (the status always
+ends terminal).
+
+### Step 1 — the director plans a coherent set
+
+`planImages` (`lib/images/director.ts:274`) reads the article's sections, the workspace style
+preset, brand colours, and any products from the research pack, then plans the **whole image
+set** under a shared `anchor` (`visualFamily` + `paletteNote`) so every image looks like it
+belongs to one article. The cap is **6** in-content images, hardcoded at the call site
+(`image-pipeline.ts:89`; the director prompt targets "4-5, max 6", `director.ts:295`).
+
+<Note>
+The plan ignores `inContentImagesPerPost` (the plan value of 3) — that limit is **no longer read
+by the image pipeline**. The live cap is the hardcoded `6`. See [Billing](/backend/billing).
+</Note>
+
+The director routes **five image kinds** differently, so it never wastes a diffusion call on
+something better drawn deterministically:
+
+| Kind | How it's produced |
+|---|---|
+| `illustration` / `diagram` | diffusion image generation (the providers below) |
+| `chart` | a **deterministic chart PNG** (`lib/images/chart.ts`) — never diffusion |
+| `table` | kept as **HTML** in the markdown — no image |
+| `screenshot` | a **real ScreenshotOne capture** of a validated URL (`lib/images/screenshotone.ts`) |
+
+If the LLM plan fails, `fallbackImagePlan` (`director.ts:192`) produces a deterministic plan so
+the pipeline still completes.
+
+### Step 2 — featured image, presets, and the title overlay
+
+`runImageGeneration` (`lib/images/run.ts:25`) generates **only the featured banner** (default
+1280×720, `run.ts:19`, override per workspace via `featuredImageWidth/Height`). The provider is
+chosen by key presence in `getImageProvider()` (`lib/images/index.ts:11-18`): **OpenRouter**
+(`OPENROUTER_IMAGE_MODEL`, default `google/gemini-2.5-flash-image`) → else **OpenAI**
+`gpt-image-1` → else throws (no mock). In-content diffusion illustrations use Flux.
+
+Style comes from one of **8 fixed presets** (`lib/images/presets.ts:30-58`): `flat-vector`
+(default), `hand-drawn-ink`, `isometric-3d`, `editorial-photographic`,
+`minimal-abstract-geometric`, `risograph`, `paper-cut`, `technical-blueprint` — matching the
+8 PNG swatches in `public/image-formats/`. Legacy preset ids are remapped (`presets.ts:64`), and
+a `"custom"` preset uses the workspace's freeform prompt + reference images instead.
+`buildImagePrompt` (`presets.ts:187`) injects the brand palette into the chosen scaffold.
+
+After generation, `compositeTextOverlay` (`lib/images/overlay.ts:12`) renders the **post title**
+as a Satori/sharp text overlay onto the featured image (centred) and short labels onto
+in-content images (bottom-left), using the self-hosted Inter-Bold font.
+
+### Step 3 — in-content images
+
+`generateInContentImages` (`lib/images/in-content.ts:79`) is a **separate** function from the
+featured generator. It walks the planned in-content slots, produces each (diffusion / chart /
+screenshot per the director's plan), and stores them in `blog_posts.inContentImages` (they are
+**not** embedded in the markdown).
+
+### Step 4 — alt text and re-scoring
+
+The `finish` step does two best-effort passes (`image-pipeline.ts:129-232`):
+
+1. **`ensureKeywordAlt`** forces the focus keyword into at least one image `alt` (for the
+   RankMath kw-in-alt check).
+2. **Re-scores the article** with `scoreArticle`, now passing `imageCount`, `imagesHaveAlt`, and
+   `kwInImageAlt` — so the SEO score awards the media points the pre-image draft score was
+   missing. **The image pipeline overwrites `blog_posts.seoScore`**; the writer-stage score is
+   not final.
 
 ## 5. The editor and exports
 
@@ -186,5 +253,5 @@ publish. The advanced writer can also auto-publish on completion when `autoPubli
 - [SEO Engine](/backend/seo-engine) — `scoreArticle`, keyword data, and SERP grounding
 - [GEO Engine](/backend/geo-engine) — the GEO half of the SEO+GEO briefs
 - [Integrations](/backend/integrations) — WordPress / Notion publishing and credentials
-- [Billing](/backend/billing) — the `blogsPerMonth` metered unit and `inContentImagesPerPost` cap
+- [Billing](/backend/billing) — the `blogsPerMonth` metered unit (the in-content image cap is a hardcoded 6, not a plan limit)
 - [Database](/backend/database) — the `blog_ideas`, `blog_posts`, `blog_plans`, and `article_research` tables

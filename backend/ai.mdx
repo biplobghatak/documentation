@@ -21,7 +21,7 @@ Spyro has **two completely different relationships with AI models**, and keeping
 <Warning>
   `lib/llm` and `lib/engines` are not the same system. `lib/llm` is *our* brain.
   `lib/engines` is *the thing we test*. A few stale source comments still say
-  "our internal LLM, always Gemini" (`lib/engines/index.ts:11`) — that is wrong:
+  "our internal LLM, always Gemini" (`lib/engines/index.ts:9`) — that is wrong:
   the real internal provider order is **OpenRouter → OpenAI → Gemini** (see below).
 </Warning>
 
@@ -94,8 +94,8 @@ model per env (`OPENROUTER_FAST_MODEL`, `OPENROUTER_CAPABLE_MODEL`,
 
 <Note>
   The `fast` tier **must** stay a genuinely cheap model — it handles the highest
-  volume (citation parse, sentiment, intent). A source comment records that once
-  defaulting it to Kimi "silently ~10x'd citation-parse cost"
+  volume (citation parse, sentiment, intent). A source comment records that
+  defaulting it to Kimi "silently multiplies citation-parse cost"
   (`lib/llm/openrouter.ts:8-13`). `gpt-4.1-mini` is the intended cheap path.
 </Note>
 
@@ -279,7 +279,7 @@ presence, with its own order and its own default:
 
 ```ts
 // lib/agent/model.ts:39-40, 57-99 (condensed)
-const OPENROUTER_AGENT_MODEL = process.env.OPENROUTER_AGENT_MODEL ?? "minimax/minimax-m2.7";
+const OPENROUTER_AGENT_MODEL = process.env.OPENROUTER_AGENT_MODEL ?? "moonshotai/kimi-k2.6";
 
 export function getAgentModel(): AgentModelChoice {
   if (env.OPENROUTER_API_KEY) { /* OpenRouter via @ai-sdk/openai-compatible */ }
@@ -291,13 +291,15 @@ export function getAgentModel(): AgentModelChoice {
 
 | Priority | Provider | Key | Default agent model |
 |---|---|---|---|
-| 1 | **OpenRouter** | `OPENROUTER_API_KEY` | `minimax/minimax-m2.7` (`OPENROUTER_AGENT_MODEL` to override) |
+| 1 | **OpenRouter** | `OPENROUTER_API_KEY` | `moonshotai/kimi-k2.6` — UI label "Kimi K2.6" (`OPENROUTER_AGENT_MODEL` to override) |
 | 2 | Moonshot | `MOONSHOT_API_KEY` | Kimi K2 (`MOONSHOT_MODEL`) |
 | 3 | OpenAI | `OPENAI_API_KEY` | `gpt-4.1-mini` |
 
 The same module also exposes `getRouterModel()` (a cheap classifier for intent
-routing) and `getAuditAssistantModel()` (the Ask-Spyro audit sidebar uses MiniMax
-2.7, with a `gpt-4.1-mini` fallback).
+routing) and `getAuditAssistantModel()` (the Ask-Spyro audit sidebar uses
+`AUDIT_ASSISTANT_MODEL`, which defaults to **MiniMax M2.7**, with a `gpt-4.1-mini`
+fallback). So MiniMax now powers the audit sidebar, **not** the main chat agent —
+that default moved to Kimi K2.6.
 
 ### Request lifecycle
 
@@ -326,16 +328,23 @@ Key behaviors in `app/api/agent/route.ts`:
   explicit `workspaceId`, verified via org membership — a client-supplied id is
   never trusted (`route.ts:106-149`).
 - **Credit gating.** A shared per-workspace AI credit pool (chat + keyword search)
-  is checked before opening the stream; over-limit returns `402` (`route.ts:151-165`).
+  is checked before opening the stream; over-limit returns `402` (`route.ts:162-176`).
 - **Grounding up-front.** The system prompt is augmented with the workspace
   snapshot, RAG context for the latest turn, and integration status (GSC/GA4
-  connected?) — each best-effort (`route.ts:191-223`).
+  connected?) — each best-effort (`route.ts:256-277`).
+- **Locale-aware.** The route injects the workspace's `targetCountry` and
+  `contentLanguage` into `buildSpyroTools` and a `countryInstruction` system block
+  (`route.ts:182-187, 207-208`), so keyword tools and `recommendBlogIdeas` return
+  market/language-appropriate results.
 - **Turn routing.** `routeTurn()` selects the **tool subset** the model may use
   this turn (`activeTools`), so a simple question can't trigger unwanted paid API
-  calls (`route.ts:256`).
+  calls (`route.ts:241`). Bare confirmations inherit the previous turn's active
+  tools, and `stripIncompleteToolParts` repairs threads so a half-finished tool
+  call can't poison the next request (`route.ts:80-95`).
 - **Bounded tool loop.** `stopWhen: stepCountIs(10)` caps chained tool calls so a
-  confused model can't loop forever; `maxRetries: 2` retries transient provider
-  failures (`route.ts:300-308`).
+  confused model can't loop forever (`route.ts:335`); `maxRetries: 2` retries
+  transient provider failures, and reasoning is forced off
+  (`providerOptions.openrouter.reasoning.effort = "none"`, `route.ts:347-349`).
 - **`maxDuration = 300`** — tool chains (sitemap crawls, audits, embeddings) need
   headroom so `onFinish` billing + persistence still run.
 
@@ -351,6 +360,20 @@ The system prompt (`lib/agent/system-prompt.ts`) locks a **RAG-first rule**: for
 *any* site-specific question the first tool call must be `searchMySite`, grounding
 the answer in the user's actual indexed pages. That is the product's stated
 differentiator.
+
+The agent exposes **~27 tools** across two files. `routeTurn()` only *enables* the
+subset relevant to a turn, but the full surface is:
+
+| File | Tools |
+|---|---|
+| `lib/agent/tools.ts` (7 — research/SERP) | `discoverKeywords`, `findQuestions`, `findGems`, `auditPage`, `findCompetitors`, `getCompetitorKeywords`, `validateNiche` |
+| `lib/agent/spyro-tools.ts` (20 — site-grounded + content ops) | `searchMySite`, `getWorkspaceSnapshot`, `getRankSummary`, `findContentGaps`, `findRankableTopics`, `suggestInternalLinks`, `recommendBlogIdeas`, `analyzeSerp`, `auditFunnelCoverage`, `getGscOverview`, `getGscQueries`, `getLowCtrPages`, `getAlmostRanking`, `getContentDecay`, `draftArticle`, `getContentSchedule`, `scheduleBlogIdeas`, `rescheduleBlogIdea`, `editBlogIdea`, `sendIdeaToWriter` |
+
+GSC tools (`getGscOverview`/`getGscQueries`/`getLowCtrPages`/`getAlmostRanking`/
+`getContentDecay`) only return data when Search Console is connected; the
+content-planner tools (`scheduleBlogIdeas`/`rescheduleBlogIdea`/`editBlogIdea`/
+`sendIdeaToWriter`) let the agent drive the [calendar](/backend/content-engine)
+and hand articles to the writer.
 
 ## RAG and embeddings
 

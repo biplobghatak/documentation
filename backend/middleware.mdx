@@ -43,13 +43,18 @@ export const config = {
 
 Spyro is "private by default": any matched path that is **not** explicitly public
 requires a signed-in Supabase user. The allowlist of public paths is a small,
-auditable list:
+auditable list. It includes two **anonymous PDF render pages** (`/pdf-report`,
+`/audit-report`) that the Gotenberg PDF service fetches without a session —
+`/audit-report` is additionally guarded by a short-lived HMAC token verified in
+the page (see [PDF engine](/backend/pdf-engine)):
 
 ```ts
-// proxy.ts:5-25
+// proxy.ts:5-30
 const PUBLIC_PREFIXES = [
   "/login", "/signup", "/reset", "/invite", "/onboarding",
   "/auth", "/api", "/pricing", "/privacy", "/terms", "/about",
+  // Anonymous PDF render pages fetched by Gotenberg (no user session):
+  "/pdf-report", "/audit-report",
 ];
 
 const isPublic = (p: string) =>
@@ -96,9 +101,9 @@ if (user && (path === "/login" || path === "/signup")) {
 ```
 
 <Info>
-The middleware reads `NEXT_PUBLIC_SUPABASE_ANON_KEY` directly (`proxy.ts:77`).
+The middleware reads `NEXT_PUBLIC_SUPABASE_ANON_KEY` directly (`proxy.ts:82`).
 If either `NEXT_PUBLIC_SUPABASE_URL` or the anon key is missing, the gate is a
-no-op (`proxy.ts:81`) so the app can still boot before Supabase is configured.
+no-op (`proxy.ts:86`) so the app can still boot before Supabase is configured.
 The browser client's publishable-key fallback is a *different* file
 ([`lib/supabase/client.ts`](/backend/authentication)).
 </Info>
