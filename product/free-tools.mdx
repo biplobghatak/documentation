@@ -1,0 +1,112 @@
+---
+title: "Free tools"
+description: "Five public, no-signup tools for SEO and GEO — a full site audit, an AI-visibility checker, an AI-crawler and robots checker, a schema validator, and a meta-snippet preview — built on the same engine that powers the Spyro app."
+---
+
+Spyro publishes five **free public tools** at
+[spyro.app/free-tools](https://www.spyro.app/free-tools). They run without an
+account, an email gate, or a credit card — they're the same audit and analysis
+engines that power the app, opened up for anyone. Each one analyzes a domain you
+type in and gives you a score plus a prioritized list of fixes.
+
+<Note>
+These tools are **public marketing pages**, not part of the signed-in app. They're
+a no-risk way to see what Spyro finds before you create a workspace.
+</Note>
+
+## SEO & GEO Audit
+
+[**/free-tools/seo-geo-audit**](https://www.spyro.app/free-tools/seo-geo-audit) —
+one scan that grades both your traditional SEO health and your **GEO readiness**:
+whether ChatGPT, Gemini, Claude, and Perplexity can find and cite you.
+
+- **What you check** — enter your domain and Spyro crawls your site.
+- **What you get** — separate **SEO** and **GEO** readiness scores, the full list
+  of issues found, and prioritized fixes ranked by impact.
+
+<Tip>
+Spyro serves one fresh audit per site every 24 hours. Re-running a domain within
+that window shows the cached report — and offers to email you free weekly updates.
+</Tip>
+
+## AI Visibility & Citation Readiness Checker
+
+[**/free-tools/ai-visibility-checker**](https://www.spyro.app/free-tools/ai-visibility-checker)
+— a crawl-based score of how prepared your site is to be **cited** by AI search
+and answer engines.
+
+- **What you check** — Spyro discovers your sitemap and crawls up to 20 pages of
+  your public, server-rendered HTML, then extracts structured data, headings,
+  content format, internal links, and crawlability.
+- **What you get** — an overall readiness score across **six signals** — Citation
+  Readiness, Entity Clarity, Content Coverage, GEO Readiness, Knowledge Signals,
+  and Citation Authority — plus your strengths, your gaps, and priority actions.
+
+## AI Crawler & robots.txt Checker
+
+[**/free-tools/ai-crawler-robots-checker**](https://www.spyro.app/free-tools/ai-crawler-robots-checker)
+— confirms that AI crawlers are actually allowed to read your site. If they can't
+crawl you, they can't cite you.
+
+- **What you check** — Spyro fetches your `robots.txt`, `sitemap`, and `llms.txt`
+  directly (no full-site crawl) and resolves the exact rule that allows or blocks
+  each AI user-agent: **GPTBot**, **ClaudeBot**, **PerplexityBot**, **Googlebot**,
+  and more. It also flags **silent blocks** — engines your server or WAF blocks
+  even when `robots.txt` allows them.
+- **What you get** — an accessibility score, a per-engine list of who can cite you,
+  and a copy-paste `robots.txt` that opens you up to AI answer engines.
+
+## Schema Markup Validator
+
+[**/free-tools/schema-markup-validator**](https://www.spyro.app/free-tools/schema-markup-validator)
+— validates your JSON-LD structured data **site-wide** against schema.org and
+Google's rich-result rules.
+
+- **What you check** — Spyro crawls up to 20 pages, parses every JSON-LD block,
+  resolves `@graph` and `@id` references, groups the data by schema type, and
+  checks each type's required and recommended properties, dates, URLs, and
+  structure.
+- **What you get** — a schema-health score, a per-type breakdown with the exact
+  errors and warnings, and priority fixes ranked by impact.
+
+## Meta & Snippet Preview
+
+[**/free-tools/meta-snippet-preview**](https://www.spyro.app/free-tools/meta-snippet-preview)
+— preview how your title and meta description render in Google, measured in
+**pixels** rather than character counts.
+
+- **What you check** — type a title and description, or paste a URL to pull a live
+  page's existing tags. Everything runs locally in your browser — no crawl, no AI
+  tokens, no data sent anywhere (except the optional "fetch from URL" lookup).
+- **What you get** — a live desktop and mobile SERP preview (light and dark),
+  pixel meters that estimate where Google truncates, a 0–100 snippet score, and
+  copy-ready meta tags.
+
+## Saving and sharing your report
+
+Three of the crawl-based tools — the **SEO & GEO Audit**, **AI Visibility
+Checker**, and **Schema Validator** (and the **AI Crawler Checker**) — let you
+**download a PDF** of your report:
+
+<Steps>
+  <Step title="Click Download PDF">
+    A lightweight modal opens, offering free weekly SEO & GEO updates for your
+    domain.
+  </Step>
+  <Step title="Enter your email — or skip">
+    Add your email to subscribe, or choose **Skip and download**. Either way the
+    PDF generates and downloads automatically.
+  </Step>
+</Steps>
+
+The email is entirely **optional** — it signs you up for updates, and the report
+itself is never gated behind it.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Free tools engine" icon="screwdriver-wrench" href="/backend/free-tools">How the public tools are built and crawled.</Card>
+  <Card title="Site audit" icon="magnifying-glass" href="/product/audit">The in-app audit with AI fix suggestions.</Card>
+  <Card title="AI visibility" icon="robot" href="/product/ai-visibility">Track AI citations over time in the app.</Card>
+  <Card title="Onboarding" icon="rocket" href="/product/onboarding">Turn a free scan into a tracked workspace.</Card>
+</CardGroup>

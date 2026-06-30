@@ -80,7 +80,7 @@ These are the heavy subsystems; each has its own deep-dive page.
 | `lib/gsc` | Google Search Console — OAuth, `createGscClient`, performance import, diagnosis cards (low CTR, almost-ranking, decay). | [Integrations](/backend/integrations) |
 | `lib/wordpress.ts` | Headless-WordPress REST client for the marketing blog — posts, slugs, related, HTML sanitize, reading time. | [Integrations](/backend/integrations) · [Marketing Site](/frontend/marketing-site) |
 | `lib/email` | Resend transactional sender — `sendEmail` + typed helpers (OTP, invite, welcome, audit-complete, article-published, first-citation, digest). | [Integrations](/backend/integrations) |
-| `lib/images` | Image-generation facade — `getImageProvider()` (FLUX.2 via OpenRouter or `gpt-image-1` via OpenAI) + `imageIsLive`. | [Content Engine](/backend/content-engine) |
+| `lib/images` | Image-generation facade — `getImageProvider()` (Gemini 2.5 Flash Image via OpenRouter by default — `OPENROUTER_IMAGE_MODEL`; `gpt-image-1` via OpenAI as fallback) + `imageIsLive`. In-content diffusion illustrations use Flux. | [Content Engine](/backend/content-engine) |
 | `lib/storage.ts` | Supabase Storage (service-role) for generated images — `uploadImage`, `storageIsLive`, data-URL fallback. | [Integrations](/backend/integrations) |
 
 ## Scheduling and jobs

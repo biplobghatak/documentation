@@ -8,13 +8,13 @@ source code, with claims cited to real `path:line` references and code snippets 
 
 | Metric | Count |
 |---|---|
-| **Total pages generated** | **40** `.mdx` pages |
-| Navigation entries | 40 (1:1 with files — no orphans, no missing files) |
+| **Total pages generated** | **57** `.mdx` pages (40 developer + 17 product) |
+| Navigation entries | 57 (1:1 with files — no orphans, no missing files) |
 | Architecture / flow diagrams (Mermaid) | **33** diagrams across 26 pages |
 | Internal links | All resolve (0 broken) |
 | Pages missing frontmatter | 0 |
 | API endpoints documented | ~46 (4 public `/api/v1` + ~42 internal `app/api/*`) |
-| Database tables documented | 52 (all tables in `lib/db/schema.ts`) |
+| Database tables documented | 53 (all tables in `lib/db/schema.ts`) |
 | Background jobs documented | 41 Inngest functions (15 cron / 25 event / 1 dual) |
 | Free tools documented | 5 (no-auth public tools) |
 | Env vars documented | ~70 (from `.env.local.example`, names + purpose only) |
@@ -155,3 +155,58 @@ The in-repo `README.md` / `*-EXPLAINED.txt` are partly stale; every writer verif
   multi-tenant app with live third-party keys — out of scope for a source-derived pass, and the prompt
   scoped them as "if applicable."
 - **No placeholders or TODOs** were left in any generated page.
+
+---
+
+## Re-audit & Product Guide — 2026-06-30
+
+A second pass re-verified the 40 developer pages against **current** source (the app moved
+on from the 2026-06-28 doc generation — commits `93ce474` image-planner/audit-report-v3/agent
+and `1214d43` rank-auto-tracking landed after) and added a new **Product Guide** tab.
+
+### Doc set now
+- **57 pages**: 40 developer docs + **17 new product-guide pages**.
+- New top-level **Product Guide** tab in `docs.json` (groups: Getting started · SEO ·
+  AI visibility · Create · Account · Free tools), placed before Developer Docs.
+- Re-validated: **0 broken nav entries, 0 orphans, 0 broken internal links.**
+
+### New product pages (`product/`)
+`overview`, `onboarding`, `dashboard`, `spyro-ai-agent`, `audit`, `search-console`,
+`rank-tracker`, `ai-visibility`, `prompts`, `ai-mentions`, `calendar`, `writer`,
+`article-settings`, `settings`, `team-members`, `billing-and-usage`, `free-tools`.
+
+### Drift corrected in the developer docs
+- **database.mdx** — 52→**53 tables** (new `agent_feedback`); migrations 0061→**0064**;
+  new columns `audits.reportJson` (0063), `workspaces.auto_publish_enabled` (0062),
+  `agent_messages.message_key` (0064).
+- **pdf-engine.mdx** — audit export is now **Gotenberg-first** (renders `audits.reportJson`
+  via the token-gated `/audit-report` page through the shared `AuditReportDocument`);
+  react-pdf demoted to a legacy fallback for pre-`0063` audits + HMAC `signAuditPdfToken`.
+- **audit.mdx** — documented the V3 `reportJson` build (`buildReportFromCrawl`) and storage;
+  corrected the SEO-score description to the new formula.
+- **seo-engine.mdx** — health-score formula rewritten (per-page average + capped site-global
+  penalty; the old `perPage × 12.5` curve is gone).
+- **ai.mdx** — agent default model corrected to **`moonshotai/kimi-k2.6`**; added the full
+  agent tool inventory; documented locale-awareness.
+- **content-engine.mdx** — image-pipeline rewrite: in-content cap **6** (not 3;
+  `inContentImagesPerPost` no longer read), director's 5 image kinds, 8 style presets, the
+  new `overlay.ts` title compositor, post-image score recompute, owner-product injection.
+- **billing.mdx** — `trackedKeywordsMax` 50→**500**; `inContentImagesPerPost` flagged
+  defined-but-unused (live cap 6).
+- **services.mdx** + **reference/environment-variables.mdx** — default image model corrected
+  to **`google/gemini-2.5-flash-image`** (`seedream-4.5` was stale `.env.local.example` lore).
+- **middleware.mdx** — `PUBLIC_PREFIXES` now lists `/pdf-report` + `/audit-report`.
+- **crawler.mdx** — 10 drifted `index.ts` / `render.ts` line citations corrected.
+- **routing.mdx** — added the missing report pages + superadmin `feedback`.
+- **components.mdx** — corrected `ArticleEditor` / `AgentChat` line cites; added the new
+  `rank-tracker-client`, `sidebar-nav`, `calendar-ui` / `calendar-grid`, `strategy-brief-card`,
+  `ui-bits`, `agent/blog-ideas-card` components.
+- **state-management.mdx** — removed the deleted `useLinkHandler` hook; fixed `useToolbarState`
+  / `useResizeHandle` line cites.
+- **installation.mdx** + **architecture.mdx** — RLS corrected to **membership-driven**
+  (`org_role()` / `has_workspace_access()`), not `user_id = auth.uid()` ownership.
+
+### Verified accurate — no change needed
+background-jobs, geo-engine, apis, public-api, authentication, authorization, integrations,
+free-tools, security, logging, backend/overview, frontend overview/ui-system/forms/performance/
+marketing-site, project-structure, folder-reference, glossary, deployment/*.

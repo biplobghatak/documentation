@@ -62,8 +62,8 @@ The Spyro AI chat agent — a streaming assistant that can call tools (audit, ke
 Files include `agent-chat.tsx`, `agent-markdown.tsx`, `chat-parts.tsx`, `chat-history.tsx`,
 `tool-result.tsx`, `suggested-prompts.tsx`, and an `answer/` subfolder. The core component:
 
-**`AgentChat`** (`components/app/agent/agent-chat.tsx:40`) — the main chat interface. Uses the
-Vercel AI SDK `useChat` hook with a `DefaultChatTransport`. Props (verbatim, `agent-chat.tsx:12`):
+**`AgentChat`** (`components/app/agent/agent-chat.tsx:54`) — the main chat interface. Uses the
+Vercel AI SDK `useChat` hook with a `DefaultChatTransport`. Props (verbatim, `agent-chat.tsx:14`):
 
 ```tsx
 interface AgentChatProps {
@@ -95,7 +95,7 @@ The AI article writer — a TipTap editor plus scoring panel. Files: `article-ed
 `article-workspace.tsx`, `blog-panels.tsx`, `reader-top-bar.tsx`, `score-gauge.tsx`,
 `score-panel.tsx`, `slash-command.tsx`, `writer-poller.tsx`.
 
-**`ArticleEditor`** (`components/app/writer/article-editor.tsx:42`) — a TipTap (ProseMirror) markdown
+**`ArticleEditor`** (`components/app/writer/article-editor.tsx:82`) — a TipTap (ProseMirror) markdown
 editor with a toolbar, selection bubble menu and slash commands. Props (verbatim):
 
 ```tsx
@@ -224,6 +224,27 @@ subfolder holds the affiliate program UI including a live earnings calculator.
   `plan-donut.tsx`, `signup-trend.tsx`, `usage-summary.tsx`). See [Middleware](/backend/middleware).
 - **`contact/`** — `contact-form.tsx` (the React Hook Form + Zod support form, documented in
   [Forms](/frontend/forms)) and `spinner.tsx`.
+
+## Recently added components
+
+A few components were extracted or added after the bulk of this page was written —
+listed here for completeness:
+
+- **`rank-tracker-client.tsx`** (`components/app/rank-tracker-client.tsx`) — the
+  client UI for the [rank tracker](/backend/seo-engine): the tracked-keyword table,
+  add/remove, and the position time-series.
+- **`sidebar-nav.tsx`** (`components/app/sidebar-nav.tsx`) — the workspace sidebar
+  navigation, extracted from `AppShell`; renders the grouped SEO / AI-visibility /
+  Create nav with collapsible children.
+- **`calendar-ui.tsx`** and **`calendar-grid.tsx`** (`components/app/`) — the root
+  calendar UI and month grid that sit alongside `calendar/calendar-board.tsx`.
+- **`calendar/strategy-brief-card.tsx`** — the content-plan strategy brief shown in
+  the planner panel.
+- **`ui-bits.tsx`** (`components/app/ui-bits.tsx`) — small dashboard primitives
+  (`GlassCard`, `KpiCard`, `StatCard`, `EmptyState`, `PageHeader`) used by the
+  workspace dashboard and feature headers.
+- **`agent/blog-ideas-card.tsx`** — renders recommended blog ideas returned by an
+  agent tool, with a "send to writer" action.
 
 ## Related
 

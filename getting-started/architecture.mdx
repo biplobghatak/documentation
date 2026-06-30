@@ -12,7 +12,7 @@ From top to bottom:
 1. **Frontend (App Router, RSC)** — pages and layouts are React Server Components by default. Client components (`"use client"`) are used only where interactivity is required. The UI mutates data through **server actions** and reads through RSC or **route handlers**.
 2. **Server actions + route handlers** — `lib/actions/*` are the typed mutation entry points called from forms and buttons; `app/api/*` route handlers serve webhooks, OAuth callbacks, streaming endpoints, the public API, and PDF/report generation.
 3. **`lib/` service layer** — all business logic. It wraps every external vendor behind an interface (`lib/serp`, `lib/llm`, `lib/engines`) so feature code is vendor-agnostic, and holds the domain engines (`lib/seo`, `lib/geo`, `lib/crawler`, `lib/audit`, `lib/writer`, `lib/billing`, …).
-4. **Data — Drizzle + Supabase Postgres + RLS** — the server connection uses Drizzle over `postgres-js` and connects as the service role (`lib/db/index.ts`). Postgres RLS (`drizzle/rls.sql`) scopes user-session access by `user_id = auth.uid()`.
+4. **Data — Drizzle + Supabase Postgres + RLS** — the server connection uses Drizzle over `postgres-js` and connects as the service role (`lib/db/index.ts`). Postgres RLS (`drizzle/rls.sql`) scopes user-session access by **org/workspace membership** via the `org_role()` / `has_workspace_access()` security-definer helpers (not simple `user_id = auth.uid()` ownership).
 5. **Background jobs — Inngest** — anything slow runs as an Inngest function (`lib/inngest/fns/*`). Request handlers enqueue an event and return immediately.
 
 ### Overall system architecture
@@ -232,7 +232,7 @@ erDiagram
 Two enforcement layers protect tenant data:
 
 1. **`user_id` on every data row** — every user-owned table carries `user_id` (and usually a workspace id), so queries scope by owner.
-2. **Postgres RLS** — `drizzle/rls.sql` enables `user_id = auth.uid()` policies as defence-in-depth for any access made with the **user's own Supabase session**. The server-side Drizzle connection runs as the **service role and bypasses RLS** (`lib/db/index.ts`), which is why it must only be imported from server code and jobs.
+2. **Postgres RLS** — `drizzle/rls.sql` (plus `rls_site_chunks.sql`) enables **membership-driven** policies via the `has_workspace_access()` / `org_role()` helpers as defence-in-depth for any access made with the **user's own Supabase session**. The server-side Drizzle connection runs as the **service role and bypasses RLS** (`lib/db/index.ts`), which is why it must only be imported from server code and jobs.
 
 The URL mirrors the hierarchy: authenticated pages live under `app/(app)/[org]/[workspace]/…`, so the org and workspace are resolved from the path. See [Authorization](/backend/authorization) and [Database](/backend/database).
 

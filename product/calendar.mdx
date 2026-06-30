@@ -1,0 +1,71 @@
+---
+title: "Article Planner & calendar"
+description: "Plan a month of content and manage your editorial calendar — research topics with Spyro, schedule blog ideas by day, and send them to the writer."
+---
+
+The **Article Planner** is where you turn ideas into a publishing schedule. It pairs
+an **editorial calendar** (every planned post, laid out by day) with a **Plan with
+Spyro** panel that researches and schedules topics for you. It's at
+`/{org}/{workspace}/calendar` (**Article Planner → Calendar** in the sidebar).
+
+<Note>
+Spyro researches and schedules a starter set of topics **automatically after
+onboarding**, so your calendar usually isn't empty on day one.
+</Note>
+
+## The calendar board
+
+The board shows one month at a time. Each scheduled post appears on its day with a
+status:
+
+| Status | Meaning |
+| --- | --- |
+| **Scheduled** | Planned for that day, not yet generated. |
+| **Queued / Generating** | The writer is producing the article (the board auto-refreshes as it progresses). |
+| **Done** | Draft is ready — click to open it in the [Writer](/product/writer). |
+
+Use the **‹ ›** arrows to move between months. While any post is generating, the
+board polls and refreshes on its own so finished articles appear without a manual
+reload.
+
+## Plan with Spyro
+
+The **Plan with Spyro** panel (right side) is a chat that builds your plan — it
+shares the same conversation threads as the [Spyro AI agent](/product/spyro-ai-agent).
+Ask it to propose topics, then approve and schedule them. **Generate more topics**
+runs a fresh research pass to extend the plan.
+
+<Steps>
+  <Step title="Generate or request topics">
+    Let onboarding seed them, click **Generate more topics**, or ask the planner
+    chat for specific angles.
+  </Step>
+  <Step title="Schedule them">
+    Approved ideas drop onto the calendar by day; drag to reschedule.
+  </Step>
+  <Step title="Send to the writer">
+    Open a scheduled idea and generate the article — it flows into the
+    [Writer](/product/writer).
+  </Step>
+</Steps>
+
+## Your blog quota
+
+The header shows **Blogs left this month** (or **Blogs left in trial**) — your
+monthly article allowance and how many remain. The allowance is set by your plan
+(30 blogs/month on Pro and Agency; 3 during the trial). See
+[Plans, billing & usage](/product/billing-and-usage).
+
+<Warning>
+Without an LLM key configured, generation produces a **placeholder draft** (no
+words counted) so you can see the flow. Add the key for real articles.
+</Warning>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Writer" icon="pen-nib" href="/product/writer">Draft, edit, score, and publish an article.</Card>
+  <Card title="Article settings" icon="sliders" href="/product/article-settings">Defaults for tone, style, images, and publishing.</Card>
+  <Card title="Spyro AI research" icon="sparkles" href="/product/spyro-ai-agent">The agent behind Plan with Spyro.</Card>
+  <Card title="Content engine" icon="gears" href="/backend/content-engine">How articles are generated.</Card>
+</CardGroup>

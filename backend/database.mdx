@@ -8,7 +8,7 @@ Spyro stores everything in a single **Postgres** database hosted on **Supabase**
 This page is the reference for the schema: how tables are grouped by domain, the multi-tenancy pattern, the ER model of the core entities, how migrations work, and the rules you must follow when touching the database.
 
 <Note>
-The single source of truth is `lib/db/schema.ts` (≈1,360 lines). Every table, column type, index, and enum on this page is pulled from that file with line citations. When this page and the schema disagree, the schema wins — open the file.
+The single source of truth is `lib/db/schema.ts` (≈1,390 lines). Every table, column type, index, and enum on this page is pulled from that file with line citations. When this page and the schema disagree, the schema wins — open the file.
 </Note>
 
 ## Overview
@@ -84,7 +84,7 @@ It loads `.env.local` then `.env` itself, because `drizzle-kit` does not read Ne
 
 ## Table reference by domain
 
-The schema defines **52 tables**. They fall into a handful of domains. For each table below: its purpose, the key columns (with types from the schema), important indexes, and how it relates to others. Foreign keys are mostly **logical** — the repo convention is to scope by `user_id` / `workspace_id` / `org_id` columns rather than declare database-level `REFERENCES` constraints, so "relationship" means "joined on this column in code", not an enforced FK.
+The schema defines **53 tables**. They fall into a handful of domains. For each table below: its purpose, the key columns (with types from the schema), important indexes, and how it relates to others. Foreign keys are mostly **logical** — the repo convention is to scope by `user_id` / `workspace_id` / `org_id` columns rather than declare database-level `REFERENCES` constraints, so "relationship" means "joined on this column in code", not an enforced FK.
 
 ### Identity, organizations, and workspaces
 
@@ -114,7 +114,7 @@ This is the tenancy backbone. A **profile** is one user. An **organization** is 
 
     **Derived profiles (jsonb):** `toneProfile`, `brandProfile`, `businessProfile`, `audienceTags`, `businessDescription` — captured at onboarding and used by the writer/image pipeline.
 
-    **Article defaults:** `defaultImagePreset`, `featuredImageWidth/Height` (default 1280×720), `contentFocus`, `publishingPace`, `geoModeDefault`, `articleStyle`, `internalLinksCount`, `globalInstructions`, `contentLanguage`, `targetCountry`, author E-E-A-T fields (`authorName/Bio/Url`). Indexed by `userId` and `orgId`.
+    **Article defaults:** `defaultImagePreset`, `featuredImageWidth/Height` (default 1280×720), `contentFocus`, `publishingPace`, `geoModeDefault`, `articleStyle`, `internalLinksCount`, `globalInstructions`, `contentLanguage`, `targetCountry`, author E-E-A-T fields (`authorName/Bio/Url`), and `autoPublishEnabled` (bool, default false; added in `0062` — when on, finished articles auto-publish to the connected integration). Indexed by `userId` and `orgId`.
   </Accordion>
   <Accordion title="workspace_competitors — competitive landscape (schema.ts:256)">
     One row per competitor `domain` per workspace (unique `(workspaceId, domain)`). `signalCount`, `sources` (jsonb per-source counts), `firstSeen`/`lastSeen`, `confirmedByUser`/`dismissedByUser`, `topicGaps`, `topKeywordsShared`. Seeded at onboarding and accumulated by the competitor-signals cron.
@@ -160,8 +160,8 @@ The site/page audit subsystem. See [Audit](/backend/audit).
 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
-| `audits` (`schema.ts:338`) | One audit run per workspace | `status` (`audit_status`: `queued|running|done|error`), `pagesCrawled`, `billablePages`, `seoScore`, `geoScore`, `cwv`, `botAccess` (jsonb `BotAccess`), `fixedIssueTypes`, `aiSuggestions` | Indexed by workspace. |
-| `audit_issues` (`schema.ts:365`) | Issues found in an audit | `url`, `type`, `severity` (`critical|warning|info`), `category` (`seo|geo`), `message`, `fixText` | Joined via `auditId`; carries `userId` for RLS. |
+| `audits` (`schema.ts:341`) | One audit run per workspace | `status` (`audit_status`: `queued|running|done|error`), `pagesCrawled`, `billablePages`, `seoScore`, `geoScore`, `cwv`, `botAccess` (jsonb `BotAccess`), `fixedIssueTypes`, `aiSuggestions`, `reportJson` (jsonb — full V3 SEO+GEO report, added `0063`; renders the PDF export) | Indexed by workspace. |
+| `audit_issues` (`schema.ts:373`) | Issues found in an audit | `url`, `type`, `severity` (`critical|warning|info`), `category` (`seo|geo`), `message`, `fixText` | Joined via `auditId`; carries `userId` for RLS. |
 | `audit_pages` (`schema.ts:381`) | Per-page audit results | `url`, `templateKey/Label`, `seoScore`, `geoScore`, `status`, `wordCount`, `isBillable`, `geoChecks`, `linkMeta` | Lets the aggregate step recompute scores. |
 | `tracked_urls` (`schema.ts:410`) | Manual single-URL watchlist | `url`, `checkStatus`, `lastSeoScore`, `lastGeoScore`, `lastStatus`, `lastIssueCount` | Latest result denormalized for the list view. |
 | `tracked_url_checks` (`schema.ts:429`) | History of each tracked-URL re-check | `seoScore`, `geoScore`, `status`, `wordCount`, `issues` (jsonb) | Joined via `trackedUrlId`. |
@@ -222,8 +222,9 @@ The `integration_provider` enum is `wordpress_org|wordpress_com|notion|google_se
 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
-| `agent_conversations` (`schema.ts:1208`) | One chat thread per workspace | `title`, `updatedAt`, `lastActiveTools` (jsonb — sticky follow-up routing) | Indexed `(workspaceId, updatedAt)`. |
-| `agent_messages` (`schema.ts:1228`) | One AI-SDK `UIMessage` per row | `conversationId`, `role`, `parts` (jsonb — text/tool-calls/reasoning, stored verbatim) | Indexed `(conversationId, createdAt)`. See [AI](/backend/ai). |
+| `agent_conversations` (`schema.ts:1222`) | One chat thread per workspace | `title`, `updatedAt`, `lastActiveTools` (jsonb — sticky follow-up routing) | Indexed `(workspaceId, updatedAt)`. |
+| `agent_messages` (`schema.ts:1235`) | One AI-SDK `UIMessage` per row | `conversationId`, `role`, `parts` (jsonb — text/tool-calls/reasoning, stored verbatim), `messageKey` (stable per-response id, added `0064`) | Indexed `(conversationId, createdAt)`. See [AI](/backend/ai). |
+| `agent_feedback` (`schema.ts:1258`) | Thumbs up/down on one agent response | `workspaceId`, `conversationId`, `messageKey`, `userId`, `rating` (`like\|dislike`), `messagePreview` (denormalized so the vote survives a message delete) | Unique `(userId, messageKey)`; workspace-scoped RLS. Added in `0064`. See [AI](/backend/ai). |
 
 ### Free-tool reports (public, no auth)
 
@@ -397,7 +398,7 @@ The chunking/embedding/search logic lives in `lib/vector` and is documented in [
 
 ## Migrations & workflow
 
-Migrations are plain SQL files in `drizzle/`, numbered `0000` → `0061`, with snapshot/journal metadata in `drizzle/meta/` (`_journal.json` lists every applied migration; one `NNNN_snapshot.json` per step records the schema state Drizzle diffs against).
+Migrations are plain SQL files in `drizzle/`, numbered `0000` → `0064`, with snapshot/journal metadata in `drizzle/meta/` (`_journal.json` lists every applied migration; one `NNNN_snapshot.json` per step records the schema state Drizzle diffs against).
 
 The workflow uses `drizzle-kit` via npm scripts (`package.json`):
 
@@ -428,6 +429,9 @@ The migration history doubles as a changelog of the product's evolution. Notable
 | `0046_api_rate_counters` | Durable cross-instance rate limiting. |
 | `0047_gate_handle_new_user` | New-user trigger gated on email confirmation. |
 | `0058_free_tool_reports` | Shared store for the public crawl tools. |
+| `0062_workspace_auto_publish` | `workspaces.auto_publish_enabled` toggle (auto-publish finished articles). |
+| `0063_audit_report_json` | `audits.report_json` — the full V3 report the PDF export renders. |
+| `0064_agent_feedback` | `agent_feedback` table + `agent_messages.message_key` (thumbs up/down on agent replies). |
 
 <Warning>
 Some migrations (e.g. `api_cost_events`) note that `pnpm db:migrate` can **hang** on this Supabase database and must be applied manually with a raw `postgres()` connection (`0041_api_cost_events.sql:6-7`). The RLS `.sql` files are likewise applied by hand in the Supabase SQL editor, not by `drizzle-kit`.

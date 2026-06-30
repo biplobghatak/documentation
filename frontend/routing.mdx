@@ -19,7 +19,7 @@ flowchart TD
   app --> appg["(app)/"]
   app --> sadmin["superadmin/"]
   app --> api["api/ (route handlers)"]
-  app --> reports["report pages: /pdf-report, /ai-readiness-report, /schema-report, /invite/[token]"]
+  app --> reports["report pages: /pdf-report, /audit-report, /ai-readiness-report,<br/>/ai-crawler-report, /schema-report, /meta-snippet-report, /invite/[token]"]
 
   mkt --> mabout["about · pricing · contact · privacy · terms · affiliates"]
   mkt --> mblog["blog/ (+ category, tag, pagination)"]
@@ -33,7 +33,7 @@ flowchart TD
   org --> ws["[workspace]/"]
   ws --> wsfeat["audit · writer · spyro-ai-agent · calendar · ranks · competitors<br/>ai-mentions · prompts · ga4 · gsc · article-planner · settings"]
 
-  sadmin --> spanel["(panel)/ → orgs · users · workspaces · usage · billing · cost · audit-log"]
+  sadmin --> spanel["(panel)/ → orgs · users · workspaces · usage · billing · cost · audit-log · feedback"]
 ```
 
 ## Route groups in detail

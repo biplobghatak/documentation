@@ -1,0 +1,78 @@
+---
+title: "Article settings"
+description: "Configure how Spyro writes and illustrates your articles — blog defaults, article style, the writer's voice, the image style, and publishing integrations."
+---
+
+The **Article Planner** settings control how every article is written, styled,
+illustrated, and published. They live under
+`/{org}/{workspace}/article-planner/*` and are reached from the **Article Planner**
+group in the sidebar.
+
+<Note>
+The matching entries under **Settings** (`/settings/blog`, `/settings/article-defaults`,
+`/settings/text-generation`, `/settings/image-generation`, `/settings/integrations`)
+are **redirect aliases** — they send you to these canonical Article Planner pages.
+</Note>
+
+## Blog & content
+
+The **Blog & content** page holds your blog setup defaults — the high-level content
+configuration captured at onboarding that frames what Spyro plans and writes.
+
+## Article defaults
+
+**Article defaults** sets the look and behavior of generated articles:
+
+- **Article style** — the default writing style applied to new drafts.
+- **Brand colors** — swatches derived from your site, used to tint images and
+  accents.
+- **Featured image dimensions** — the default size for the featured banner
+  (1280×720 by default).
+- **Auto-publish** — when enabled, finished articles publish to your connected
+  integration automatically instead of waiting for a manual push.
+
+## Text generation
+
+The **Text generation** page shows the **voice** the AI Writer uses. Rather than a
+generic "expert" tone, Spyro derives a voice profile from your own site —
+a **summary**, **traits**, **audience**, and **formality**, labeled *derived from
+your site* or *default voice*. Click **Regenerate** to re-derive it from your latest
+content.
+
+## Image generation
+
+**Image generation** lets you pick the **featured-image style** every article uses.
+Choose one of eight presets; each image is rendered in that style and tinted to your
+brand colors:
+
+| Preset | Look |
+| --- | --- |
+| **Flat vector** (default) | Clean flat illustration |
+| **Hand-drawn ink** | Sketched ink line art |
+| **Isometric 3D** | Isometric 3D render |
+| **Editorial photographic** | Photographic, editorial |
+| **Minimal abstract geometric** | Minimal geometric shapes |
+| **Risograph** | Riso-print texture |
+| **Paper cut** | Layered paper-cut style |
+| **Technical blueprint** | Blueprint line schematic |
+
+## Integrations
+
+The **Integrations** page connects publishing destinations — **WordPress**,
+**Shopify**, or any **webhook** URL. Each connection uses your workspace API key
+(manage keys in [Settings → API](/product/settings)).
+
+- Add a destination and Spyro can publish articles to it from the
+  [Writer](/product/writer).
+- Each card shows connection **status**, the connected URL, the reported plugin
+  version (WordPress), and a **delivery history** of recent pushes (event, status
+  code, duration).
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Writer" icon="pen-nib" href="/product/writer">Where these settings are applied.</Card>
+  <Card title="Workspace settings" icon="gear" href="/product/settings">Account, audience, competitors, API keys.</Card>
+  <Card title="Content engine" icon="gears" href="/backend/content-engine">How drafts and images are produced.</Card>
+  <Card title="Integrations" icon="plug" href="/backend/integrations">Publishing destinations under the hood.</Card>
+</CardGroup>

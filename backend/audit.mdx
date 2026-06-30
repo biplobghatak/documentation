@@ -66,7 +66,8 @@ flowchart TD
     A4["seoHealthScore + geoScore"]
     A5["buildPageReports → billablePages"]
     A6["insert auditIssues + auditPages (batches of 200)"]
-    A7["update audits + workspaces (scores, botAccess, cwv)"]
+    A7["buildReportFromCrawl → audits.reportJson (V3, best-effort)"]
+    A8["update audits + workspaces (scores, botAccess, cwv, reportJson)"]
   end
   ANALYZE --> U["step: meter-usage → addUsage(audit_pages)"]
   U --> N["step: notify-audit-complete (email, best-effort)"]
@@ -90,6 +91,29 @@ const geoScoreVal = geoScore(geoPerPage);
 
 const { rows, billablePages } = buildPageReports(okPages, [...seoIssues, ...siteIssues, ...cwvIssueList], geoPerPage);
 ```
+
+`analyze-and-store` then also builds a full **V3 SEO+GEO report** — the same
+category-scored report the free SEO/GEO tool produces — and stores it on
+`audits.reportJson`. It is **best-effort**: a build failure is logged but never
+fails the audit, and it does **not** change the on-screen scores (those still come
+from `seoHealthScore`/`geoScore`):
+
+```ts
+// lib/inngest/fns/audit.ts:56-61, 84
+let reportJson = null;
+try {
+  reportJson = buildReportFromCrawl(domain, "site", result, cwv);
+} catch (e) {
+  console.warn("[audit] V3 report build failed:", (e as Error).message);
+}
+// …then persisted in the same audits update:
+await db.update(audits).set({ /* status, scores, cwv, botAccess, */ reportJson })
+  .where(eq(audits.id, auditId));
+```
+
+This stored report is what the **PDF export** renders via Gotenberg for modern
+audits; pre-migration-`0063` audits (`reportJson = null`) fall back to the legacy
+react-pdf document. See [PDF engine](/backend/pdf-engine).
 
 An audit is triggered two ways:
 
@@ -176,9 +200,10 @@ list (`robots.ts:12-21`) surfaces as the critical `ai_crawler_access` issue from
 
 ## Scoring and billing
 
-- **SEO score** — `seoHealthScore(allIssues, pagesCrawled)`: 100 minus weighted
-  penalties scaled by pages crawled (only `category: "seo"` issues count, so CWV and
-  cross-page SEO contribute here too).
+- **SEO score** — `seoHealthScore(allIssues, pagesCrawled)`: the average of the
+  per-page SEO scores (clean pages count as 100), minus a small capped penalty for
+  site-global issues — only `category: "seo"` issues count, so CWV and cross-page
+  SEO contribute here too. See [SEO engine](/backend/seo-engine#health-scoring).
 - **GEO score** — `geoScore(geoPerPage)`: the average of per-page weighted GEO
   pass-rates.
 
@@ -236,7 +261,7 @@ the conversational "Ask Spyro about this audit" sidebar.
 
 | Table | Holds |
 |---|---|
-| `audits` | one row per run — status, scores, `pagesCrawled`, `billablePages`, `cwv`, `botAccess` |
+| `audits` | one row per run — status, scores, `pagesCrawled`, `billablePages`, `cwv`, `botAccess`, `reportJson` (V3 report, added `0063`) |
 | `audit_issues` | every `DetectedIssue` (batched inserts of 200) |
 | `audit_pages` | per-page rows with template label, SEO/GEO score, `isBillable` |
 
