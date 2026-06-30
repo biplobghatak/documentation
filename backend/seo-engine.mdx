@@ -284,7 +284,7 @@ interface DetectedIssue {
 }
 ```
 
-Thresholds: title 30–60, meta 70–160, slow page > 3000 ms, thin content < 250
+Thresholds: title 30-60, meta 70-160, slow page > 3000 ms, thin content < 250
 words (`lib/seo/issues.ts:38-43`). There are three detectors:
 
 | Detector | Scope | Example issue types |
@@ -342,7 +342,7 @@ export function seoHealthScore(issues: DetectedIssue[], pagesCrawled: number): n
   const siteIssues = seoIssues.filter((i) => SITE_LEVEL_TYPES.has(i.type));
   const pageIssues = seoIssues.filter((i) => !SITE_LEVEL_TYPES.has(i.type));
 
-  // Per-page penalty → per-page score (100 − penalty×5), summed; clean pages = 100.
+  // Per-page penalty → per-page score (100 - penalty×5), summed; clean pages = 100.
   const penaltyByUrl = new Map<string, number>();
   for (const i of pageIssues) penaltyByUrl.set(i.url, (penaltyByUrl.get(i.url) ?? 0) + WEIGHT[i.severity]);
   let scoreSum = 0;
@@ -358,7 +358,7 @@ export function seoHealthScore(issues: DetectedIssue[], pagesCrawled: number): n
 
 Cross-page issues (duplicate title/meta, orphan pages) are page-attributed, so
 they're already in the per-page scores and are **not** double-counted. The
-single-page score uses the same `100 − penalty×5` curve directly
+single-page score uses the same `100 - penalty×5` curve directly
 (`seoHealthScoreForPage`, `health.ts:60-65`): one warning ≈ 80, one critical ≈ 40.
 
 ```ts

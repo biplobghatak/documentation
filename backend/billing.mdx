@@ -38,19 +38,19 @@ export type PlanId = "pro" | "agency";
 
 ### Pricing
 
-Both plans are priced **per site** at a `$99/mo` base. Pro covers 1–2 sites; Agency covers
-3–20 sites with a volume discount. Annual = pay for 10 months ("2 months free").
+Both plans are priced **per site** at a `$99/mo` base. Pro covers 1-2 sites; Agency covers
+3-20 sites with a volume discount. Annual = pay for 10 months ("2 months free").
 
 | | **Pro** | **Agency** |
 | --- | --- | --- |
 | Base price | `$99/mo` per site (`lib/plans.ts:154`) | `$99/mo` per site (`AGENCY_BASE_PER_SITE`, `lib/plans.ts:90`) |
-| Sites | 1–2 (`PRO_MAX_SITES = 2`) | 3–20 (`AGENCY_MIN_SITES = 3`, `AGENCY_MAX_SITES = 20`) |
+| Sites | 1-2 (`PRO_MAX_SITES = 2`) | 3-20 (`AGENCY_MIN_SITES = 3`, `AGENCY_MAX_SITES = 20`) |
 | 2-site total | `$198/mo` (no 2nd-site discount, `lib/plans.ts:127-130`) | - |
-| Volume discount | none | 3–5 sites: 10% · 6–10: 15% · 11–20: 20% (`lib/plans.ts:101-106`) |
+| Volume discount | none | 3-5 sites: 10% · 6-10: 15% · 11-20: 20% (`lib/plans.ts:101-106`) |
 | White-label | `false` (`lib/plans.ts:174`) | `true` (`lib/plans.ts:206`) |
 | 21+ sites | - | "Contact us" Custom tier, no self-serve checkout |
 
-Agency pricing is computed, not stored - `agencyPrice(sites)` rounds `sites × $99 × (1 −
+Agency pricing is computed, not stored - `agencyPrice(sites)` rounds `sites × $99 × (1 -
 discount)` (`lib/plans.ts:109-113`). Adding a 3rd site auto-converts a Pro org to Agency.
 
 <Warning>
@@ -155,7 +155,7 @@ sequenceDiagram
 ### Checkout - `app/api/checkout/route.ts`
 
 A `GET` handler (`:22-77`) authenticates the user, validates `plan`/`interval`/`sites`
-(Pro 1–2, Agency 3–20, otherwise a 400 with a contact-sales message), loads the org by
+(Pro 1-2, Agency 3-20, otherwise a 400 with a contact-sales message), loads the org by
 `ownerUserId`, and calls `createCheckoutSession`. The checkout body opens the
 Dodo-managed trial inline (`lib/dodo/index.ts:110-124`):
 

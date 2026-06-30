@@ -38,16 +38,16 @@ export interface GeoCheck {
 
 | # | id | Passes when |
 |---|----|----|
-| 1 | `answer_first` | The opening delivers a direct answer (BLUF) in the first ~50 words - first paragraph 40–600 chars, not a fluff opener, first sentence ≥30 chars and ≥8 words |
+| 1 | `answer_first` | The opening delivers a direct answer (BLUF) in the first ~50 words - first paragraph 40-600 chars, not a fluff opener, first sentence ≥30 chars and ≥8 words |
 | 2 | `qa_structure` | ≥3 sub-headings and (≥1 phrased as a question OR ≥5 headings) |
 | 3 | `schema` | ≥1 JSON-LD type in `FAQPage / HowTo / Article / NewsArticle / BlogPosting / QAPage / ProfilePage / FactCheck / Dataset` |
 | 4 | `stats` | ≥2 statistic patterns in the body |
-| 5 | `quotable` | A standalone, liftable sentence of 60–200 chars exists |
+| 5 | `quotable` | A standalone, liftable sentence of 60-200 chars exists |
 | 6 | `lists_tables` | Has tables + lists, a comparison table, or multiple lists under comparative headings |
 | 7 | `author` | Person schema or an author byline |
 | 8 | `llms_txt` | The site serves an `llms.txt` file |
 | 9 | `freshness` | "Updated/reviewed/published" text, a `<time datetime>`, or Article-family schema |
-| 10 | `concise_meta` | Meta description 70–160, title ≤65, descriptive headings |
+| 10 | `concise_meta` | Meta description 70-160, title ≤65, descriptive headings |
 | 11 | `outbound_authority` | ≥1 external link to a recognised authority domain |
 | 12 | `expert_quotes` | Blockquotes, citations, Review/Quotation schema, or attributed speech |
 | 13 | `entity_schema` | ≥1 JSON-LD type in `Organization / Product / LocalBusiness / Service / SoftwareApplication / Brand` |
@@ -140,7 +140,7 @@ weight units (16 + 5 doubled).
 // lib/geo/score.ts (entire file)
 import type { GeoCheck } from "./checks";
 
-/** GEO readiness 0–100: average pass-rate across pages, weighted so the
+/** GEO readiness 0-100: average pass-rate across pages, weighted so the
  *  high-impact checks (answer-first, Q&A structure, schema) count double. */
 const DOUBLE = new Set(["answer_first", "qa_structure", "schema", "entity_schema", "outbound_authority"]);
 

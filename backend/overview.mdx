@@ -100,7 +100,7 @@ kick off the on-connect import.
 There is one honest exception, visible in the code: the **public free tools**
 (`free-audit`, `ai-visibility`, `ai-crawler-check`, `schema-validator`) do *not*
 use Inngest. They run best-effort in Next's `after()` with a `maxDuration` of
-110–300s and a client that polls the `GET` endpoint for the result. That's the
+110-300s and a client that polls the `GET` endpoint for the result. That's the
 right tool because the work is a single best-effort invocation tied to one
 visitor, not a durable pipeline.
 

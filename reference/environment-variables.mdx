@@ -13,8 +13,8 @@ from `.env.local.example` and cross-checked against `lib/env.ts`. It documents
 helper (empty string ⇒ `undefined`) and **does not throw at import time** for most
 keys - features degrade to mocks when a key is absent. Only `NEXT_PUBLIC_APP_URL` is
 effectively required (it throws when a consumer needs the public origin and no
-Vercel fallback exists) *(`lib/env.ts:1–11,38–59`)*. Feature on/off is decided by the
-`featureFlags` object *(`lib/env.ts:189–222`)*.
+Vercel fallback exists) *(`lib/env.ts:1-11,38-59`)*. Feature on/off is decided by the
+`featureFlags` object *(`lib/env.ts:189-222`)*.
 </Info>
 
 <Note>
@@ -30,7 +30,7 @@ example leaves the line commented.
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | **Required** | Supabase project URL. Auth + the whole dashboard. |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | One of these two | New-style `sb_publishable_…` key (**preferred**). |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | One of these two | Legacy anon JWT (fallback if publishable unset). Whichever is set wins *(`lib/env.ts:65–66`)*. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | One of these two | Legacy anon JWT (fallback if publishable unset). Whichever is set wins *(`lib/env.ts:65-66`)*. |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Required** | Server-side service role (bypasses RLS; also default encryption-key fallback and Storage uploads). |
 | `DATABASE_URL` | **Required** | Postgres connection string used by Drizzle (`drizzle.config.ts`). |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional | Cloudflare Turnstile **site** key - bot/spam widget on auth forms. The secret goes in Supabase, not env. |
@@ -105,9 +105,9 @@ The current billing provider is **Dodo**, not Polar - the README's `POLAR_*` var
 | `DODO_PRODUCT_PRO_2SITE_ANNUAL` | Required for that plan | Pro · 2 sites · annual product ID. |
 | `DODO_PRODUCT_AGENCY_MONTHLY` | Required for that plan | Agency per-site monthly product ID. |
 | `DODO_PRODUCT_AGENCY_ANNUAL` | Required for that plan | Agency per-site annual product ID. |
-| `DODO_DISCOUNT_AGENCY_10` | Optional | 10% Agency volume code (3–5 sites). |
-| `DODO_DISCOUNT_AGENCY_15` | Optional | 15% Agency volume code (6–10 sites). |
-| `DODO_DISCOUNT_AGENCY_20` | Optional | 20% Agency volume code (11–20 sites). |
+| `DODO_DISCOUNT_AGENCY_10` | Optional | 10% Agency volume code (3-5 sites). |
+| `DODO_DISCOUNT_AGENCY_15` | Optional | 15% Agency volume code (6-10 sites). |
+| `DODO_DISCOUNT_AGENCY_20` | Optional | 20% Agency volume code (11-20 sites). |
 
 ## Background jobs - Inngest
 
@@ -217,13 +217,13 @@ See [Content engine](/backend/content-engine) and [Audit](/backend/audit).
 
 Platform-injected on Vercel (you do **not** set these): `VERCEL`,
 `VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL` - read as the localhost safety net and
-PDF-origin fallbacks *(`lib/env.ts:42–48`, `lib/free-tools/shared/pdf/browser.ts:46–47`)*.
+PDF-origin fallbacks *(`lib/env.ts:42-48`, `lib/free-tools/shared/pdf/browser.ts:46-47`)*.
 
 ## Superadmin panel - dedicated credentials
 
 All env-only (never DB columns). The panel **404s entirely** unless `ADMIN_USERNAME`
 + a password + `ADMIN_SESSION_SECRET` + `ADMIN_TOTP_SECRET` are all set
-(`adminConfigured`, `lib/env.ts:216–221`).
+(`adminConfigured`, `lib/env.ts:216-221`).
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |

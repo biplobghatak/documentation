@@ -153,7 +153,7 @@ The only **non-crawl** tool. `extract` server-side fetches up to 3 URLs
 (`route.ts:11`), parses `title`/`description`/`og:*`/`canonical`/`favicon` with
 cheerio, and returns `ExtractResult[]`. **All scoring is client-side and
 zero-token** (`lib/free-tools/meta-snippet/scoring.ts`) - pixel-accurate field
-status, a 0–100 score, and rule-based CTR recommendations, with **no
+status, a 0-100 score, and rule-based CTR recommendations, with **no
 persistence**. The folder has no `run.ts` or `store.ts`, by design. It still has
 a Gotenberg PDF (`/api/meta-snippet/pdf`), but because nothing is stored the
 route takes the snippet state from the **query string** rather than a DB row.

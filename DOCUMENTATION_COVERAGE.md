@@ -85,7 +85,7 @@ The in-repo `README.md` / `*-EXPLAINED.txt` are partly stale; every writer verif
    Gemini; the chat agent is OpenRouter → Moonshot → OpenAI; citation engines use OpenRouter; embeddings
    use OpenAI (`text-embedding-3-small` in code, despite `.env.local.example` saying `-large`).
 3. **Pricing:** `lib/plans.ts` defines plans `pro | agency` at **$99/site/mo** (Agency = Pro × N sites,
-   3–20, with 10/15/20% volume discounts) - not the README's $14/$39/$69. **No credit packs exist**; the
+   3-20, with 10/15/20% volume discounts) - not the README's $14/$39/$69. **No credit packs exist**; the
    quota model is `blogsPerMonth: 30` + `aiCreditsPerMonth: 200`.
 4. **Trial = 3 days / 3 blogs** (`TRIAL_DAYS=3`), not 7 days.
 5. **RLS is membership-driven** (org/workspace membership via `has_workspace_access`), spanning two files
