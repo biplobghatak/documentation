@@ -19,127 +19,55 @@
     }
   },
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Product Guide",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "product/overview",
-              "product/onboarding",
-              "product/dashboard"
-            ]
-          },
-          {
-            "group": "SEO",
-            "pages": [
-              "product/spyro-ai-agent",
-              "product/audit",
-              "product/search-console",
-              "product/rank-tracker"
-            ]
-          },
-          {
-            "group": "AI visibility",
-            "pages": [
-              "product/ai-visibility",
-              "product/prompts",
-              "product/ai-mentions"
-            ]
-          },
-          {
-            "group": "Create",
-            "pages": [
-              "product/calendar",
-              "product/writer",
-              "product/article-settings"
-            ]
-          },
-          {
-            "group": "Account",
-            "pages": [
-              "product/settings",
-              "product/team-members",
-              "product/billing-and-usage"
-            ]
-          },
-          {
-            "group": "Free tools",
-            "pages": [
-              "product/free-tools"
-            ]
-          }
+        "group": "Get started",
+        "pages": [
+          "product/overview",
+          "product/onboarding",
+          "product/dashboard"
         ]
       },
       {
-        "tab": "Developer Docs",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "getting-started/installation",
-              "getting-started/project-structure",
-              "getting-started/architecture",
-              "getting-started/environment"
-            ]
-          },
-          {
-            "group": "Frontend",
-            "pages": [
-              "frontend/overview",
-              "frontend/routing",
-              "frontend/components",
-              "frontend/ui-system",
-              "frontend/state-management",
-              "frontend/forms",
-              "frontend/performance",
-              "frontend/marketing-site"
-            ]
-          },
-          {
-            "group": "Backend",
-            "pages": [
-              "backend/overview",
-              "backend/apis",
-              "backend/public-api",
-              "backend/database",
-              "backend/authentication",
-              "backend/authorization",
-              "backend/middleware",
-              "backend/services",
-              "backend/ai",
-              "backend/seo-engine",
-              "backend/geo-engine",
-              "backend/crawler",
-              "backend/audit",
-              "backend/content-engine",
-              "backend/background-jobs",
-              "backend/billing",
-              "backend/integrations",
-              "backend/free-tools",
-              "backend/pdf-engine",
-              "backend/security",
-              "backend/logging"
-            ]
-          },
-          {
-            "group": "Deployment",
-            "pages": [
-              "deployment/vercel",
-              "deployment/environment",
-              "deployment/production"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "reference/environment-variables",
-              "reference/folder-reference",
-              "reference/glossary"
-            ]
-          }
+        "group": "Audits & SEO",
+        "pages": [
+          "product/audit",
+          "product/understanding-reports",
+          "product/rank-tracker",
+          "product/search-console"
+        ]
+      },
+      {
+        "group": "AI visibility",
+        "pages": [
+          "product/ai-visibility",
+          "product/prompts",
+          "product/ai-mentions"
+        ]
+      },
+      {
+        "group": "Create content",
+        "pages": [
+          "product/calendar",
+          "product/writer",
+          "product/spyro-ai-agent",
+          "product/article-settings"
+        ]
+      },
+      {
+        "group": "Account",
+        "pages": [
+          "product/settings",
+          "product/team-members",
+          "product/billing-and-usage"
+        ]
+      },
+      {
+        "group": "More",
+        "pages": [
+          "product/integrations",
+          "product/free-tools",
+          "product/faq"
         ]
       }
     ]

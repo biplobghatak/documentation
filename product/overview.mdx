@@ -1,126 +1,96 @@
 ---
-title: "Product overview"
-description: "What Spyro does, how organizations and workspaces are structured, and a map of every feature in the app - your starting point for the product guide."
+title: "Welcome to Spyro"
+description: "Spyro helps you get found on Google and inside AI assistants like ChatGPT. Here is what you can do and how to get started - no technical knowledge needed."
 ---
 
-Spyro is an **SEO + AI-visibility (GEO/AEO) platform**: it audits your site, tracks
-your Google rankings, measures whether AI engines (ChatGPT, Gemini, Perplexity,
-Claude, Google AI Overviews) cite your brand, and plans and writes the content
-that closes the gaps. This guide walks through the product feature by feature,
-mirroring the app's left-hand navigation.
+Spyro is your all-in-one tool for getting found online - both on **Google** and
+inside **AI assistants** like ChatGPT, Gemini, Perplexity, and Claude.
 
-<Note>
-This is the **product guide** - how to *use* each screen. For how each feature is
-*built*, see the [Developer Docs](/introduction). Most pages cross-link to their
-engineering counterpart under `/backend/*`.
-</Note>
+You don't need to be technical to use it. Spyro checks your website, tracks your
+rankings, tells you whether AI tools mention your brand, and even writes and
+publishes content for you. This guide explains every feature in plain language,
+step by step.
 
-## Organizations and workspaces
+## What you can do with Spyro
 
-Everything you do lives inside a **workspace**, and every workspace is exactly one
-website.
+<CardGroup cols={2}>
+  <Card title="Check your website" icon="magnifying-glass" href="/product/audit">
+    Run an audit to find what's helping or hurting your SEO, and get clear fixes.
+  </Card>
+  <Card title="Track your Google rankings" icon="chart-line" href="/product/rank-tracker">
+    Watch your keywords move up or down over time.
+  </Card>
+  <Card title="See if AI mentions you" icon="robot" href="/product/ai-visibility">
+    Find out whether ChatGPT and other AI tools recommend your brand - and your rivals.
+  </Card>
+  <Card title="Write and publish content" icon="pen-nib" href="/product/writer">
+    Plan, write, and publish SEO-ready articles with the AI writer.
+  </Card>
+  <Card title="Ask the AI agent" icon="sparkles" href="/product/spyro-ai-agent">
+    Chat with Spyro to research keywords, find content ideas, and more.
+  </Card>
+  <Card title="Connect your tools" icon="plug" href="/product/integrations">
+    Link WordPress, Google Search Console, and more.
+  </Card>
+</CardGroup>
 
-- An **organization** is your billing root. It owns one or more workspaces and a
-  team of members.
-- A **workspace** is one tracked site - its audits, keywords, prompts, articles,
-  integrations and settings all hang off it.
+## Who Spyro is for
 
-This is encoded directly in the URL as two segments - `/{org}/{workspace}/…`. For
-example, the audit for the `spyro-app` workspace in the `support-3` org is at
-`/support-3/spyro-app/audit`. You switch orgs and workspaces from the switchers at
-the top of the sidebar.
+Spyro is built for people who want more traffic and visibility, without the
+technical headache:
 
-```mermaid
-flowchart TD
-  O["Organization (billing root)"] --> W1["Workspace = website A"]
-  O --> W2["Workspace = website B"]
-  W1 --> F["Audit · Ranks · AI visibility · Articles · Settings"]
-```
+- SEO professionals and agencies
+- Marketing teams
+- Content writers
+- Website and business owners
 
-<Tip>
-Your **plan** decides how many workspaces you get and which features are unlocked.
-**Pro** covers 1-2 sites; **Agency** covers 3-20 with volume discounts. See
-[Plans, billing & usage](/product/billing-and-usage).
-</Tip>
+If you can use a website, you can use Spyro.
 
-## The navigation
+## How Spyro is organized
 
-The sidebar groups features the same way this guide does:
+A quick bit of vocabulary that makes everything else easier:
 
-<AccordionGroup>
-  <Accordion title="Overview" icon="grid-2">
-    - [**Dashboard**](/product/dashboard) - your workspace at a glance: scores,
-      recent activity, and quick links into every tool.
-  </Accordion>
-  <Accordion title="SEO" icon="magnifying-glass">
-    - [**Spyro AI research**](/product/spyro-ai-agent) - a chat agent that does
-      keyword research, finds content gaps, and recommends topics using your live
-      site and SERP data.
-    - [**Site audit**](/product/audit) - crawl your site for SEO + GEO issues, get
-      a scored report, AI fix suggestions, and a downloadable PDF.
-    - [**Search Console**](/product/search-console) - connect Google Search
-      Console to see real query/page performance and AI-surface traffic.
-    - [**Rank tracker**](/product/rank-tracker) - track keyword positions over time;
-      articles you publish are auto-tracked.
-  </Accordion>
-  <Accordion title="AI visibility" icon="robot">
-    The three tabs of Spyro's GEO tracker:
-    - [**Overview**](/product/ai-visibility) - your share of voice across AI engines
-      versus competitors.
-    - [**Prompts**](/product/prompts) - the buyer questions Spyro runs against the
-      AI engines each week.
-    - [**Mentions**](/product/ai-mentions) - the live feed of every AI answer and
-      whether it cited you.
-  </Accordion>
-  <Accordion title="Create" icon="pen-nib">
-    - [**Calendar & Article Planner**](/product/calendar) - a content plan and an
-      editorial calendar of blog ideas.
-    - [**Writer**](/product/writer) - the article workspace where drafts are
-      generated, edited, scored, and published.
-    - [**Article settings**](/product/article-settings) - defaults for tone, style,
-      images, and publishing integrations.
-  </Accordion>
-  <Accordion title="Account" icon="gear">
-    - [**Settings**](/product/settings) - account, workspace, audience, competitors,
-      crawled pages, and API keys.
-    - [**Team members**](/product/team-members) - invite teammates and assign roles.
-    - [**Plans, billing & usage**](/product/billing-and-usage) - your subscription,
-      seats, and monthly usage.
-  </Accordion>
-</AccordionGroup>
+- A **workspace** is one website you want to grow. Everything - your audits,
+  rankings, content, and settings - belongs to a workspace.
+- If you manage more than one website, you can have a workspace for each one and
+  switch between them at the top of the screen.
 
-## Free tools (no account needed)
+That's it. Most of the time you'll work inside a single workspace for your site.
 
-Spyro also publishes five [**free public tools**](/product/free-tools) - an SEO &
-GEO audit, AI-visibility checker, AI-crawler & robots checker, schema-markup
-validator, and meta-snippet preview - that anyone can run without signing in.
-
-## A typical first session
+## Get started in minutes
 
 <Steps>
-  <Step title="Sign up and onboard">
-    Create an account and add your first website. Spyro crawls it to learn your
-    brand, audience and competitors. See [Onboarding](/product/onboarding).
+  <Step title="Create your account and add your website">
+    Sign up and tell Spyro your website address. It takes a quick look at your
+    site to learn your brand and competitors. See [Set up your account](/product/onboarding).
   </Step>
-  <Step title="Audit the site">
-    Run a [site audit](/product/audit) to see SEO + GEO issues and scores.
+  <Step title="Run your first audit">
+    Check your site's health and get a prioritized list of fixes. See
+    [Run your first audit](/product/audit).
   </Step>
-  <Step title="Check your AI visibility">
-    Review the [prompts](/product/prompts) Spyro tracks and watch the
-    [mentions feed](/product/ai-mentions) to see where AI engines cite you.
+  <Step title="See where you stand with AI">
+    Look at your [AI visibility](/product/ai-visibility) to see if AI assistants
+    recommend you.
   </Step>
-  <Step title="Plan and publish content">
-    Use the [Article Planner](/product/calendar) to build a content plan, then the
-    [Writer](/product/writer) to draft, score and publish - and watch new keywords
-    appear in the [rank tracker](/product/rank-tracker).
+  <Step title="Create content that ranks">
+    Use the [content calendar](/product/calendar) and [AI writer](/product/writer)
+    to publish articles - and track how they perform.
   </Step>
 </Steps>
 
-## Related
+## Explore the guide
 
 <CardGroup cols={2}>
-  <Card title="Onboarding" icon="rocket" href="/product/onboarding">Get your first workspace set up.</Card>
-  <Card title="Dashboard" icon="grid-2" href="/product/dashboard">The workspace home screen.</Card>
-  <Card title="Developer docs" icon="code" href="/introduction">How Spyro is built.</Card>
-  <Card title="Plans & billing" icon="credit-card" href="/product/billing-and-usage">Pricing, seats, and limits.</Card>
+  <Card title="Set up your account" icon="rocket" href="/product/onboarding">
+    Sign up and add your first website.
+  </Card>
+  <Card title="Your dashboard" icon="gauge" href="/product/dashboard">
+    The home screen that shows how your site is doing.
+  </Card>
+  <Card title="Free tools" icon="wand-magic-sparkles" href="/product/free-tools">
+    Quick checks you can run without an account.
+  </Card>
+  <Card title="Questions and answers" icon="circle-question" href="/product/faq">
+    Common questions about plans, features, and more.
+  </Card>
 </CardGroup>

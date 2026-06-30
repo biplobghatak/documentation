@@ -1,136 +1,113 @@
 ---
-title: "AI visibility: overview"
-description: "Your AI share of voice - per-engine visibility, a share-of-voice chart, and a competitor ranking that puts you head-to-head with rivals across ChatGPT, Gemini, Perplexity, Claude and Google AI Overviews."
+title: "AI visibility & competitors"
+description: "See how often ChatGPT, Gemini, Claude, Perplexity and Google AI Overviews recommend you - and exactly where you rank against your competitors."
 ---
 
-**AI visibility** is Spyro's GEO tracker: it asks the AI engines real buyer
-questions every week and measures whether they recommend *you*. The feature has
-three tabs - **Overview** (this page) is your share of voice, [**Prompts**](/product/prompts)
-is the buyer questions Spyro runs, and [**Mentions**](/product/ai-mentions) is
-the live feed of every answer. This page covers the **Overview** tab, which you
-reach at `/{org}/{workspace}/competitors`.
+These days, people don't just search Google - they ask AI assistants like
+**ChatGPT, Gemini, Claude, Perplexity, and Google AI Overviews** for
+recommendations. **AI visibility** shows you whether those assistants mention
+*you* when buyers ask, and how you stack up against your competitors.
 
-<Note>
-Because LLMs are non-deterministic, Spyro never reports a citation as a yes/no.
-Every result is a **frequency** - "cited in N of M runs" - and the percentages on
-this page are averages of those frequencies across engines, prompts and time.
-</Note>
+Here's how it works: Spyro asks the AI assistants the same kinds of questions your
+buyers ask, then tracks how often each assistant mentions your brand versus
+everyone else's. It's the easiest way to find out if AI is recommending you - or
+sending customers to a rival.
 
-## What this tab shows
+## Why use it
 
-The Overview tab answers one question: *across the AI engines, how often do you
-get recommended versus your competitors?* It has three parts, top to bottom.
+<CardGroup cols={2}>
+  <Card title="Get found inside AI" icon="robot">
+    See whether AI assistants name you when buyers ask for recommendations.
+  </Card>
+  <Card title="Watch your competitors" icon="users">
+    Find out who AI mentions most often, and where you rank against them.
+  </Card>
+  <Card title="Track your share of voice" icon="chart-pie">
+    See your slice of all the AI mentions - and whether it's growing.
+  </Card>
+  <Card title="Spot trends early" icon="arrow-trend-up">
+    Notice when you start gaining (or losing) ground week to week.
+  </Card>
+</CardGroup>
+
+## How to use it
 
 <Steps>
-  <Step title="Per-engine visibility cards">
-    One card per engine you track - **Google AI Overviews**, **Gemini**,
-    **ChatGPT**, **Perplexity** and **Claude**. Each shows your average citation
-    frequency over the last 7 days, how many times that engine mentioned you, the
-    week-over-week trend, and a sentiment breakdown when answers have been
-    classified.
+  <Step title="Open AI visibility">
+    In the sidebar, open **AI visibility**. The main view shows how often each AI
+    assistant mentions you, your share of voice, and your competitor ranking.
   </Step>
-  <Step title="Share-of-voice chart">
-    A daily stacked chart of you plus your top rivals, normalized so every day
-    totals 100%. This is your **share of voice** - your slice of all the AI
-    citations across your tracked prompts.
+  <Step title="Check each AI assistant">
+    At the top you'll see a card for each assistant - **ChatGPT, Gemini, Claude,
+    Perplexity, and Google AI Overviews**. Each card shows how visible you are
+    there, how many times it mentioned you, and whether that's going up or down.
   </Step>
-  <Step title="Competitor ranking table">
-    Every brand the engines cited for your prompts, ranked by average citation
-    frequency - with a synthetic **You** row dropped in so you can see exactly
-    where you sit.
+  <Step title="Read your share of voice">
+    The chart below shows your share of all the AI mentions over time, next to your
+    top rivals. A growing slice means you're winning more of the conversation.
+  </Step>
+  <Step title="See the competitor ranking">
+    The **Competitors** table lists every brand the AI assistants mention for your
+    questions, ranked from most-mentioned to least - with a highlighted **You** row
+    so you can see exactly where you sit.
   </Step>
 </Steps>
 
-The header strip summarizes the window: `N prompts · M engines · last 7 days`.
+## What "share of voice" means
 
-<Note>
-If you haven't added prompts yet, or the weekly check hasn't run, this tab shows
-**No AI visibility data yet**. Add prompts on the [Prompts](/product/prompts) tab -
-the first check runs instantly when you add one, and recurring checks run every
-Monday.
-</Note>
+Think of every mention the AI assistants make as one vote. **Share of voice** is
+simply your slice of all those votes. If the assistants mention five brands and
+yours is named in a third of the answers, you have about a third of the share of
+voice.
 
-## Per-engine visibility cards
+It's a *relative* number, so it can change in two ways:
 
-Each card is one engine. Read it as "on this engine, here's how visible you are
-right now."
+- **You climb** when the assistants start naming you more often.
+- **You slip** when a competitor surges ahead - even if your own mentions stayed
+  the same.
 
-| Field | What it means |
-| --- | --- |
-| **Visibility** | Your average citation frequency on this engine over the last 7 days, shown as a percentage. |
-| **Mentions** | How many answers from this engine cited you in the window. |
-| **Trend** | The change versus the previous 7-day window. A real arrow only appears once there's a prior week to compare. |
-| **Sentiment** | How the engine portrayed you in answers that cited you - positive, neutral or negative. Shows nothing until at least one cited answer is classified. |
+Watching your share of voice tells you whether you're gaining or losing ground in
+the AI conversation overall.
 
-<Tip>
-Sentiment is only judged on answers that actually cited you - a "neutral" count
-of zero doesn't mean the engine dislikes you, it means it hasn't mentioned you
-yet (or the classification hasn't run).
-</Tip>
+## The competitor ranking
 
-## Share of voice
+The **Competitors** view is where you go head-to-head with your rivals. It lists
+every brand the AI assistants mention for your questions and ranks them from most
+mentioned to least. Your own row is highlighted with a **You** badge, so you can
+spot your rank at a glance.
 
-**Share of voice** is your portion of all the AI citations happening for your
-tracked prompts. Spyro takes you and your **top 5 rivals** for each day, weights
-each by how many runs it appeared in, and normalizes the day to 100%. Everything
-outside the top 5 is grouped into **Others**.
+For each brand you can see:
 
-```mermaid
-flowchart LR
-  A["All citations for your prompts (per day)"] --> B["You"]
-  A --> C["Top 5 rivals"]
-  A --> D["Others"]
-  B --> E["Normalized to 100% per day"]
-  C --> E
-  D --> E
-```
+- **Its rank** - who AI mentions most for your kind of questions.
+- **How many of your questions it shows up in.**
+- **How often it gets mentioned**, and whether that's rising or falling.
 
-How to read it:
+If a competitor is sitting above you, that's your cue to dig into *which* questions
+they win - and that's exactly what the companion views are for.
 
-- **A rising "You" band** means you're winning a bigger slice of AI answers -
-  even if the absolute number of prompts didn't change.
-- **A flat band while a rival's grows** means you're losing ground in relative
-  terms; that's your cue to look at which prompts they win on.
-- Share of voice is *relative*. It can fall even when your own visibility holds
-  steady, simply because a competitor surged.
+## What to expect
 
-<Note>
-Days without enough citations are marked low-confidence and left out of the
-chart. If there isn't enough data yet, you'll see **Not enough data for the
-share-of-voice chart yet - checks resume every Monday** in place of the chart.
-</Note>
+- Because AI answers vary each time, Spyro never gives a simple yes or no. Instead
+  you'll see results like **"mentioned in 3 of 5 checks"** - a frequency that's
+  fairer and more reliable than a single answer.
+- Your first results appear right after you add your buyer questions, and Spyro
+  re-checks every week so your numbers stay fresh.
+- If you haven't added any questions yet, this view will be empty - start by adding
+  a few [tracking prompts](/product/prompts).
 
-## Competitor ranking
+## Tips
 
-The table ranks every brand the engines cited for your prompts, with a **You** row
-injected and the whole list sorted by average citation frequency. The highest
-average is `#1`.
-
-| Column | What it means |
-| --- | --- |
-| **Rank** | Position by average citation frequency, highest first. |
-| **Brand** | The competitor domain, or your site on the highlighted **You** row. |
-| **Prompts where cited** | How many of your tracked prompts cited this brand, as `N / M`. The **You** row shows `-` here. |
-| **Avg frequency** | Average citation frequency across every (prompt × engine) check in the last 7 days. |
-| **7-day trend** | Change versus the previous 7-day window. |
-
-The **You** row is shaded and carries a **You** badge so you can spot your own
-ranking at a glance. Averages are taken across `(prompt × engine)` checks in the
-last 7 days; share of voice is normalized to 100% per day across you plus your
-top 5 rivals.
-
-<Tip>
-To find *where* a rival is beating you, note the prompts they're cited on here,
-then open the [Prompts](/product/prompts) tab to see which specific buyer
-questions they win - and the [Mentions](/product/ai-mentions) feed to read the
-exact answers.
-</Tip>
+- Pair this view with its two companions: [Tracking prompts](/product/prompts) to
+  manage the questions Spyro asks, and [AI mentions](/product/ai-mentions) to read
+  the actual answers word for word.
+- When a rival outranks you, note which questions they win, then study those
+  answers to see what they're doing differently.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Prompts" icon="list-check" href="/product/prompts">Manage the buyer questions Spyro runs against each engine every week.</Card>
-  <Card title="Mentions" icon="radio" href="/product/ai-mentions">The live feed of every AI answer and whether it cited you.</Card>
-  <Card title="GEO engine (dev)" icon="robot" href="/backend/geo-engine">How citation checks and share of voice are computed.</Card>
-  <Card title="AI internals (dev)" icon="code" href="/backend/ai">The model layer behind prompts, sentiment and scoring.</Card>
+  <Card title="Tracking prompts" icon="list-check" href="/product/prompts">Manage the buyer questions Spyro asks the AI assistants each week.</Card>
+  <Card title="AI mentions" icon="comments" href="/product/ai-mentions">Read the actual AI answers and see exactly how they describe you.</Card>
+  <Card title="Run an audit" icon="magnifying-glass" href="/product/audit">Check your site's health and get clear fixes.</Card>
+  <Card title="Product overview" icon="grid-2" href="/product/overview">See everything Spyro can do.</Card>
 </CardGroup>

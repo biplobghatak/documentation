@@ -1,64 +1,75 @@
 ---
-title: "Writer"
-description: "The article workspace - watch the generation pipeline, then edit the draft in a rich text editor, review research and SEO score, and publish to your site."
+title: "AI writer"
+description: "Pick a topic and Spyro writes a complete, SEO-ready article for you - with images added automatically. Then edit it, check its SEO score, and publish it to your website."
 ---
 
-The **Writer** is where a single article comes together. You reach it by opening a
-post from the [calendar](/product/calendar) (URL `/{org}/{workspace}/writer/{id}`).
-It has two modes: a live **generation timeline** while the article is being
-produced, and the **article workspace** once it's ready.
+The **AI writer** writes a full article for you. You choose a topic, and Spyro
+researches it, writes the draft, and even adds images - so you start with a finished
+piece instead of a blank page. From there you can polish it, check how well it's
+optimized for search, and publish it straight to your website.
 
-## While it generates
+## Why use it
 
-When you trigger an article, Spyro runs a pipeline - **research → draft → verify →
-images** - and shows a live timeline. The page polls every few seconds and opens the
-editor automatically once everything (including images) is done.
+- **Go from idea to article in minutes.** Spyro does the research and writing for
+  you.
+- **Images included.** A matching banner image and in-article images are created
+  automatically, styled to your brand.
+- **Built for search.** Every draft is written to rank, and you get a clear SEO
+  score so you know where it stands.
 
-<AccordionGroup>
-  <Accordion title="What the timeline shows" icon="list-check">
-    Each phase reports its status as it completes - researching and drafting,
-    then "**Finishing up images…**" while the featured and in-content images are
-    generated. The editor only opens once images are in the markdown.
-  </Accordion>
-  <Accordion title="If it stalls or errors" icon="rotate">
-    A **Retry** button appears for stuck or failed runs so you can re-trigger the
-    pipeline without losing the post.
-  </Accordion>
-</AccordionGroup>
-
-## The article workspace
-
-Once the draft is ready, you get a full editing workspace:
-
-- **Rich text editor** - a TipTap editor with slash commands, tables, images, and a
-  selection bubble menu. Edit the body, headings, and inline formatting directly.
-- **SEO** - the **meta title** and **meta description**, the target **keyword** with
-  its volume and difficulty, and a **score panel** rating the draft.
-- **Research** - the research pack and outline Spyro used, plus **quality checks**.
-- **Images** - the brand-styled **featured image** and any **in-content images**,
-  generated for you (see [Article settings → Image generation](/product/article-settings)).
-
-## Publishing
+## How to use it
 
 <Steps>
-  <Step title="Connect a destination">
-    Add a WordPress, Shopify, or webhook integration in
-    [Article settings → Integrations](/product/article-settings).
+  <Step title="Pick a topic">
+    Open an idea from your [content calendar](/product/calendar), or send a topic
+    from the [AI agent](/product/spyro-ai-agent), and tell Spyro to write it.
   </Step>
-  <Step title="Publish or schedule">
-    Push the finished article to a connected destination, or schedule it. The
-    workspace shows the published URL and scheduled status.
+  <Step title="Let Spyro write it">
+    Spyro researches the topic, writes the draft, and adds images. You'll see its
+    progress as it works, and the editor opens automatically when the article is
+    ready.
   </Step>
-  <Step title="Export">
-    You can also export the draft (e.g. as Word or HTML) to take it elsewhere.
+  <Step title="Edit and polish">
+    Review the draft in the editor. Change the wording, headings, and formatting,
+    add or remove images, and fine-tune the title and description.
+  </Step>
+  <Step title="Check the SEO score">
+    Look at the SEO score panel to see how well the article is optimized, then make
+    quick improvements before publishing.
+  </Step>
+  <Step title="Publish to your website">
+    Send the finished article to your website with one click, or schedule it for
+    later. You can also download the draft to use somewhere else.
   </Step>
 </Steps>
+
+## What to expect
+
+While Spyro writes, you'll see it move through researching, drafting, and finishing
+the images. This usually takes a short while - the editor opens on its own when
+everything is done. If something gets stuck, a **Retry** button lets you start it
+again without losing your work.
+
+Once the draft is ready, you get a simple, familiar editor - much like a regular
+word processor. You can type directly, format text, add tables and images, and see
+your SEO score and target keyword alongside the article. When you're happy, publish
+it to a connected website.
+
+## Tips
+
+- Set your brand voice, article style, and image look in
+  [Content settings](/product/article-settings) before you write, so every article
+  comes out on-brand.
+- Connect your website first in [Integrations](/product/integrations) so you can
+  publish without leaving the page.
+- Use the SEO score as a guide - small edits to your title, description, and
+  headings often give it a quick boost.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Article Planner & calendar" icon="calendar" href="/product/calendar">Where articles are scheduled and opened.</Card>
-  <Card title="Article settings" icon="sliders" href="/product/article-settings">Tone, style, image presets, and integrations.</Card>
-  <Card title="Rank tracker" icon="chart-line" href="/product/rank-tracker">Published articles auto-track their keyword.</Card>
-  <Card title="Content engine" icon="gears" href="/backend/content-engine">The writer, research, and image pipeline.</Card>
+  <Card title="Content calendar" icon="calendar" href="/product/calendar">Where you plan and open your articles.</Card>
+  <Card title="Content settings" icon="sliders" href="/product/article-settings">Set the tone, style, and images Spyro uses.</Card>
+  <Card title="Integrations" icon="plug" href="/product/integrations">Connect the website you publish to.</Card>
+  <Card title="Rank tracker" icon="chart-line" href="/product/rank-tracker">Watch how your published articles rank.</Card>
 </CardGroup>

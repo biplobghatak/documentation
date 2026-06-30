@@ -1,71 +1,75 @@
 ---
-title: "Article Planner & calendar"
-description: "Plan a month of content and manage your editorial calendar - research topics with Spyro, schedule blog ideas by day, and send them to the writer."
+title: "Content calendar"
+description: "Plan a whole month of blog posts in one place. Spyro researches topic ideas for you and lays them out by day, so you always know what to publish next."
 ---
 
-The **Article Planner** is where you turn ideas into a publishing schedule. It pairs
-an **editorial calendar** (every planned post, laid out by day) with a **Plan with
-Spyro** panel that researches and schedules topics for you. It's at
-`/{org}/{workspace}/calendar` (**Article Planner → Calendar** in the sidebar).
+The **content calendar** is where you plan your blog. Instead of staring at a blank
+page, you get a month-by-month board of topic ideas - each one placed on a day -
+so it's easy to see what's coming up and stay consistent.
 
-<Note>
-Spyro researches and schedules a starter set of topics **automatically after
-onboarding**, so your calendar usually isn't empty on day one.
-</Note>
+The best part: Spyro does the research for you. It studies your website and your
+market, then fills your calendar with topic ideas worth writing about. You stay in
+charge - you decide what to keep, when to publish it, and when to send an idea to
+the writer.
 
-## The calendar board
+## Why use it
 
-The board shows one month at a time. Each scheduled post appears on its day with a
-status:
+- **Never run out of ideas.** Spyro suggests topics based on your site and your
+  competitors.
+- **Stay consistent.** A clear monthly plan helps you publish regularly, which is
+  what search engines and AI assistants reward.
+- **Save time.** The research and scheduling are done for you - you just review and
+  approve.
 
-| Status | Meaning |
-| --- | --- |
-| **Scheduled** | Planned for that day, not yet generated. |
-| **Queued / Generating** | The writer is producing the article (the board auto-refreshes as it progresses). |
-| **Done** | Draft is ready - click to open it in the [Writer](/product/writer). |
-
-Use the **‹ ›** arrows to move between months. While any post is generating, the
-board polls and refreshes on its own so finished articles appear without a manual
-reload.
-
-## Plan with Spyro
-
-The **Plan with Spyro** panel (right side) is a chat that builds your plan - it
-shares the same conversation threads as the [Spyro AI agent](/product/spyro-ai-agent).
-Ask it to propose topics, then approve and schedule them. **Generate more topics**
-runs a fresh research pass to extend the plan.
+## How to use it
 
 <Steps>
-  <Step title="Generate or request topics">
-    Let onboarding seed them, click **Generate more topics**, or ask the planner
-    chat for specific angles.
+  <Step title="Open the calendar">
+    Click **Calendar** in the sidebar. After you set up your account, Spyro has
+    usually already added a starter set of topic ideas, so your calendar won't be
+    empty on day one.
   </Step>
-  <Step title="Schedule them">
-    Approved ideas drop onto the calendar by day; drag to reschedule.
+  <Step title="Ask Spyro to plan more topics">
+    Use the **Plan with Spyro** panel to ask for more ideas - for example, a
+    specific angle or theme you want to cover. Spyro researches fresh topics and
+    adds them to your plan.
   </Step>
-  <Step title="Send to the writer">
-    Open a scheduled idea and generate the article - it flows into the
-    [Writer](/product/writer).
+  <Step title="Schedule or reschedule by day">
+    Each idea sits on a day. To move one, drag it to a different date. This lets you
+    space out your posts however you like.
+  </Step>
+  <Step title="Send an idea to the writer">
+    When you're ready to publish, open a scheduled idea and start writing. Spyro
+    turns it into a full article in the [AI writer](/product/writer).
   </Step>
 </Steps>
 
-## Your blog quota
+## What to expect
 
-The header shows **Blogs left this month** (or **Blogs left in trial**) - your
-monthly article allowance and how many remain. The allowance is set by your plan
-(30 blogs/month on Pro and Agency; 3 during the trial). See
-[Plans, billing & usage](/product/billing-and-usage).
+The calendar shows one month at a time - use the arrows to move between months.
+Each idea shows a simple status: **scheduled** (planned but not written yet),
+**writing** (Spyro is creating the article right now), and **done** (the draft is
+ready to open in the writer). When an article is being written, the board updates on
+its own, so you don't need to refresh.
 
-<Warning>
-Without an LLM key configured, generation produces a **placeholder draft** (no
-words counted) so you can see the flow. Add the key for real articles.
-</Warning>
+Near the top you'll see how many articles you have left this month. Your plan sets
+this monthly allowance - see [Plans, billing & usage](/product/billing-and-usage)
+for the details.
+
+## Tips
+
+- Let Spyro seed the first batch of ideas, then ask **Plan with Spyro** for more
+  whenever you want to fill out the month.
+- Keep a steady rhythm - a few well-spaced posts each week usually beats a big batch
+  all at once.
+- Set your tone, style, and images first in [Content settings](/product/article-settings)
+  so every article matches your brand.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Writer" icon="pen-nib" href="/product/writer">Draft, edit, score, and publish an article.</Card>
-  <Card title="Article settings" icon="sliders" href="/product/article-settings">Defaults for tone, style, images, and publishing.</Card>
-  <Card title="Spyro AI research" icon="sparkles" href="/product/spyro-ai-agent">The agent behind Plan with Spyro.</Card>
-  <Card title="Content engine" icon="gears" href="/backend/content-engine">How articles are generated.</Card>
+  <Card title="AI writer" icon="pen-nib" href="/product/writer">Turn an idea into a finished, ready-to-publish article.</Card>
+  <Card title="Content settings" icon="sliders" href="/product/article-settings">Set the tone, style, and images Spyro uses.</Card>
+  <Card title="AI agent" icon="sparkles" href="/product/spyro-ai-agent">Chat with Spyro to research and suggest topics.</Card>
+  <Card title="Billing and usage" icon="credit-card" href="/product/billing-and-usage">See your monthly article allowance.</Card>
 </CardGroup>

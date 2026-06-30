@@ -1,0 +1,88 @@
+---
+title: "Integrations"
+description: "Connect Spyro to the tools you already use - so it can publish your articles and pull in your real search data. Simple, step-by-step setup."
+---
+
+Integrations let Spyro work with the tools you already use. There are two kinds:
+
+1. **Publishing connections** - so Spyro can send finished articles straight to your website.
+2. **Data connections** - so Spyro can pull in your real search performance.
+
+You don't need any coding to set these up.
+
+## Publish your articles
+
+Connect where your blog lives, and you can publish articles from Spyro with one
+click. You can set these up under **Content settings → Integrations**.
+
+<CardGroup cols={2}>
+  <Card title="WordPress (self-hosted)" icon="wordpress">
+    For a WordPress site you host yourself.
+  </Card>
+  <Card title="WordPress.com" icon="wordpress">
+    For a blog hosted on WordPress.com.
+  </Card>
+  <Card title="Webhooks" icon="webhook">
+    For sending your articles to any other system that accepts them.
+  </Card>
+</CardGroup>
+
+<Note>
+**Shopify** is on the way and shows as **coming soon** in the app. It isn't
+available to connect just yet.
+</Note>
+
+### Connect WordPress (self-hosted)
+
+<Steps>
+  <Step title="Create an Application Password in WordPress">
+    In your WordPress admin, go to your user profile and create a new **Application
+    Password**. This is a special password just for Spyro - safer than your real one.
+  </Step>
+  <Step title="Add it to Spyro">
+    In Spyro, open **Content settings → Integrations**, choose **WordPress
+    (self-hosted)**, and paste your site address, username, and the application password.
+  </Step>
+  <Step title="Publish">
+    Now, when you finish an article in the [AI writer](/product/writer), you can
+    publish it straight to your site.
+  </Step>
+</Steps>
+
+### Connect WordPress.com
+
+Choose **WordPress.com** and sign in with your WordPress.com account to give Spyro
+permission to publish. That's it.
+
+### Connect a Webhook
+
+Choose **Webhooks** and paste the web address (URL) that should receive your
+articles. Spyro will send each published article there. This is handy if your site
+runs on a different system - ask whoever built your site for the right URL.
+
+<Tip>
+After connecting, each integration shows its status (connected, paused, or having
+trouble) and a history of what was sent, so you can confirm everything is working.
+</Tip>
+
+## Connect your search data
+
+Connect **Google Search Console** to bring your real Google search performance into
+Spyro - clicks, impressions, and the pages and searches that bring you visitors.
+See [Google Search Console](/product/search-console) for the simple sign-in steps.
+(Google Analytics support is coming soon.)
+
+## API keys (for advanced setups)
+
+If you use other software that needs to talk to Spyro directly, you can create an
+**API key** - a secret code that connects them. You'll find this under
+**Settings → API**. Most people never need this, so feel free to skip it.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="AI writer" icon="pen-nib" href="/product/writer">Write and publish articles.</Card>
+  <Card title="Content settings" icon="sliders" href="/product/article-settings">Where you manage publishing connections.</Card>
+  <Card title="Google Search Console" icon="google" href="/product/search-console">Connect your search data.</Card>
+  <Card title="Workspace settings" icon="gear" href="/product/settings">Manage API keys and more.</Card>
+</CardGroup>

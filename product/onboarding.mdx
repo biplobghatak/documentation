@@ -1,190 +1,126 @@
 ---
-title: "Getting started: signup & onboarding"
-description: "Create your Spyro account, add your first website, and let Spyro crawl it to pre-fill your brand, audience, competitors and AI-visibility prompts - all the way to your workspace dashboard."
+title: "Set up your account"
+description: "Sign up, add your first website, and let Spyro get to know your brand - so you land in your workspace ready to go. No technical setup needed."
 ---
 
-This page walks you through your very first session: creating an account,
-verifying your email, adding a website, and the short setup wizard that turns
-that website into a fully configured **workspace**. By the end you land on your
-dashboard with a crawl already running in the background.
+Setting up Spyro takes just a few minutes. You create an account, tell Spyro
+your website address, and Spyro takes a quick look at your site to learn your
+brand, your audience, and your competitors. When you're done, you land on your
+**dashboard** - your home base for everything else.
 
-<Note>
-A **workspace** is one tracked website, and it lives inside an **organization**
-(your billing root). Onboarding creates your first workspace. For how that's
-structured, see [Product overview](/product/overview).
-</Note>
+A **workspace** is simply one website you want to grow. Everything you do in
+Spyro - audits, rankings, content, and settings - lives inside a workspace.
+Setup creates your first one.
 
-## Create your account
+## Why this matters
 
-You can reach signup from the marketing site or directly at `/signup`.
+The few questions Spyro asks during setup help it work smarter for you later.
+Once Spyro knows your brand, who you sell to, and who you compete with, it can
+write better content, ask the right questions to AI assistants, and give you
+fixes that actually fit your site.
+
+## Sign up
 
 <Steps>
-  <Step title="Open the sign-up page">
-    Go to **Create your account**. Spyro starts you on a **3-day free trial**.
-    If you're already signed in, Spyro skips this and sends you straight into
-    the app.
+  <Step title="Create your account">
+    Open the sign-up page and start your free trial. Enter your name, email, and
+    a password - or choose **Continue with Google** to skip the password step.
   </Step>
-  <Step title="Enter your details">
-    Fill in **Full name**, **Email**, **Password** and **Confirm password**.
-    Passwords must be at least 8 characters, and the two fields have to match -
-    the **Create account** button stays disabled until they do. A show/hide
-    toggle (the eye icon) lets you check what you typed.
-
-    Prefer single sign-on? Use **Continue with Google** instead - it skips the
-    password and email-verification steps entirely.
+  <Step title="Confirm your email">
+    Spyro emails you a short verification code. Type it in to confirm your
+    address. If it doesn't arrive, click **Resend code**. (If you signed up with
+    Google, you can skip this step.)
   </Step>
-  <Step title="Confirm your email with the 8-digit code">
-    After you submit, Spyro emails an **8-digit verification code** and takes you
-    to the **Confirm your email** screen. Enter the code - it submits
-    automatically once all eight digits are in, so there's no extra click. If it
-    doesn't arrive, use **Resend code**.
-
-    <Tip>
-    The address you're confirming is read from a secure pending-signup session,
-    not the URL, so the verify page only works while a sign-up is actually in
-    progress. If you land there without one, Spyro returns you to `/signup`.
-    </Tip>
+  <Step title="Add your website">
+    On the first setup screen, enter your website address (for example,
+    `example.com`) and choose **Analyze**. Spyro starts learning about your site
+    right away.
   </Step>
 </Steps>
 
-<Note>
-Already have an account? Use [`/login`](/product/onboarding) instead - same
-split-screen screen, with **Email** + **Password** (and a **Forgot password?**
-link) or **Continue with Google**.
-</Note>
-
-After verification, Spyro provisions your profile and personal organization and
-sends you to onboarding. If your trial or plan needs a payment method first,
-you'll pass through a short checkout step before the wizard appears.
-
-## Add your first website
-
-Onboarding opens on a single question: **What's your website?** Enter a domain
-or full URL (for example `example.com`) and choose **Analyze**.
-
-The moment you submit, two things happen in parallel:
-
-- Spyro creates the workspace for this domain.
-- Spyro runs a fast **quick scan** - a single homepage fetch plus a cheap
-  sitemap probe - to pre-fill the first setup steps in a few seconds at no API
-  cost.
-
-```mermaid
-flowchart LR
-  D["Enter domain → Analyze"] --> S["Quick scan (homepage + sitemap)"]
-  D --> W["Create workspace"]
-  S --> T["Derive audience + competitors"]
-  T --> P["Generate AI-visibility prompts"]
-  P --> F["Finish → crawl runs in background"]
-```
-
-<Warning>
-Spyro reads only your **public** pages, and it never fails closed: if the
-homepage can't be fetched, the wizard still opens with a domain-derived
-skeleton you can fill in by hand.
-</Warning>
-
-## What Spyro derives for you
-
-While you're still on the first step, Spyro works ahead so the wizard arrives
-pre-filled. Steps that were populated by the scan show an **Auto-detected from
-your website** chip.
-
-| What Spyro computes | How | Where it lands |
-| --- | --- | --- |
-| **Brand name, brand color, logo, language** | Deterministic parse of your homepage (and linked CSS when colors are JS-rendered) | Business profile step |
-| **Sitemap URL** | `robots.txt` + common sitemap paths | Business profile + Blog setup |
-| **Audience tags + business description** | AI reads your homepage text | Audience step |
-| **Competitors** | Auto-discovered from shared-keyword data, locale-aware | Competitors step |
-| **AI-visibility prompts** | Generated from your niche + competitors | AI prompts step |
-
 <Tip>
-Everything Spyro derives is a **draft you can edit**. If you change something -
-your audience tags, the competitor list - Spyro won't silently overwrite your
-edits when it refreshes a suggestion.
+Already have an account? Just use the **Log in** page instead, with your email
+and password (or **Continue with Google**).
 </Tip>
 
-## The setup wizard
+## What Spyro does automatically
 
-The wizard is an 8-step flow with a step rail on the left. You can move with
-**Continue** / **Back**, or jump straight to any step in the rail. A couple of
-steps validate before they let you advance.
+The moment you add your website, Spyro takes a quick look at it and pre-fills
+much of your setup for you. Anything it figures out shows up with an
+**Auto-detected from your website** label, so you know it came from your site.
+
+Spyro automatically works out:
+
+- Your **brand name, brand color, logo, and language**
+- Your **audience** - who your site is for, and a short description of your
+  business
+- Your **competitors** - other sites going after the same customers
+- A starter set of **AI-visibility questions** - the buyer questions Spyro will
+  ask AI assistants to see if they mention you
+
+<Note>
+Spyro only reads your **public** pages - the same ones any visitor can see.
+Everything it fills in is a **draft you can edit**. Change anything you like, and
+Spyro won't overwrite your edits.
+</Note>
+
+## Finish the setup
+
+Spyro walks you through a short, friendly wizard so you can review and tweak what
+it found. You can move forward and back, or jump to any step:
 
 <AccordionGroup>
-  <Accordion title="1 · Business profile" icon="building">
-    Confirm the basics Spyro pulled from your homepage: **brand name**
-    (required), **primary color**, **logo**, **language**, **country** and
-    **sitemap URL**. Your country matters - it's the locale Spyro uses to
-    re-check competitors on step 3.
+  <Accordion title="Business profile" icon="building">
+    Confirm the basics - brand name, color, logo, language, and country. Your
+    country helps Spyro find the right competitors for your region.
   </Accordion>
-  <Accordion title="2 · Your audience" icon="users">
-    Review the **audience segments** (tags) and **business description** Spyro
-    derived. You need at least one audience segment to continue. These feed
-    later prompt and content generation.
+  <Accordion title="Your audience" icon="users">
+    Review who your site is for and your business description. Keep at least one
+    audience group to continue.
   </Accordion>
-  <Accordion title="3 · Competitors" icon="crosshairs">
-    A list of **auto-discovered rivals** with their shared-keyword counts (up to
-    10). Add or remove any. If discovery came back empty or errored, a **Retry**
-    re-runs it with your confirmed country. Editing the list locks it so Spyro
-    won't overwrite your changes.
+  <Accordion title="Competitors" icon="crosshairs">
+    Review the rivals Spyro found. Add or remove any. If the list looks off,
+    click **Retry** to search again.
   </Accordion>
-  <Accordion title="4 · Blog setup" icon="newspaper">
-    Tell Spyro what existing content to learn from: your **sitemap URL**, a
-    **blog path**, and up to three of your **best article URLs**. You can also
-    **Connect Google Search Console** here to bring in real query and page data.
+  <Accordion title="Blog setup" icon="newspaper">
+    Point Spyro at your existing content to learn from - your blog and a few of
+    your best articles. You can also connect Google Search Console here to bring
+    in real search data.
   </Accordion>
-  <Accordion title="5 · Article style" icon="pen-nib">
-    Defaults for every article Spyro writes: **style** (informational /
-    commercial / mixed), **content focus** (awareness / balanced / conversion),
-    **internal-link count**, **publishing pace**, **GEO mode**, a **featured
-    image** size and preset (with a **custom style** option that takes a prompt
-    and up to four example images), and any **global instructions**.
+  <Accordion title="Article style" icon="pen-nib">
+    Set the defaults for content Spyro writes for you - tone, focus, publishing
+    pace, and featured-image style. You can change these later.
   </Accordion>
-  <Accordion title="6 · AI visibility prompts" icon="robot">
-    The buyer questions Spyro will ask AI engines (ChatGPT, Gemini, Perplexity,
-    Claude) each week to see whether they cite you. Drafts are generated the
-    first time you reach this step - edit them so they match how customers
-    actually search for you.
+  <Accordion title="AI visibility questions" icon="robot">
+    Review the buyer questions Spyro will ask AI assistants each week. Edit them
+    to match how your customers really search for what you offer.
   </Accordion>
-  <Accordion title="7 · Need a hand setting up?" icon="life-ring">
-    Optional **Done-For-You** setup. Say yes and Spyro's team reaches out to
-    configure the workspace with you.
-  </Accordion>
-  <Accordion title="8 · How did you find us?" icon="comment">
-    A quick acquisition-source question (Google, ChatGPT, LinkedIn, a friend,
-    and so on). Choosing **Finish setup** here completes onboarding.
+  <Accordion title="A couple of quick questions" icon="comment">
+    Spyro asks whether you'd like a hand setting up, and how you found Spyro.
+    Then choose **Finish setup**.
   </Accordion>
 </AccordionGroup>
 
-<Note>
-The same wizard powers **adding another site** on Agency plans, at
-`/{org}/onboarding/new`. It's scoped to that organization and checks your
-workspace limit before it opens.
-</Note>
+## Landing in your workspace
 
-## Finishing and landing in your workspace
+When you choose **Finish setup**, Spyro takes you to your dashboard and starts
+the heavy lifting in the background - looking over your whole site, running your
+first audit, and putting together a starter content plan.
 
-When you choose **Finish setup**, Spyro launches the full site index and routes
-you to your workspace home at `/{org}/{workspace}`. The heavy work - crawling,
-the SEO + GEO audit, competitor intelligence, and your first auto-generated
-content plan - runs in the **background**.
-
-On the dashboard you'll see a **setup status banner** and a **content-plan
-progress** indicator while those jobs run, then the KPI cards and panels fill in
-as data arrives. See the [Dashboard](/product/dashboard) for what each card
-means.
+You'll see a setup banner and a content-plan progress note while that work runs.
+The cards on your dashboard fill in on their own as the results come in - no need
+to refresh.
 
 <Tip>
-If you close the tab mid-setup, just reopen the app. Spyro resumes onboarding
-for any workspace still in the crawl phase, and finished workspaces drop you
-straight on the dashboard.
+If you close the tab partway through, just reopen Spyro. It picks up right where
+you left off, and finished workspaces drop you straight on the dashboard.
 </Tip>
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Product overview" icon="grid-2" href="/product/overview">Orgs, workspaces, and the full feature map.</Card>
-  <Card title="Dashboard" icon="gauge" href="/product/dashboard">Where onboarding lands you.</Card>
-  <Card title="Crawler (dev)" icon="spider" href="/backend/crawler">How Spyro reads your site.</Card>
-  <Card title="Background jobs (dev)" icon="gears" href="/backend/background-jobs">How the post-finish crawl and audit run.</Card>
+  <Card title="Welcome to Spyro" icon="grid-2" href="/product/overview">A plain-language tour of everything Spyro can do.</Card>
+  <Card title="Your dashboard" icon="gauge" href="/product/dashboard">Where setup lands you, and how to use it.</Card>
+  <Card title="Run your first audit" icon="shield-check" href="/product/audit">Check your site's health and get clear fixes.</Card>
+  <Card title="Questions and answers" icon="circle-question" href="/product/faq">Common questions about plans and features.</Card>
 </CardGroup>

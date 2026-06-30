@@ -1,110 +1,91 @@
 ---
-title: "Dashboard"
-description: "Your workspace home: SEO and GEO scores, AI-citation frequency, search performance, rank movers and a live feed of AI mentions - everything about one site at a glance."
+title: "Your dashboard"
+description: "Your home base in Spyro - see your SEO and AI-visibility scores, recent activity, and AI mentions at a glance, with quick links to every tool."
 ---
 
-The dashboard is the home screen for a workspace, at `/{org}/{workspace}`. It
-answers one question - *what's happening with this site?* - across SEO, AI
-visibility, and content health. Most panels also link straight into the tool
-behind them.
+The dashboard is your home base for one website. It answers a single question -
+*how is my site doing?* - across search rankings, AI visibility, and content.
+Most cards also link straight to the tool behind them, so you can jump in with
+one click.
 
-The header greets you with the workspace **domain** and two quick actions:
-**Run audit** and **Manage** (workspace settings).
+At the top, you'll see your website name and two quick buttons: **Run audit**
+and **Manage** (your workspace settings).
 
-## While setup is still running
+## Why use it
 
-If you just finished [onboarding](/product/onboarding), the crawl and first
-audit run in the background. Until they're done you'll see, above the cards:
+Instead of opening every tool to check on things, the dashboard pulls the
+highlights into one screen. A quick look tells you whether your scores are going
+up, which keywords are moving, and whether AI assistants are mentioning you. Use
+it as your starting point each time you log in.
 
-- A **setup status banner** tracking the index, SEO, GEO, SERP and intelligence
-  jobs as they complete.
-- A **content-plan progress** indicator for your first auto-generated plan.
-- Once insights land, **setup diagnostics** - short notes explaining anything
-  that came back thin (for example, a missing sitemap), with links to fix it.
+## What you'll see
 
-These disappear automatically once the workspace is ready.
+<CardGroup cols={2}>
+  <Card title="Your scores" icon="gauge">
+    Your **SEO health** and **AI readiness** scores, each out of 100, with a small
+    up-or-down trend once you've run more than one audit.
+  </Card>
+  <Card title="AI citation rate" icon="robot">
+    How often AI assistants mention you when answering buyer questions, plus your
+    **domain rating** (a measure of your site's authority).
+  </Card>
+  <Card title="Visibility over time" icon="chart-line">
+    A chart of your scores across recent audits, so you can see the direction
+    you're heading - not just today's number.
+  </Card>
+  <Card title="AI engine citations" icon="quote-left">
+    A bar for each AI assistant (ChatGPT, Gemini, Perplexity, Claude) showing how
+    often each one cites your site.
+  </Card>
+  <Card title="Search performance" icon="magnifying-glass">
+    Your Google clicks and impressions for the last 28 days, with the change
+    versus the month before. Links to [Search Console](/product/search-console).
+  </Card>
+  <Card title="Rank movers" icon="arrow-up-arrow-down">
+    The keywords that moved the most since the last check - gains in green, drops
+    in red. Links to the [rank tracker](/product/rank-tracker).
+  </Card>
+</CardGroup>
 
-## The KPI band
+### Recent AI mentions
 
-Four cards summarize the workspace. Each shows a dash (`-`) until the data that
-feeds it exists, and the score cards show a small **trend** chip comparing the
-two most recent audits.
+When an AI assistant cites your site in an answer, the latest few show up as
+cards here - each with the assistant, the date, how positive the mention was, and
+a snippet of what it said. Tap a card to read the full mention, or choose
+**See all** to open the [AI mentions feed](/product/ai-mentions).
 
-| Card | What it shows | Source |
-| --- | --- | --- |
-| **SEO health** | Your latest SEO score, out of 100 | Most recent audit |
-| **GEO readiness** | Your latest GEO (AI-readiness) score, out of 100 | Most recent audit |
-| **AI citation freq** | Average % of tracked prompts that cite you, with the **count of prompts tracked** | Recent citation checks |
-| **Domain Rating** | Your domain authority | Latest intelligence snapshot |
+## What to expect on your first login
+
+A brand-new workspace starts mostly empty - and that's normal. Your scores show a
+dash (`-`) and several panels invite you to get started. Everything fills in on
+its own as Spyro finishes its work:
+
+<Steps>
+  <Step title="Your first audit completes">
+    Your SEO and AI-readiness scores and the visibility chart appear.
+  </Step>
+  <Step title="Your AI questions run">
+    The AI citation rate and recent mentions begin to fill in.
+  </Step>
+  <Step title="You connect Search Console">
+    Your search performance card shows real clicks and impressions.
+  </Step>
+  <Step title="You track keywords">
+    The rank movers card starts showing where your keywords are moving.
+  </Step>
+</Steps>
 
 <Tip>
-The trend chip on **SEO health** and **GEO readiness** only appears once you
-have at least two audits to compare - run a second [audit](/product/audit) to
-see movement.
+Right after setup, you may also see a status banner while Spyro looks over your
+site for the first time. It disappears automatically once your workspace is
+ready.
 </Tip>
-
-## Visibility and AI citations
-
-The hero row pairs two panels:
-
-- **Visibility report** - a chart of your SEO and GEO scores over your recent
-  audit history, so you can see the trajectory rather than a single number.
-- **AI engine citations** - a horizontal bar per engine (ChatGPT, Gemini,
-  Perplexity, Claude) showing how often each one cites your site, with the
-  overall **average** called out. If you haven't tracked any prompts yet, this
-  shows a **No citation data** empty state.
-
-## Search performance and rank movers
-
-This row appears only once there's data for it - Search Console history or
-tracked-keyword movement.
-
-<AccordionGroup>
-  <Accordion title="Search performance" icon="chart-line">
-    Google **clicks** and **impressions** for the last 28 days, each with a
-    percentage delta versus the prior 28 days, plus a sparkline. Links through to
-    [Search Console](/product/search-console). Before you connect Search Console,
-    a **No Search Console data** state invites you to link it.
-  </Accordion>
-  <Accordion title="Rank movers" icon="arrow-up-arrow-down">
-    The keywords with the biggest position changes since the last check -
-    improvements in green, drops in red, each showing the current position and
-    where it moved from. Links to the [rank tracker](/product/rank-tracker).
-    Empty until you track keywords.
-  </Accordion>
-</AccordionGroup>
-
-## Recent AI mentions
-
-When AI engines cite your site in an answer, the latest few show up here as
-cards - each with the **engine**, the **date**, a **sentiment** tag
-(positive / neutral / negative) where available, and a snippet of the answer.
-Each card opens the full mention, and **See all** jumps to the
-[mentions feed](/product/ai-mentions). This section is hidden entirely until
-there's at least one mention; the empty state explains that answers from
-ChatGPT, Gemini, Perplexity or Claude will appear here.
-
-## First-run state
-
-On a brand-new workspace, the structure is the same but most panels show their
-empty states: the KPI cards read `-`, the citation and mention panels prompt you
-to track prompts, and the performance row stays hidden until Search Console or
-rank data exists. As audits complete, prompts run, and Search Console connects,
-each panel fills in on its own.
-
-```mermaid
-flowchart TD
-  A["New workspace"] --> B["Audit completes → SEO/GEO scores + visibility chart"]
-  A --> C["Prompts run → citation freq + AI mentions"]
-  A --> D["Connect Search Console → search performance"]
-  A --> E["Track keywords → rank movers"]
-```
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Product overview" icon="grid-2" href="/product/overview">Orgs, workspaces, and the full feature map.</Card>
-  <Card title="Onboarding" icon="rocket" href="/product/onboarding">How you get to this screen.</Card>
-  <Card title="Site audit" icon="shield-check" href="/product/audit">What powers the SEO and GEO scores.</Card>
+  <Card title="Welcome to Spyro" icon="grid-2" href="/product/overview">A plain-language tour of everything Spyro can do.</Card>
+  <Card title="Set up your account" icon="rocket" href="/product/onboarding">How you get to this screen.</Card>
+  <Card title="Run your first audit" icon="shield-check" href="/product/audit">What powers your SEO and AI-readiness scores.</Card>
   <Card title="AI mentions" icon="quote-left" href="/product/ai-mentions">The full feed behind recent mentions.</Card>
 </CardGroup>

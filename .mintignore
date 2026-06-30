@@ -7,6 +7,18 @@ drafts/
 *.draft.mdx
 
 # Superseded end-user marketing docs (kept for reference, not built).
-# Replaced by the code-derived developer docs in getting-started/, frontend/,
-# backend/, deployment/, and reference/.
 legacy-marketing/
+
+# Developer/engineering reference. This site is now a non-technical user help
+# center, so these are excluded from the published site (kept in the repo for
+# reference only).
+introduction.mdx
+getting-started/
+frontend/
+backend/
+deployment/
+reference/
+
+# Internal working notes - not part of the help center.
+DOCUMENTATION_COVERAGE.md
+AGENTS.md

@@ -1,102 +1,97 @@
 ---
-title: "AI visibility: mentions"
-description: "A live feed of every AI engine answer over the last 30 days - whether it cited you, how it portrayed you, and the exact snippet - so you can see precisely how ChatGPT, Gemini, Perplexity and Claude talk about your brand."
+title: "AI mentions"
+description: "A live feed of the actual answers AI assistants gave - whether they mentioned you, the tone they used, and the exact words - so you can see precisely how AI talks about your brand."
 ---
 
-The **Mentions** tab is the *read side* of [AI visibility](/product/ai-visibility):
-a live feed of every answer the AI engines gave to your [tracked prompts](/product/prompts),
-whether or not they mentioned you. You reach it at `/{org}/{workspace}/ai-mentions`.
+**AI mentions** is your front-row seat to what the AI assistants actually *say*.
+It's a live feed of every answer ChatGPT, Gemini, Claude, and Perplexity gave to
+your [tracking prompts](/product/prompts) - so instead of just numbers, you see the
+real words.
 
-Where the [Overview](/product/ai-visibility) tab tells you *how often* you're cited
-and the [Prompts](/product/prompts) tab manages *what's asked*, this tab shows you
-the *actual words* - exactly how each engine described you, in context.
+Where [AI visibility](/product/ai-visibility) tells you *how often* you're
+mentioned and [Tracking prompts](/product/prompts) manages *what gets asked*, this
+view shows you the *exact answers* - including the precise sentence where your
+brand appears.
 
-<Note>
-The feed shows **every** response in the window - cited or not - so you can see
-each prompt's full result even when the engines didn't mention you. Rows where
-your site was cited are badged **Mentioned**.
-</Note>
+## Why use it
+
+<CardGroup cols={2}>
+  <Card title="Read the real answers" icon="comments">
+    See word-for-word what AI assistants told buyers who asked.
+  </Card>
+  <Card title="Know the tone" icon="face-smile">
+    See whether each mention of you was positive, neutral, or negative.
+  </Card>
+  <Card title="Catch the negatives" icon="triangle-exclamation">
+    Spot answers steering buyers away from you - the most important ones to fix.
+  </Card>
+  <Card title="Understand your numbers" icon="magnifying-glass">
+    See the real answers behind any change in your AI visibility.
+  </Card>
+</CardGroup>
 
 ## What's in the feed
 
-Each row is one AI engine answer from the last **30 days** (newest first), and
-carries:
+Each row is one AI answer from the last 30 days, newest first. For every answer you
+can see:
 
-| Field | What it means |
-| --- | --- |
-| **Engine** | Which model answered - ChatGPT, Gemini, Perplexity or Claude. |
-| **Date** | When the check ran. |
-| **Prompt** | The buyer question that triggered the answer. |
-| **Mention status** | A green **Mentioned** badge when the answer cited you; otherwise **Not mentioned**. |
-| **Sentiment** | How you were portrayed - positive, neutral or negative - on answers that cited you. |
-| **Snippet** | The relevant excerpt of the answer, with your brand highlighted. |
+- **Which assistant answered** - ChatGPT, Gemini, Claude, or Perplexity.
+- **When** the check ran.
+- **The question** that prompted the answer.
+- **Whether it mentioned you** - a green **Mentioned** badge when it named you.
+- **The tone** - positive, neutral, or negative, for answers that mentioned you.
+- **The snippet** - the exact excerpt of the answer, with your brand highlighted.
 
-<Note>
-**Sentiment is only classified on answers that cited you.** A response that didn't
-mention your site has no sentiment, and recently cited answers may still show as
-not-yet-classified until the labeling runs.
-</Note>
-
-## The summary strip
-
-Above the feed, a summary covers the same 30-day window:
-
-- **Responses · 30d** - the total number of AI answers in the window.
-- **Mentioned you** - how many cited you, with an icon per engine that mentioned
-  you and a count of distinct engines.
-- **Sentiment** - the positive / neutral / negative split across cited answers, or
-  **Not yet classified** when none have been labeled.
+A summary at the top rolls up the same 30 days: how many answers there were, how
+many mentioned you, and the overall positive / neutral / negative split.
 
 ## How to use it
 
 <Steps>
-  <Step title="Scan for mentions">
-    Look for the green **Mentioned** badges to see which answers actually cited
-    you - and on which engines and prompts.
+  <Step title="Open AI mentions">
+    In the sidebar, open **AI mentions** (part of AI visibility).
   </Step>
-  <Step title="Read the snippet in context">
-    The highlighted snippet shows the exact sentence where you appeared, so you
-    can judge *how* you were framed, not just whether you were named.
+  <Step title="Scan for the green badges">
+    Look for **Mentioned** badges to see which answers actually named you, and on
+    which assistants.
+  </Step>
+  <Step title="Read the snippet">
+    The highlighted snippet shows the exact sentence you appeared in, so you can
+    judge *how* you were described - not just whether you were named.
   </Step>
   <Step title="Watch the negatives">
-    Filter your attention to negative sentiment - those are answers steering buyers
-    away from you, and the highest-leverage thing to fix.
+    Pay special attention to negative answers. Those are steering buyers away from
+    you, and fixing them has the biggest payoff.
   </Step>
   <Step title="Open the full answer">
-    Click any row to read the complete response and its source links.
+    Click any row to read the complete response, plus any sources the assistant
+    linked to.
   </Step>
 </Steps>
 
-<Tip>
-The feed is the best place to understand *why* your [Overview](/product/ai-visibility)
-share of voice moved. A drop usually traces back to specific answers here - a rival
-the engine started recommending, or a question where it stopped naming you.
-</Tip>
+## What to expect
 
-## The mention detail page
+- The feed shows **every** answer in the window - mentioned or not - so you can see
+  the full picture, even when an assistant didn't name you.
+- Tone is only shown for answers that actually mentioned you. A very recent answer
+  may briefly show as not yet labeled.
+- Each answer links to the full response and its sources, so you can read it in
+  full context.
 
-Opening a row (at `/{org}/{workspace}/ai-mentions/{id}`) shows the full picture of
-a single answer:
+## Tips
 
-- A **headline** stating whether the engine mentioned you, with the date and a
-  **Mentioned / Not mentioned** label.
-- The **prompt** that triggered it.
-- The **full engine response**, rendered in full - not just the snippet.
-- **Source links** - the URLs the engine cited in that answer, when it provided
-  any.
-
-```mermaid
-flowchart LR
-  A["Weekly check runs your prompts"] --> B["Engine answers stored in full"]
-  B --> C["Mentions feed (cited or not)"]
-  C --> D["Mention detail: full answer + sources"]
-```
+- This feed is the best place to understand *why* your
+  [share of voice](/product/ai-visibility) moved. A drop usually traces back to a
+  specific answer here - a rival the assistant started recommending, or a question
+  where it stopped naming you.
+- When you find a negative or missed mention, note the question, then improve the
+  content that should be answering it.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Overview" icon="chart-pie" href="/product/ai-visibility">Your AI share of voice and the competitor ranking.</Card>
-  <Card title="Prompts" icon="list-check" href="/product/prompts">Manage the buyer questions Spyro runs against each engine every week.</Card>
-  <Card title="GEO engine (dev)" icon="robot" href="/backend/geo-engine">How answers are captured and sentiment is classified.</Card>
-  <Card title="AI internals (dev)" icon="code" href="/backend/ai">The model layer behind the engine responses.</Card>
+  <Card title="AI visibility & competitors" icon="chart-pie" href="/product/ai-visibility">Your share of voice and where you rank against rivals.</Card>
+  <Card title="Tracking prompts" icon="list-check" href="/product/prompts">Manage the buyer questions Spyro asks each week.</Card>
+  <Card title="Run an audit" icon="magnifying-glass" href="/product/audit">Check your site's health and get clear fixes.</Card>
+  <Card title="Product overview" icon="grid-2" href="/product/overview">See everything Spyro can do.</Card>
 </CardGroup>

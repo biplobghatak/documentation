@@ -1,160 +1,115 @@
 ---
 title: "Workspace settings"
-description: "Your profile, the workspace's name and timezone, the audience and competitors that steer the writer, the pages Spyro has indexed, and the API keys that authenticate the public API - everything under a workspace's Settings."
+description: "The everyday settings for your website in Spyro - your profile, the workspace name and time zone, who the writer should target, the competitors you track, the pages Spyro has looked at, and API keys."
 ---
 
-**Settings** is where you tune a single workspace - its identity, the signals that
-shape what Spyro writes, the pages it has read, and the keys other tools use to
-reach it. Everything here is scoped to one website. You'll find it under
-**Account → Settings** in the sidebar, at `/{org}/{workspace}/settings`.
+**Settings** is where you fine-tune one website in Spyro. It's your control panel
+for the small things that make everything else work better - your name and time
+zone, who you sell to, the rivals you watch, and the pages Spyro has read.
 
-<Note>
-Opening **Settings** lands you on the **Account** tab
-(`/{org}/{workspace}/settings/account`). The sub-tabs below run across the top of
-the page.
-</Note>
+Open it from **Settings** in the sidebar. The options below sit along the top of
+the page as tabs.
 
-## Account
+## Why use it
 
-Your **Account** tab is a read-only summary of *you* in this workspace:
+A few minutes here pays off everywhere. When Spyro knows your time zone, your
+audience, and your competitors, your reports land at the right time and your
+articles sound right for the people you're trying to reach.
 
-- **Email** - the address you signed in with. Spyro uses Google sign-in, so you
-  manage the account itself (name, password, security) at
-  [myaccount.google.com](https://myaccount.google.com/), not here.
-- **Workspace access** - the workspace you're viewing, your role in it
-  (**Admin** or **Member**), and the site's domain.
+## Your account
 
-If you're an **Admin** you can manage this workspace's settings and team; if
-you're a **Member**, ask a workspace admin to change your role.
+This is a quick summary of *you* in this workspace - the email you signed in with
+and your role on the site. Spyro uses Google sign-in, so you change your name,
+password, and security over at
+[myaccount.google.com](https://myaccount.google.com/).
 
-## General
-
-The **General** tab is the workspace's identity and lifecycle:
-
-| Setting | What it does |
-| --- | --- |
-| **Workspace name** | The label shown in the switcher and across the app. |
-| **Timezone** | Anchors schedules and reports - rank checks, citation checks, and the editorial calendar all read this. |
-| **Re-crawl** | Re-reads your site so audits, scores, and the AI knowledge base reflect your latest pages. |
-| **Tone & brand** | The voice and visual profile Spyro derived from your site, used when it writes. |
-| **Business profile** | The business details Spyro keeps about this site. |
-
-A status pill at the top shows whether the workspace is still **Crawling site**
-or **Ready**. The site's **domain** is the fixed identity of the workspace and is
-shown for reference.
-
-<Warning>
-The **Danger zone** at the bottom (workspace admins only) holds **Delete this
-workspace**. It permanently removes the site and *all* of its audits, prompts,
-ranks, posts, and citation history. There's no undo.
-</Warning>
-
-## Audience
-
-The **Audience** tab (shown as **Audience & brand**) is two fields that directly
-steer the [Writer](/product/writer) and [Article Planner](/product/calendar):
+## Workspace name and time zone
 
 <Steps>
-  <Step title="Audience segments">
-    Short tags for the people you sell to - Spyro auto-derives these from your
-    site during onboarding. Edit a tag inline, remove one with the `×`, or add
-    your own. You can keep a handful of segments.
+  <Step title="Name the workspace">
+    Give the site a clear label so it's easy to spot when you switch between
+    websites.
   </Step>
-  <Step title="Business description">
-    A paragraph describing what you do, who you serve, and what makes you
-    distinctive. The more detail here, the more on-target Spyro's plans and drafts
-    are.
+  <Step title="Set the time zone">
+    This keeps your schedules and reports on local time - rank checks, AI checks,
+    and your content calendar all follow it.
+  </Step>
+  <Step title="Re-read your site">
+    Use **Re-crawl** to have Spyro read your latest pages again, so your scores and
+    suggestions stay up to date.
   </Step>
 </Steps>
 
+## The audience your writer targets
+
+Tell Spyro who you're writing for, and every article gets sharper.
+
+- **Audience segments** - short tags for the people you sell to. Spyro fills these
+  in from your site, and you can edit, remove, or add your own.
+- **Business description** - a short paragraph on what you do, who you serve, and
+  what makes you different.
+
 <Tip>
-Treat these as living fields. Tightening your segments and description is the
-single fastest way to improve the relevance of generated articles.
+This is the single fastest way to improve the articles Spyro writes. The more
+honest detail you give, the more on-target the drafts feel.
 </Tip>
 
-## Competitors
+## The competitors you track
 
-The **Competitors** tab manages the rival domains Spyro tracks for you. Spyro
-seeds this list automatically (from shared-keyword data), and each entry shows
-how many keywords you have in common. You can:
+Spyro lists the rival websites it thinks you compete with, and shows how many
+keywords you share with each. You can **add** a competitor you want to watch or
+**remove** ones that don't matter. Keep the list to the rivals that really count -
+these feed your [AI visibility](/product/ai-visibility) comparison and your
+[rank tracker](/product/rank-tracker).
 
-- **Add** a competitor domain you want tracked.
-- **Remove** any you don't care about.
+## Pages Spyro has looked at
 
-Confirmed competitors feed your [AI visibility](/product/ai-visibility)
-share-of-voice comparison and the [rank tracker](/product/rank-tracker), so keep
-the list to the rivals that actually matter.
+This is the list of every page Spyro found when it read your site. For each one
+you see its address, its **SEO** and **GEO** scores, and its worst issue. Click a
+row to open that page's audit report. A bar at the top shows how much of your site
+Spyro has read so far.
 
-## Crawled pages
+### Add pages yourself
 
-The **Crawled pages** tab (shown as **Knowledge base**) is the inventory of every
-page Spyro found during your last site crawl. For each page you see its URL,
-template type, **SEO** and **GEO** scores, HTTP status, word count, and worst
-issue severity - click a row to open that page's audit report.
-
-At the top, an **AI knowledge base** bar shows how much of your site Spyro has
-read and saved into its memory (the index that powers
-[Spyro AI research](/product/spyro-ai-agent) and the writer).
-
-### Add pages manually
-
-Spyro doesn't always discover every URL. Use **Add pages manually** to paste in
-URLs (one per line, up to 10 at a time). Each is crawled, scored, and added to
-your search index immediately. URLs off this site's domain, or pages blocked by
-`robots.txt`, are skipped and reported back to you.
+Spyro doesn't always find every page. To add more, paste in your page addresses
+(one per line, up to 10 at a time). Spyro reads and scores each one right away.
+Anything that isn't on your site, or is blocked from being read, is skipped and
+reported back to you.
 
 <Note>
-If you've never run an audit, this tab will prompt you to run your first
-[site audit](/product/audit) - that's the crawl that fills the page list.
+If you haven't run an audit yet, this tab will invite you to run your first
+[site audit](/product/audit) - that's the scan that fills the page list.
 </Note>
 
-## API
+## API keys
 
-The **API** tab issues the keys that authenticate the public Spyro API
-(`/api/v1`) for this workspace. Every key starts with the `sk_ws_` prefix and is
-scoped to this one workspace.
+An **API key** is a secret code that lets another tool connect to Spyro on your
+behalf - think of it like a password just for software. **Most people never need
+one.** If you do connect another tool, you can:
 
 <Steps>
   <Step title="Create a key">
-    Give the key a name so you can tell your integrations apart. You can hold up
-    to **3 keys** per workspace at once.
+    Give it a name so you can tell your connections apart. You can keep up to 3 at
+    a time.
   </Step>
   <Step title="Use it">
-    Send the key as a bearer token on your API requests. You can reveal a key's
-    full value anytime from this tab.
+    Paste the key into the other tool you're connecting.
   </Step>
-  <Step title="Revoke it">
-    Delete a key to revoke it instantly. Anything still using that key stops
-    working.
+  <Step title="Remove it">
+    Delete a key any time to cut off access instantly.
   </Step>
 </Steps>
 
 <Warning>
-Treat each key like a password - anyone holding it can act on this workspace. Only
-workspace **admins** can create or delete keys.
+Treat each key like a password - anyone who has it can act on your website. Only
+workspace admins can create or delete keys.
 </Warning>
-
-For request formats, endpoints, and examples, see the
-[public API reference](/backend/public-api).
-
-## The other settings entries
-
-A few items that look like settings are really shortcuts into the **Article
-Planner**. Opening **Blog**, **Article defaults**, **Text generation**, **Image
-generation**, or **Integrations** under Settings redirects you to the matching
-Article Planner screen, where those defaults actually live. See
-[Article settings](/product/article-settings).
-
-<Note>
-**Billing** lives at the *organization* level, not per workspace - opening it here
-redirects to [Plans, billing & usage](/product/billing-and-usage).
-</Note>
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Article settings" icon="sliders" href="/product/article-settings">Blog, tone, image, and integration defaults.</Card>
-  <Card title="Team members" icon="users" href="/product/team-members">Invite teammates and assign roles.</Card>
-  <Card title="Public API" icon="code" href="/backend/public-api">Authenticate and call the `/api/v1` endpoints.</Card>
-  <Card title="Plans & billing" icon="credit-card" href="/product/billing-and-usage">Your subscription, seats, and usage.</Card>
+  <Card title="Article settings" icon="sliders" href="/product/article-settings">Blog, tone, and image defaults for your writer.</Card>
+  <Card title="Team members" icon="users" href="/product/team-members">Invite teammates and choose what they can see.</Card>
+  <Card title="Plans & billing" icon="credit-card" href="/product/billing-and-usage">Your plan, seats, and monthly usage.</Card>
+  <Card title="Product overview" icon="grid-2" href="/product/overview">How workspaces fit together.</Card>
 </CardGroup>

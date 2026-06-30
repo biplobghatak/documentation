@@ -1,211 +1,112 @@
 ---
-title: "Site audit"
-description: "Crawl your site for SEO and GEO issues, read the scored report, ask the audit assistant, get AI fix suggestions, re-check after fixes, and download a branded PDF."
+title: "Run your first audit"
+description: "Give your website a health check for both Google SEO and AI readiness, then get a clear, scored report with fixes you can act on."
 ---
 
-The **Site audit** crawls your whole site and scores it on two axes - classic
-**SEO** (how well search engines can find, read and rank your pages) and **GEO**
-(how citable your content is to AI engines). It returns a scored report, groups
-every issue by severity, checks whether AI crawlers can reach you, and lets you
-drill into any single page. You'll find it under **SEO → Site audit** at
-`/{org}/{workspace}/audit`.
+An **audit** is a full health check of your website. Spyro looks over your whole
+site and scores it on two things: classic **SEO** (how well Google can find,
+read, and rank your pages) and **AI readiness** (how easily AI assistants like
+ChatGPT can understand and quote your content). You get a scored report that
+groups every issue by how serious it is, so you know exactly what to fix first.
 
-<Note>
-This is the **product guide** - how to use the audit screen. For how the crawler
-and scoring are built, see [Audit](/backend/audit) in the developer docs.
-</Note>
+## Why it matters
 
-## Run an audit
+You can't improve what you can't see. An audit turns your whole site into a
+simple to-do list: a clear health score, the problems that are dragging it down,
+and step-by-step fixes for each one. Run one now to get your baseline, then run
+it again later to watch your score climb.
+
+## How to run an audit
 
 <Steps>
-  <Step title="Open the audit screen">
-    Go to **Site audit** in the sidebar. If you've never audited this workspace,
-    you'll see a **Run audit** button.
+  <Step title="Open the Audit page">
+    Go to **Site audit** in the left sidebar. If you've never run one for this
+    site, you'll see a **Run audit** button.
   </Step>
-  <Step title="Start the crawl">
-    Click **Run audit**. Spyro queues a full-site crawl. The button switches to
-    **Crawling…** with a spinner, and the page refreshes itself every few seconds
-    until the audit finishes - you don't need to reload.
+  <Step title="Start the check">
+    Click **Run audit**. Spyro looks over your whole site - the button shows
+    **Crawling...** and the page updates itself every few seconds. You don't need
+    to reload or wait around.
   </Step>
-  <Step title="Read the report">
-    When the crawl completes, the page fills in: a summary header with your scores,
-    the four audit views, and a downloadable PDF. Re-run it any time to refresh the
-    scores and see what changed.
+  <Step title="Read your report">
+    When it's done, your scores and full report appear, along with a downloadable
+    PDF. Run it again any time to refresh your scores and see what changed.
   </Step>
 </Steps>
 
 <Tip>
-You don't have to re-crawl the whole site to test a fix. Use **URL Checks** (below)
-to re-check a single URL on demand, or the **Re-check after fixes** button on any
-individual page report.
+You don't have to re-check your whole site to test a single fix. Use **URL
+checks** to re-check one page on demand, or the **Re-check after fixes** button
+on any page's report.
 </Tip>
 
-## The summary header
+## What you'll see
 
-Whatever view you're on, the top of the page is an always-on summary:
+At the top of the report, you always get a quick summary: two big score rings -
+**Site Health** (your SEO score) and **AI Search Health** (your AI-readiness
+score), each out of 100 - plus counts of **Errors**, **Warnings**, and
+**Notices** found across your site.
 
-- Two large gauge rings - **Site Health** (your SEO score) and **AI Search
-  Health** (your GEO score), each 0-100.
-- **Severity stat cards** - counts of **Errors**, **Warnings** and **Notices**
-  across the whole site.
-- **Thematic score cards** - one mini-gauge per audit theme (Technical SEO,
-  Performance, Security, Mobile, Advanced SEO, AI Visibility), each with a
-  **View details** link that opens the full report pre-filtered to that theme.
+Below the summary, you can switch between a few views:
 
-### Score bands
+<CardGroup cols={2}>
+  <Card title="Pages" icon="layout-list">
+    Every page Spyro checked, weakest first, with each page's scores and a
+    health badge. Click any page to see its full detail.
+  </Card>
+  <Card title="Full report" icon="file-text">
+    Every issue found, grouped by how serious it is, with a short **how to fix**
+    note for each one.
+  </Card>
+  <Card title="History" icon="trending-up">
+    Your scores over time, what changed since your last check, and an estimate of
+    how high your score could go once you fix things.
+  </Card>
+  <Card title="URL checks" icon="list-checks">
+    Check a single page on demand - handy for spot-checking one URL after you've
+    made edits.
+  </Card>
+</CardGroup>
 
-Both scores share the same 0-100 scale and the same labels:
+### Per-page detail
 
-| Score | Band |
-| --- | --- |
-| 85-100 | **Excellent** |
-| 70-84 | **Good** |
-| 50-69 | **Needs work** |
-| 0-49 | **Poor** |
+Click any page to open its own report. You'll see that page's scores, the issues
+found on it, an **AI readiness** view, and a history of how it's changed. Each
+issue comes with plain-language advice on how to fix it.
 
-Per-page scores use the same thresholds, shown as colored pills (green for
-excellent down to red for poor).
+To learn how to read your scores, issues, fixes, and the PDF in depth, see
+[Understand your reports](/product/understanding-reports).
 
-## The views
+## Re-check and the "Ask" helper
 
-The nav bar under the summary has four views. The default is **Pages**; the others
-add a `?view=` parameter to the URL.
+When you've made a change, you don't have to wait. Open the page and click
+**Re-check after fixes** - Spyro re-checks just that page and shows you a
+before-and-after so you can confirm the fix worked.
 
-<AccordionGroup>
-  <Accordion title="Pages - ?view=pages (default)" icon="layout-list">
-    Every crawled page, lowest-scoring first. Each row shows the page's **SEO
-    score**, **GEO score**, a worst-severity badge (**Critical** / **Warning** /
-    **Notice** / **Healthy**), HTTP status and word count. Click any row to open
-    its [per-page drill-down](#the-per-page-drill-down).
-  </Accordion>
-  <Accordion title="Full report - ?view=report" icon="file-text">
-    Every issue found, grouped into **Errors**, **Warnings** and **Notices**, each
-    section sorted by how many pages are affected. Each issue lists the affected
-    URLs and a **How to fix** note. You can filter the report to one theme - for
-    example `?view=report&filter=technical_seo` - which is what the summary's
-    **View details** links do.
-  </Accordion>
-  <Accordion title="History - ?view=history" icon="trending-up">
-    Your audit trend over time. A line chart plots **Site Health** and **AI
-    Visibility** across past audits, a **What changed since last crawl** panel
-    lists newly detected vs. resolved issues, and a **score forecast** estimates
-    where your score could go (see below). The chart needs at least two audits -
-    with only one, it prompts you to run another to unlock the trend.
-  </Accordion>
-  <Accordion title="URL Checks - ?view=url-checks" icon="list-checks">
-    On-demand checks of individual URLs, outside the full-site crawl. Add a URL,
-    click **Add & check**, and Spyro scores just that page (refreshing every few
-    seconds until done). Each tracked URL keeps its own SEO/GEO scores and issue
-    history - handy for spot-checking a single page after edits.
-  </Accordion>
-</AccordionGroup>
+Not sure where to start? Click **Ask Spyro** to chat with a helper that knows
+*your* audit. Ask things like *"Why is my AI score low?"* or *"What should I fix
+first?"* and it answers using your own results. You can ask about your whole site
+or about one page.
 
-### The score forecast
+<Tip>
+For any single issue, you can also ask Spyro to **suggest a fix**. It gives you a
+short, do-this-now recommendation tailored to your site. It's advice for you to
+apply - Spyro doesn't change your site for you.
+</Tip>
 
-On the **History** view, the **score forecast** bar projects three states side by
-side: your **Current** Site Health, the score **After quick wins** (fixing all
-notice-level issues, with the point gain and an effort estimate in minutes), and
-your **Max potential** if every SEO issue were fixed. A segmented bar visualises
-the gap between them.
+## Tips
 
-## Issues by severity
-
-Every issue is one of three severities, and pages roll up to their worst:
-
-| Severity | Shown as | Page badge |
-| --- | --- | --- |
-| `critical` | **Error** (red) | **Critical** |
-| `warning` | **Warning** (amber) | **Warning** |
-| `info` | **Notice** (blue) | **Notice** |
-| _(none)_ | - | **Healthy** |
-
-## AI-bot access and GEO
-
-GEO scoring is about being *citable* by AI engines - and that starts with letting
-their crawlers in.
-
-- **AI crawler access (site-wide)** - a table of known AI bots, each marked
-  **Allowed** or **Blocked** based on your `robots.txt`. A blocked bot can't read
-  or cite your content.
-- **Citation-readiness checklist** - 16 checks that each **Pass** or **Fail**,
-  covering things like an answer-first opening (BLUF), question-style headings,
-  FAQ / HowTo / Article schema, statistics and figures, an author byline and
-  E-E-A-T signals, an `llms.txt` file, a visible freshness date, content that's
-  extractable without JavaScript, and `sameAs` entity links. Failed checks include
-  fix guidance.
-
-Both appear on the **AI Visibility** tab of the per-page drill-down.
-
-## The per-page drill-down
-
-Click any page (from **Pages** or **URL Checks**) to open its report at
-`/{org}/{workspace}/audit/p/{pageId}`. The header shows the page's SEO and GEO
-rings, URL, HTTP status, word count and issue count, plus an **Ask Spyro** button
-and a **Re-check after fixes** button. Below that are five tabs:
-
-<AccordionGroup>
-  <Accordion title="Overview" icon="gauge">
-    The page's SEO and GEO scores, HTTP status and word count, a severity summary
-    (critical / warning / info counts) and the top issues on this page.
-  </Accordion>
-  <Accordion title="Issues - ?tab=issues" icon="circle-exclamation">
-    Every issue on this page, grouped by type, each with its severity and fix text.
-    A clean page shows a success state instead.
-  </Accordion>
-  <Accordion title="AI Visibility - ?tab=ai-visibility" icon="robot">
-    The page's GEO score with a status badge, the 16-point citation-readiness
-    checklist, and the site-wide AI crawler access table.
-  </Accordion>
-  <Accordion title="Full Report - ?tab=full-report" icon="file-text">
-    Every issue on this single page by severity, with how-to-fix guidance.
-  </Accordion>
-  <Accordion title="History - ?tab=history" icon="trending-up">
-    A before/after snapshot if you've re-checked the page, plus its SEO + GEO
-    trend across past audits and URL checks.
-  </Accordion>
-</AccordionGroup>
-
-### Re-check after fixes
-
-Made a change? Click **Re-check after fixes** on the page report. Spyro queues a
-fresh check of just that URL - the button shows **Re-checking…** and the page
-refreshes until it's done, then the **History** tab shows the before/after.
-
-## Ask the audit assistant
-
-The **Ask Spyro** button opens a chat assistant grounded in *your* audit. Ask
-free-form questions - "why is my GEO score low?", "what should I fix first?" - and
-it answers using your top issues, your domain and page URLs, and relevant content
-pulled from your site. You can ask at the site level or scoped to a single page.
-
-<Note>
-Saving a conversation persists it and meters against your monthly AI credits;
-unsaved chats are ephemeral. See [Plans, billing & usage](/product/billing-and-usage).
-</Note>
-
-## AI suggest fix
-
-On an individual issue you can ask Spyro to **suggest a fix**. It streams back a
-short, action-first recommendation (2-4 sentences, starting with a verb like
-*Add*, *Set*, *Update* or *Remove*) tailored to your domain and the affected
-pages - often with a small code snippet, e.g. `<h1>Your Page Title</h1>`. It's
-advice to apply yourself; Spyro doesn't edit your site.
-
-## Download the PDF report
-
-Click **Export report to PDF** (enabled once the audit is complete) to download a
-branded report. The filename follows `spyro-audit-{domain}-{date}.pdf`.
-
-Modern audits export the full **V3 SEO + GEO report** - the same branded document
-as the public SEO/GEO free tool, rendered with real Chromium for a pixel-perfect
-result. (Audits run before the V3 report existed fall back to a lighter PDF.) See
-[PDF Engine](/backend/pdf-engine) for how it's rendered.
+- Run your first audit right after setup to get your starting scores.
+- Fix the **Errors** first - they have the biggest impact - then work through
+  Warnings and Notices.
+- Re-run the audit after a round of fixes to watch your score improve.
+- Check the **History** view to see your progress over time.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Google Search Console" icon="magnifying-glass" href="/product/search-console">Ground fixes in real impressions, clicks and CTR.</Card>
-  <Card title="Rank tracker" icon="ranking-star" href="/product/rank-tracker">Track keyword positions over time.</Card>
-  <Card title="Audit (dev docs)" icon="code" href="/backend/audit">How the crawler and scoring work.</Card>
-  <Card title="Product overview" icon="grid-2" href="/product/overview">The full feature map.</Card>
+  <Card title="Understand your reports" icon="file-lines" href="/product/understanding-reports">Read your scores, issues, fixes, and PDF in depth.</Card>
+  <Card title="Google Search Console" icon="magnifying-glass" href="/product/search-console">Ground your fixes in real clicks and impressions.</Card>
+  <Card title="Rank tracker" icon="ranking-star" href="/product/rank-tracker">Track your keyword positions over time.</Card>
+  <Card title="Welcome to Spyro" icon="grid-2" href="/product/overview">A plain-language tour of everything Spyro can do.</Card>
 </CardGroup>
