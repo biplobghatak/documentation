@@ -4,8 +4,8 @@ description: "How the Spyro frontend is built: Next.js App Router, server vs cli
 ---
 
 Spyro's frontend is a single **Next.js 16 App Router** application (`next@16.2.6`, `react@19.2.4`).
-One codebase serves three very different surfaces — a public marketing site, an authenticated
-multi-tenant SEO/GEO product, and a superadmin panel — separated cleanly with **route groups**.
+One codebase serves three very different surfaces - a public marketing site, an authenticated
+multi-tenant SEO/GEO product, and a superadmin panel - separated cleanly with **route groups**.
 
 This page is the map. It explains the rendering model, how server and client components are split,
 what each route group is for, and how the layout hierarchy nests. The deeper mechanics live in the
@@ -19,7 +19,7 @@ everywhere in the code:
 - **Server Components by default.** A file is a React Server Component (RSC) unless it starts with
   the `"use client"` directive. Pages and layouts fetch data directly with `await` and never ship
   that code to the browser.
-- **Client islands where interactivity is needed.** Roughly **210 files** carry `"use client"` —
+- **Client islands where interactivity is needed.** Roughly **210 files** carry `"use client"` -
   forms, charts, the chat agent, the editor, dropdowns. **Most** `components/ui/` primitives are
   client components (15 of the 22 `.tsx` files declare `"use client"`); purely presentational
   wrappers like `button.tsx` and `hugeicons.tsx` stay Server Components. Data-fetching pages and
@@ -44,10 +44,10 @@ export default async function WorkspaceLayout({
 The root document is configured in `app/layout.tsx`. It loads the `Inter` (`--font-sans`) and
 `Lato` (`--font-heading`) Google fonts, injects a `beforeInteractive` no-flash theme script, mounts
 the global `<ThemeProvider>`, `<PostHogIdentify>` and Sonner `<Toaster>`, and renders site-wide
-JSON-LD (`Organization` + `WebSite`). It is a **Server Component** — only the providers it renders
+JSON-LD (`Organization` + `WebSite`). It is a **Server Component** - only the providers it renders
 are client components.
 
-`<PostHogIdentify>` (`components/app/posthog-identify.tsx`) is the analytics provider — a client
+`<PostHogIdentify>` (`components/app/posthog-identify.tsx`) is the analytics provider - a client
 component that calls `posthog.identify()` with the Supabase user on sign-in and `posthog.reset()` on
 sign-out. PostHog traffic is reverse-proxied through the app's own origin: `next.config.ts` rewrites
 `/ingest/:path*` to PostHog's hosts (`us.i.posthog.com` and `us-assets.i.posthog.com`), so analytics
@@ -74,7 +74,7 @@ delegated across the `"use client"` boundary.
 
 ## Route groups
 
-Route groups — folders wrapped in parentheses like `(marketing)` — let Spyro apply **different
+Route groups - folders wrapped in parentheses like `(marketing)` - let Spyro apply **different
 layouts and chrome to different sections without affecting the URL**. The `(marketing)` segment is
 not part of any path; it only scopes the layout.
 
@@ -95,16 +95,16 @@ app/
     `/auth/callback` so the session still gets exchanged.
   </Card>
   <Card title="(marketing)" icon="globe">
-    The public site — `/about`, `/pricing`, `/blog`, `/free-tools`, `/contact`, `/privacy`,
+    The public site - `/about`, `/pricing`, `/blog`, `/free-tools`, `/contact`, `/privacy`,
     `/terms`, `/affiliates`. Also wraps everything in `MarketingShell`. The blog is a headless
     WordPress front end (see [Marketing site](/frontend/marketing-site)).
   </Card>
   <Card title="(auth)" icon="key">
     `/login`, `/signup`, `/reset`, `/verify`. The group layout is a pass-through that renders
-    `<ForceLight>` — auth pages are light-only; dark mode is reserved for the dashboard.
+    `<ForceLight>` - auth pages are light-only; dark mode is reserved for the dashboard.
   </Card>
   <Card title="(app)" icon="grid-2">
-    The authenticated product. Has **no group-level layout** — gating and chrome live in the
+    The authenticated product. Has **no group-level layout** - gating and chrome live in the
     nested `[org]` and `[org]/[workspace]` layouts. This is the multi-tenant shell.
   </Card>
 </CardGroup>
@@ -114,7 +114,7 @@ app/
 These two halves of the app are intentionally different.
 
 The **`(marketing)` / `(home)`** side is public, SEO-first, and statically friendly. Both group
-layouts are one line — they render `MarketingShell` (header, footer, theme transitions) around the
+layouts are one line - they render `MarketingShell` (header, footer, theme transitions) around the
 page. Content like the blog is fetched from WordPress and cached.
 
 The **`(app)`** side is private and gated at the layout level. There is no `app/(app)/layout.tsx`;
@@ -131,7 +131,7 @@ flowchart TD
 ```
 
 The first layout in the `(app)` tree is `app/(app)/[org]/layout.tsx`. It is `force-dynamic`, calls
-`requireAccess(org)`, and **hard-gates on billing** — an org without active billing (and without a
+`requireAccess(org)`, and **hard-gates on billing** - an org without active billing (and without a
 superadmin impersonation marker) is redirected to `/checkout`. One level deeper,
 `app/(app)/[org]/[workspace]/layout.tsx` resolves the workspace and renders `AppShell` (the sidebar,
 org/workspace switchers, user menu and trial banner). The org also has a parallel

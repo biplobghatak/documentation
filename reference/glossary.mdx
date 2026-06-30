@@ -1,6 +1,6 @@
 ---
 title: "Glossary"
-description: "Definitions of the SEO, GEO/AEO, billing, and architecture terms used throughout Spyro — pulled from how the code and README actually use them."
+description: "Definitions of the SEO, GEO/AEO, billing, and architecture terms used throughout Spyro - pulled from how the code and README actually use them."
 ---
 
 The domain and architecture vocabulary used across the Spyro docs and codebase.
@@ -10,19 +10,19 @@ usage, and link to the page that covers it in depth.
 ## Search & visibility
 
 <AccordionGroup>
-<Accordion title="SEO — Search Engine Optimization">
-Optimizing a site to **rank on Google's classic results** — the keyword, SERP,
+<Accordion title="SEO - Search Engine Optimization">
+Optimizing a site to **rank on Google's classic results** - the keyword, SERP,
 audit, and rank-tracking half of Spyro ("Rank on Google"). Powered by DataForSEO and
 `lib/seo`. See [SEO engine](/backend/seo-engine).
 </Accordion>
 
-<Accordion title="GEO — Generative Engine Optimization">
+<Accordion title="GEO - Generative Engine Optimization">
 Optimizing a site to **be cited by AI answer engines** (ChatGPT, Gemini, Claude,
-Perplexity) — the "Get cited by ChatGPT" half. Spyro measures GEO readiness and AI
+Perplexity) - the "Get cited by ChatGPT" half. Spyro measures GEO readiness and AI
 visibility in `lib/geo`. See [GEO engine](/backend/geo-engine).
 </Accordion>
 
-<Accordion title="AEO — Answer Engine Optimization">
+<Accordion title="AEO - Answer Engine Optimization">
 A near-synonym for GEO used in Spyro's positioning ("SEO + AI-visibility (GEO/AEO)").
 Both describe being surfaced in AI-generated answers rather than the ten blue links.
 </Accordion>
@@ -62,7 +62,7 @@ The strategy of covering a topic comprehensively (a cluster of related articles,
 ideation and the content plan in `lib/seo`. See [Content engine](/backend/content-engine).
 </Accordion>
 
-<Accordion title="CWV — Core Web Vitals">
+<Accordion title="CWV - Core Web Vitals">
 Google's page-experience field metrics (LCP, INP, CLS at the p75). Spyro reads them
 preferentially from the **CrUX** API (`CRUX_API_KEY`), falling back to PageSpeed
 Insights, as part of the site audit. See [Audit](/backend/audit).
@@ -82,10 +82,10 @@ arrived *from* an AI engine, classified from GA4 `sessionSource`
 <Accordion title="LLM provider (lib/llm) vs citation-target engine (lib/engines)">
 A deliberate distinction in the architecture:
 
-- **LLM provider** (`lib/llm`) — the model Spyro *uses to do work* (write articles,
+- **LLM provider** (`lib/llm`) - the model Spyro *uses to do work* (write articles,
   ideate, run the agent). Routed through **OpenRouter** (with Gemini/Moonshot/OpenAI
   fallbacks).
-- **Citation-target engine** (`lib/engines`) — an AI the app *queries to see whether a
+- **Citation-target engine** (`lib/engines`) - an AI the app *queries to see whether a
   site is cited*. The `engine` column is a **free string** (engine-agnostic):
   `ai_overview`, `gemini`, `chatgpt`, `perplexity`, `claude`.
 
@@ -93,8 +93,8 @@ The same vendor (e.g. Gemini) can appear on both sides for different reasons. Se
 [AI providers](/backend/ai).
 </Accordion>
 
-<Accordion title="LLM provider — OpenRouter (not Gemini-only)">
-**OpenRouter** is Spyro's primary chat provider — one key routes the writer,
+<Accordion title="LLM provider - OpenRouter (not Gemini-only)">
+**OpenRouter** is Spyro's primary chat provider - one key routes the writer,
 ideation, the agent, and all citation engines. The README's claim that Gemini is "the
 only LLM provider" is stale; `GOOGLE_GENAI_API_KEY` and `MOONSHOT_API_KEY` are
 fallbacks used only when `OPENROUTER_API_KEY` is unset (`lib/env.ts`). See
@@ -102,7 +102,7 @@ fallbacks used only when `OPENROUTER_API_KEY` is unset (`lib/env.ts`). See
 </Accordion>
 
 <Accordion title="RAG / embeddings">
-**Retrieval-Augmented Generation** — the Spyro agent answers using content retrieved
+**Retrieval-Augmented Generation** - the Spyro agent answers using content retrieved
 from a site's own indexed pages rather than the model's memory. Pages are crawled,
 chunked, turned into **embeddings** (numeric vectors via OpenAI `text-embedding-3`),
 stored in pgvector (`site_indexes` / `site_chunks`), then retrieved by vector
@@ -112,7 +112,7 @@ LLM context. See [AI providers](/backend/ai).
 
 <Accordion title="DataForSEO">
 The single external provider for all SERP and keyword data, behind the `lib/serp`
-abstraction. It has **no mock fallback** — a missing key or failed request surfaces
+abstraction. It has **no mock fallback** - a missing key or failed request surfaces
 as a real error (README "Abstraction layers"). Spending can be capped per UTC day via
 `DATAFORSEO_DAILY_BUDGET_USD`. See [SEO engine](/backend/seo-engine).
 </Accordion>
@@ -121,7 +121,7 @@ as a real error (README "Abstraction layers"). Spending can be capped per UTC da
 Most integrations **degrade to a deterministic mock** when their key is absent so the
 product is clickable without credentials; such output is labelled **"sample data"** in
 the UI. There is **no fabricated data** elsewhere (real waitlist emails, real
-counts). DataForSEO is the exception — it never mocks. See
+counts). DataForSEO is the exception - it never mocks. See
 [Production](/deployment/production#degrade-to-mock-behavior).
 </Accordion>
 
@@ -143,7 +143,7 @@ The two-level tenancy model. An **organization** is the billing + membership bou
 workspace can have direct members too. See [Authorization](/backend/authorization).
 </Accordion>
 
-<Accordion title="RLS — Row-Level Security">
+<Accordion title="RLS - Row-Level Security">
 Postgres policies that restrict which rows a query can see. Spyro's RLS is
 **membership-driven** (org/workspace membership via security-definer helpers
 `org_role()` / `has_workspace_access()`), defined in `drizzle/rls.sql` +
@@ -154,7 +154,7 @@ that use the anon/auth key. See [Authorization](/backend/authorization).
 
 <Accordion title="Superadmin / impersonation">
 A separate operator panel (`/superadmin`, or `superadmin.<domain>` in prod) with its
-own **env-only** credentials, TOTP 2FA, and optional IP allowlist — invisible (404s)
+own **env-only** credentials, TOTP 2FA, and optional IP allowlist - invisible (404s)
 unless fully configured. **Impersonation** lets an operator act as a user for
 support, recorded in an audit log. See [Middleware](/backend/middleware).
 </Accordion>
@@ -167,7 +167,7 @@ support, recorded in an audit log. See [Middleware](/backend/middleware).
 The subscription tiers, defined in `lib/plans.ts` and sold through **Dodo Payments**:
 **Pro** ($99/mo flat, 1–2 sites) and **Agency** (per-site pricing with volume
 discounts). The README's Starter/$14/$39/$69 tiers are stale. Limits live in
-`PLANS`/`lib/plans.ts` — never hardcoded in components. See [Billing](/backend/billing).
+`PLANS`/`lib/plans.ts` - never hardcoded in components. See [Billing](/backend/billing).
 </Accordion>
 
 <Accordion title="Trial">
@@ -184,7 +184,7 @@ defined in `CREDIT_PACKS` (`lib/plans.ts`). Usage is metered per calendar month 
 </Accordion>
 
 <Accordion title="Merchant of Record (MoR)">
-A billing provider that is the legal seller and handles tax/VAT on your behalf — Dodo
+A billing provider that is the legal seller and handles tax/VAT on your behalf - Dodo
 plays this role for Spyro. See [Billing](/backend/billing).
 </Accordion>
 </AccordionGroup>
@@ -194,7 +194,7 @@ plays this role for Spyro. See [Billing](/backend/billing).
 <AccordionGroup>
 <Accordion title="Inngest">
 The durable background-job + cron platform. **Long work = Inngest, never request
-handlers** — crawls, citation/rank/AI-Overview checks, blog generation, and digests
+handlers** - crawls, citation/rank/AI-Overview checks, blog generation, and digests
 run as functions in `lib/inngest/fns/*`; request handlers enqueue and the UI polls a
 status row. Locally `pnpm inngest:dev`; in production, Inngest Cloud. See
 [Background jobs](/backend/background-jobs).
@@ -203,14 +203,14 @@ status row. Locally `pnpm inngest:dev`; in production, Inngest Cloud. See
 <Accordion title="Dispatcher / fan-out">
 The pattern that replaced global weekly UTC crons: an **hourly dispatcher** lists all
 workspaces, filters to those whose **local** clock matches the job's fire time, and
-emits one per-workspace event — so each workspace runs its weekly jobs on its own
+emits one per-workspace event - so each workspace runs its weekly jobs on its own
 Monday. Idempotency comes from event IDs keyed on `<jobKey>:<workspaceId>:<isoWeek>`
 (`lib/inngest/fns/dispatcher.ts`). See [Background jobs](/backend/background-jobs).
 </Accordion>
 
 <Accordion title="Inline fallback">
 When Inngest is unreachable, certain on-demand server actions run a **capped inline
-version** of the job so the user still gets a result (mostly a dev/demo convenience) —
+version** of the job so the user still gets a result (mostly a dev/demo convenience) -
 e.g. `lib/actions/audit.ts`. Fire-and-forget emits instead swallow failures because a
 daily safety-sweep cron re-indexes any missed delta. See
 [Production](/deployment/production#background-job-reliability-and-inline-fallback).
@@ -233,13 +233,13 @@ called from forms/UI to mutate data or enqueue jobs. See [Frontend overview](/fr
 
 <AccordionGroup>
 <Accordion title="Crawler / robots / sitemap">
-The audit crawler (`lib/crawler`) fetches a site's pages — respecting `robots.txt`,
-following the `sitemap.xml`, and obeying plan-gated page caps — using Cheerio by
+The audit crawler (`lib/crawler`) fetches a site's pages - respecting `robots.txt`,
+following the `sitemap.xml`, and obeying plan-gated page caps - using Cheerio by
 default and an optional **crawl4ai** server (`CRAWL4AI_API_URL`) to render JS-heavy
 pages. See [Crawler](/backend/crawler).
 </Accordion>
 
-<Accordion title="SSRF — Server-Side Request Forgery">
+<Accordion title="SSRF - Server-Side Request Forgery">
 The risk that a user-supplied URL (audit target, free-tool input) tricks the server
 into fetching an internal/forbidden address. Because Spyro fetches arbitrary
 user-provided URLs in the crawler and free tools, fetches are validated/guarded against
@@ -248,7 +248,7 @@ SSRF. See [Security](/backend/security).
 
 <Accordion title="AI crawler / bot access">
 Whether AI engines' crawlers (e.g. GPTBot, ClaudeBot, PerplexityBot) are *allowed* to
-read a site — a GEO-readiness factor checked by the audit and the **AI Crawler &
+read a site - a GEO-readiness factor checked by the audit and the **AI Crawler &
 Robots Checker** free tool. See [Audit](/backend/audit) and [Free tools](/backend/free-tools).
 </Accordion>
 </AccordionGroup>

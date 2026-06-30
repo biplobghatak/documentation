@@ -44,7 +44,7 @@ export const workspaceRoleEnum = pgEnum("workspace_role", ["admin", "member"]);
 | --- | --- |
 | `owner` | Everything, including billing and deleting the org |
 | `admin` | Manage members, workspaces, settings (not delete org) |
-| `manager` | Workspaces-only authority — create/manage workspaces and assign people; **cannot** touch billing or org membership |
+| `manager` | Workspaces-only authority - create/manage workspaces and assign people; **cannot** touch billing or org membership |
 | `member` | Only the workspaces they're explicitly assigned to |
 
 | Workspace role | Powers |
@@ -133,7 +133,7 @@ policy files: `drizzle/rls.sql` and `drizzle/rls_site_chunks.sql`.
 ```sql
 -- drizzle/rls.sql:5-7
 -- Access model: MEMBERSHIP-DRIVEN (org/workspace membership), not user_id ownership.
--- The app's own queries run through the Drizzle/Postgres role which BYPASSES RLS —
+-- The app's own queries run through the Drizzle/Postgres role which BYPASSES RLS -
 -- RLS here is defence-in-depth for anything that touches tables with the anon/auth key.
 ```
 
@@ -172,13 +172,13 @@ Tables are bucketed by how they relate to a tenant (`drizzle/rls.sql:14-31`):
 | Self-only | `id = auth.uid()` | `profiles` |
 | Server-only | RLS on, **zero** policies | `waitlist`, `processed_events` |
 
-The org-table policies encode the role hierarchy directly — e.g. only `owner` may
+The org-table policies encode the role hierarchy directly - e.g. only `owner` may
 delete an org, `owner`/`admin` may update it, and any member may read it
 (`drizzle/rls.sql:169-174`).
 
 <Note>
 `site_indexes` and `site_chunks` are governed **exclusively** by
-`drizzle/rls_site_chunks.sql` — `rls.sql` deliberately excludes them to avoid
+`drizzle/rls_site_chunks.sql` - `rls.sql` deliberately excludes them to avoid
 conflicting policies.
 </Note>
 
@@ -195,16 +195,16 @@ There are two self-serve plans plus a contact-sales tier (`lib/plans.ts:150-220`
 | --- | --- | --- | --- |
 | **Pro** | $99/mo | up to 2 sites | no |
 | **Agency** | $99/site/mo with volume discounts (10/15/20%) | 3–20 sites | yes |
-| **Custom** | contact sales | 21+ sites | — |
+| **Custom** | contact sales | 21+ sites | - |
 
 <Warning>
-Plan pricing in the code (`lib/plans.ts:88-130`) is the **source of truth** —
+Plan pricing in the code (`lib/plans.ts:88-130`) is the **source of truth** -
 Pro $99 + Agency per-site. The README's older $14/$39/$69 tiers are stale.
 Per-site capabilities are identical between Pro and Agency; they differ only on
 workspace count and white-label.
 </Warning>
 
-`PlanLimits` (`lib/plans.ts:33-73`) holds every quota — `blogsPerMonth`,
+`PlanLimits` (`lib/plans.ts:33-73`) holds every quota - `blogsPerMonth`,
 `integrationsMax`, `aiCreditsPerMonth`, `trackedKeywordsMax`, allowed citation
 `engines`, etc. Helpers like `planLimits()`, `withinLimit()`, `blogQuota()`, and
 `workspaceLimit()` derive effective caps. Legacy plan values are coerced with
@@ -242,8 +242,8 @@ export async function checkUsage(userId: string, metric: Metric, limit: number):
 }
 ```
 
-This combination — `planLimits()` for the cap, `getUsage()`/`addUsage()` for the
-count, `withinLimit()` for the verdict — is how endpoints return things like the
+This combination - `planLimits()` for the cap, `getUsage()`/`addUsage()` for the
+count, `withinLimit()` for the verdict - is how endpoints return things like the
 `402 plan_limit` on [integration register](/backend/public-api#post-api-v1-integrations-register)
 or the `402`/`429` AI-credit errors in the agent and audit routes.
 
@@ -269,7 +269,7 @@ export const requireAdmin = cache(async (): Promise<{ username: string }> => {
 ```
 
 The admin session is a **stateless, HMAC-signed token** in an HttpOnly cookie
-(`spyro_admin`), with a **1-hour TTL** and no DB session table — the signature
+(`spyro_admin`), with a **1-hour TTL** and no DB session table - the signature
 (keyed by `ADMIN_SESSION_SECRET`) plus an embedded expiry *is* the session
 (`lib/admin/session.ts:8-15, 34-43`). Login requires username + scrypt password +
 TOTP, behind the IP allowlist and a per-IP brute-force lockout (see
@@ -300,15 +300,15 @@ session signs out and marks the audit row ended.
 <Info>
 Impersonation is bounded: `IMPERSONATION_MINUTES = 30` (`lib/admin/impersonate.ts:12`),
 every session is audit-logged in `admin_impersonation_sessions`, and the marker
-cookie is the only thing the user-facing app reads — it does **not** flow through
+cookie is the only thing the user-facing app reads - it does **not** flow through
 the [middleware](/backend/middleware).
 </Info>
 
 ## Related
 
-- [Authentication](/backend/authentication) — how users sign in before any of this applies.
-- [Middleware](/backend/middleware) — the edge gate and the admin IP allowlist.
-- [Public API](/backend/public-api) — API-key auth and the `402 plan_limit` gate.
-- [Billing](/backend/billing) — plans, Dodo checkout, and how `subscription_active` flips.
-- [Database](/backend/database) — the membership tables and `usage_counters`.
-- [Security](/backend/security) — RLS, IP allowlist, and secret handling.
+- [Authentication](/backend/authentication) - how users sign in before any of this applies.
+- [Middleware](/backend/middleware) - the edge gate and the admin IP allowlist.
+- [Public API](/backend/public-api) - API-key auth and the `402 plan_limit` gate.
+- [Billing](/backend/billing) - plans, Dodo checkout, and how `subscription_active` flips.
+- [Database](/backend/database) - the membership tables and `usage_counters`.
+- [Security](/backend/security) - RLS, IP allowlist, and secret handling.

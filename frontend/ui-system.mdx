@@ -4,7 +4,7 @@ description: "Spyro's design system: Tailwind v4 via CSS @theme, Base UI + Radix
 ---
 
 Spyro's UI is built on **Tailwind CSS v4**, **Base UI** headless primitives, and a small set of
-shadcn-style wrapper components. There is no `tailwind.config.js` and no `components.json` — the
+shadcn-style wrapper components. There is no `tailwind.config.js` and no `components.json` - the
 whole design system is configured in CSS. This page documents the setup, the theme tokens, and the
 utilities every component relies on.
 
@@ -32,10 +32,10 @@ export default config;
 Three things to note:
 
 - **`tw-animate-css`** provides animation utilities (the successor to `tailwindcss-animate`).
-- **`shadcn/tailwind.css`** is the preset from the `shadcn` npm package — Spyro pulls in shadcn's
+- **`shadcn/tailwind.css`** is the preset from the `shadcn` npm package - Spyro pulls in shadcn's
   Tailwind layer this way rather than scaffolding files with the shadcn CLI. (That is why there is
   no `components.json`.)
-- **`@custom-variant dark`** defines the `dark:` variant as class-based — it activates whenever an
+- **`@custom-variant dark`** defines the `dark:` variant as class-based - it activates whenever an
   ancestor carries the `.dark` class, which the theme provider toggles on `<html>`.
 
 ## Theme tokens (`@theme` + CSS variables)
@@ -108,7 +108,7 @@ outline and styles links/buttons (`cursor: pointer`).
 
 The `components/ui/` wrappers are built on headless primitives:
 
-- **Base UI** (`@base-ui/react`) backs most primitives — `button.tsx` imports
+- **Base UI** (`@base-ui/react`) backs most primitives - `button.tsx` imports
   `@base-ui/react/button`, `dialog.tsx` imports `@base-ui/react/dialog`, `tabs.tsx` imports
   `@base-ui/react/tabs`, and so on. Base UI is the successor to Radix from the same team.
 - **Radix** is used for one primitive: `tooltip.tsx` imports `@radix-ui/react-tooltip`
@@ -118,7 +118,7 @@ Each wrapper applies Tailwind classes on top of the headless behavior. This is t
 (headless primitive + `cva` variants + `cn`), but implemented with Base UI instead of pure Radix and
 without the shadcn CLI scaffolding.
 
-## `cn()` — the class-merge utility
+## `cn()` - the class-merge utility
 
 Every component composes classes through `cn()` from `lib/utils.ts` (verbatim):
 
@@ -171,12 +171,12 @@ Three icon sources are in the dependency tree; usage is very lopsided:
 
 | Library | Import | Real usage |
 | --- | --- | --- |
-| **lucide-react** | `lucide-react` | Primary — imported in ~168 files |
-| **@tabler/icons-react** | `@tabler/icons-react` | Narrow — ~5 files (e.g. the Sonner toast icons in `ui/sonner.tsx`) |
+| **lucide-react** | `lucide-react` | Primary - imported in ~168 files |
+| **@tabler/icons-react** | `@tabler/icons-react` | Narrow - ~5 files (e.g. the Sonner toast icons in `ui/sonner.tsx`) |
 | **@hugeicons/react** + core | `@hugeicons/*` | ~3 files |
 
 In addition, `components/ui/hugeicons.tsx` is a local file of **hand-written brand SVG logos**
-(ChatGPT, Perplexity, etc.) — not a library import. When in doubt, reach for **lucide-react**; it is
+(ChatGPT, Perplexity, etc.) - not a library import. When in doubt, reach for **lucide-react**; it is
 the de-facto standard across the app.
 
 ## Toasts (Sonner)
@@ -185,13 +185,13 @@ Notifications use **Sonner**. The `<Toaster>` is mounted once in the root layout
 (`<Toaster richColors closeButton position="top-center" />`). The wrapper in `components/ui/sonner.tsx`
 reads `useTheme()` to switch between light and dark toast tint palettes (so `richColors` toasts stay
 WCAG-AA in both themes) and supplies Tabler icons per level. Components fire toasts with
-`import { toast } from "sonner"` — used widely in app forms and mutation handlers.
+`import { toast } from "sonner"` - used widely in app forms and mutation handlers.
 
 ## Animation (framer-motion + CSS keyframes)
 
 Two animation systems coexist:
 
-- **`framer-motion`** (`framer-motion@12`) for component-level motion — imported in ~57 files,
+- **`framer-motion`** (`framer-motion@12`) for component-level motion - imported in ~57 files,
   heavily in the marketing site and the free-tools result/progress UIs.
 - **CSS keyframes in `globals.css`** for the marketing landing: the `mkting-*` family
   (`mkting-float`, `mkting-fade-up`, `mkting-marquee`, `mkting-bar-grow`, `mkting-score-ring`),

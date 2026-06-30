@@ -1,10 +1,10 @@
 ---
 title: "GEO Engine"
-description: "Generative Engine Optimization readiness: the 16-point page check, AI-citation readiness, entity signals, and the weighted GEO score — with verbatim scoring code."
+description: "Generative Engine Optimization readiness: the 16-point page check, AI-citation readiness, entity signals, and the weighted GEO score - with verbatim scoring code."
 ---
 
 The GEO engine (`lib/geo/*`) measures how ready a page is to be **cited by
-generative AI engines** (ChatGPT, Gemini, Perplexity, Google AI Overviews) — the
+generative AI engines** (ChatGPT, Gemini, Perplexity, Google AI Overviews) - the
 practice often called GEO (Generative Engine Optimization) or AEO (Answer Engine
 Optimization). It is small and entirely deterministic: two files, no LLM, no
 external API.
@@ -13,7 +13,7 @@ external API.
   GEO is the **complement** of two neighbours. The [SEO engine](/backend/seo-engine)
   scores classic ranking signals (`category: "seo"`). This GEO engine scores
   answer-readiness signals (`category: "geo"`). The [AI engine](/backend/ai)'s
-  citation checks measure the *outcome* — whether engines actually cite the site.
+  citation checks measure the *outcome* - whether engines actually cite the site.
   GEO here is the on-page *readiness* that drives that outcome.
 </Info>
 
@@ -38,7 +38,7 @@ export interface GeoCheck {
 
 | # | id | Passes when |
 |---|----|----|
-| 1 | `answer_first` | The opening delivers a direct answer (BLUF) in the first ~50 words — first paragraph 40–600 chars, not a fluff opener, first sentence ≥30 chars and ≥8 words |
+| 1 | `answer_first` | The opening delivers a direct answer (BLUF) in the first ~50 words - first paragraph 40–600 chars, not a fluff opener, first sentence ≥30 chars and ≥8 words |
 | 2 | `qa_structure` | ≥3 sub-headings and (≥1 phrased as a question OR ≥5 headings) |
 | 3 | `schema` | ≥1 JSON-LD type in `FAQPage / HowTo / Article / NewsArticle / BlogPosting / QAPage / ProfilePage / FactCheck / Dataset` |
 | 4 | `stats` | ≥2 statistic patterns in the body |
@@ -53,12 +53,12 @@ export interface GeoCheck {
 | 13 | `entity_schema` | ≥1 JSON-LD type in `Organization / Product / LocalBusiness / Service / SoftwareApplication / Brand` |
 | 14 | `internal_cluster` | Enough inbound + same-origin internal links to form a topic cluster |
 | 15 | `content_extractable` | The page does **not** require JS to render its content |
-| 16 | `entity_sameas` | The entity has `sameAs` links — or passes "not applicable" if no entity schema |
+| 16 | `entity_sameas` | The entity has `sameAs` links - or passes "not applicable" if no entity schema |
 
 ### High-impact checks (verbatim)
 
 The checks the engine weights double are worth seeing in full. **Answer-first
-(BLUF)** is the single highest-value signal — generative engines lift direct
+(BLUF)** is the single highest-value signal - generative engines lift direct
 answers verbatim:
 
 ```ts
@@ -79,7 +79,7 @@ checks.push({
 });
 ```
 
-**Question-style structure** — so an LLM can map a section directly to a user
+**Question-style structure** - so an LLM can map a section directly to a user
 prompt:
 
 ```ts
@@ -90,7 +90,7 @@ const hasStructure = headings.length >= 3 && (questiony >= 1 || headings.length 
 checks.push({ id: "qa_structure", label: "Question-style headings / clear structure", passed: hasStructure, /* ... */ });
 ```
 
-**Outbound authority** — LLMs verify claims against trusted sources, so citing
+**Outbound authority** - LLMs verify claims against trusted sources, so citing
 them makes a page credible. Authority is classified by host allowlist + TLD set:
 
 ```ts
@@ -113,7 +113,7 @@ types and `sameAs` links the [crawler](/backend/crawler) already extracted into
 
 `entity_schema` (check 13) passes when an entity type is present; `entity_sameas`
 (check 16) binds that entity to external authorities, and cleverly passes as **"not
-applicable"** when there is no entity to check — so a content page isn't penalised
+applicable"** when there is no entity to check - so a content page isn't penalised
 for lacking brand schema:
 
 ```ts
@@ -163,7 +163,7 @@ export function geoScore(perPage: GeoCheck[][]): number {
 ```
 
 - **Per page** (`geoScoreForPage`): `round( weighted passed / weighted total × 100 )`.
-- **Site** (`geoScore`): the rounded **unweighted average** of per-page scores —
+- **Site** (`geoScore`): the rounded **unweighted average** of per-page scores -
   every page counts equally regardless of size. Empty input → `0`. There are no
   other clamps or thresholds.
 
@@ -205,30 +205,30 @@ export function geoChecksToIssues(url: string, checks: GeoCheck[]): DetectedIssu
   The "important" set differs slightly between scoring and issue severity. The
   scoring `DOUBLE` set includes `outbound_authority`; the issue-severity set
   includes `content_extractable` instead. This is intentional in the source, not a
-  typo — scoring weights answer quality, issue severity weights crawlability.
+  typo - scoring weights answer quality, issue severity weights crawlability.
 </Warning>
 
 ## Where GEO runs
 
 `lib/geo` is consumed across the app:
 
-- **Audit pipeline** — `lib/actions/audit.ts`, `lib/audit/url-check.ts`,
+- **Audit pipeline** - `lib/actions/audit.ts`, `lib/audit/url-check.ts`,
   `lib/audit/pages.ts`, and the Inngest job `lib/inngest/fns/audit.ts` run
   `runGeoChecks` per page then aggregate. See [Audit](/backend/audit).
-- **Onboarding** — `lib/onboarding/crawl-batch.ts` and `aggregate.ts` score GEO
+- **Onboarding** - `lib/onboarding/crawl-batch.ts` and `aggregate.ts` score GEO
   during the initial crawl into the workspace's `geoScore`.
-- **Free tools** — `lib/free-tools/shared/engine.ts` re-exports the checks for the
+- **Free tools** - `lib/free-tools/shared/engine.ts` re-exports the checks for the
   public AI-visibility checker. See [Free Tools](/backend/free-tools).
-- **Agent** — `lib/agent/tools.ts` exposes `runGeoChecks` as an agent tool.
+- **Agent** - `lib/agent/tools.ts` exposes `runGeoChecks` as an agent tool.
 
 The `geoScore` value surfaces on the dashboard, the PDF report, and superadmin
 workspace views.
 
 ## Related
 
-- [SEO Engine](/backend/seo-engine) — the `category: "seo"` companion scoring
-- [Crawler](/backend/crawler) — extracts `jsonLdTypes`, `sameAs`, headings, `needsJsRender`
-- [AI Engine](/backend/ai) — citation checks that measure the GEO outcome
-- [Audit](/backend/audit) — the main per-page-then-aggregate consumer
-- [Free Tools](/backend/free-tools) — the public AI-visibility checker
-- [Background Jobs](/backend/background-jobs) — the audit + onboarding crawls
+- [SEO Engine](/backend/seo-engine) - the `category: "seo"` companion scoring
+- [Crawler](/backend/crawler) - extracts `jsonLdTypes`, `sameAs`, headings, `needsJsRender`
+- [AI Engine](/backend/ai) - citation checks that measure the GEO outcome
+- [Audit](/backend/audit) - the main per-page-then-aggregate consumer
+- [Free Tools](/backend/free-tools) - the public AI-visibility checker
+- [Background Jobs](/backend/background-jobs) - the audit + onboarding crawls

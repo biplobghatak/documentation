@@ -18,7 +18,7 @@ Spyro behaves the same in both, but a few things flip:
 | Billing mode | `DODO_ENV=test_mode` | `DODO_ENV=live_mode` |
 | Public origin | `NEXT_PUBLIC_APP_URL=http://localhost:3000` | your public domain (feeds canonical URLs, links, PDF origin) |
 | Schema changes | `pnpm db:push` (fast, destructive-ish) | `pnpm db:migrate` (ordered, committed migrations) |
-| Missing keys | mostly mocked, fine for clicking through | must be real — mocks are labelled "sample data" in the UI |
+| Missing keys | mostly mocked, fine for clicking through | must be real - mocks are labelled "sample data" in the UI |
 
 `lib/env.ts` has a production safety net for the public origin: if
 `NEXT_PUBLIC_APP_URL` is missing or accidentally points at `localhost` on a Vercel
@@ -43,14 +43,14 @@ export const featureFlags = {
 ```
 
 <Warning>
-**DataForSEO is the one exception** — it has no mock. A missing key or a failed
+**DataForSEO is the one exception** - it has no mock. A missing key or a failed
 request surfaces as a real error in the UI rather than silent sample data, by design
 *(`.env.local.example:36–46`)*. In production, treat `dataforseoConfigured` as
 mandatory. Optionally set `DATAFORSEO_DAILY_BUDGET_USD` as a spend circuit breaker.
 </Warning>
 
-Mocked outputs are always labelled **"sample data"** in the UI, so in production —
-where the keys are real — you should never see that label. If you do, a key is
+Mocked outputs are always labelled **"sample data"** in the UI, so in production -
+where the keys are real - you should never see that label. If you do, a key is
 missing.
 
 ## Cron registration
@@ -58,7 +58,7 @@ missing.
 There is **no Vercel cron**. Every scheduled job is declared as an Inngest `cron:`
 trigger in `lib/inngest/fns/*` and runs on Inngest Cloud. "Registering" the crons
 means **syncing the serve endpoint** `<APP_URL>/api/inngest` in the Inngest
-dashboard — that single route serves the whole function registry
+dashboard - that single route serves the whole function registry
 *(`app/api/inngest/route.ts`, `lib/inngest/functions.ts`)*.
 
 The scheduled functions and their cron expressions (all UTC):
@@ -92,7 +92,7 @@ See [Background jobs](/backend/background-jobs) for each function's logic.
 Use **committed migrations**, not `db:push`, against a production database:
 
 ```bash
-pnpm db:migrate    # drizzle-kit migrate — applies drizzle/*.sql in order
+pnpm db:migrate    # drizzle-kit migrate - applies drizzle/*.sql in order
 ```
 
 `db:push` (`drizzle-kit push`) diffs the schema straight onto the DB and is for dev
@@ -102,7 +102,7 @@ the environment of wherever you run the command *(`drizzle.config.ts:5–6`)*.
 
 <Warning>
 **RLS is not part of the migrations.** After applying migrations, re-run
-`drizzle/rls.sql` and `drizzle/rls_site_chunks.sql` in the Supabase SQL editor — they
+`drizzle/rls.sql` and `drizzle/rls_site_chunks.sql` in the Supabase SQL editor - they
 are idempotent and safe to re-run *(`drizzle/rls.sql:1`)*. New tables added by a
 migration are not protected until their policies exist. See
 [Going live → step 1](/deployment/environment#1-supabase-database-auth).
@@ -121,43 +121,43 @@ For on-demand actions, when Inngest is **unreachable**, several server actions f
 back to a **capped inline run** so the user still gets a result (mostly a dev/demo
 convenience):
 
-- Audits — `runInline(...)` after a warning *"Inngest unavailable — running inline
+- Audits - `runInline(...)` after a warning *"Inngest unavailable - running inline
   fallback (capped)"* *(`lib/actions/audit.ts:35–37,107–108`)*.
-- Tracked-URL checks — *"Inngest unavailable — running check inline"*
+- Tracked-URL checks - *"Inngest unavailable - running check inline"*
   *(`lib/actions/tracked-urls.ts:46–52`)*.
-- Prompt/citation checks — run the first check inline if the dispatch fails
+- Prompt/citation checks - run the first check inline if the dispatch fails
   *(`lib/actions/prompts.ts:82,155`)*.
-- Spyro agent tools — inline fallback when Inngest isn't reachable
+- Spyro agent tools - inline fallback when Inngest isn't reachable
   *(`lib/agent/spyro-tools.ts:210,499`)*.
 
 Fire-and-forget emits (knowledge re-index, initial-insights) **swallow failures
 silently** because a daily safety-sweep cron re-indexes any delta a dropped event
-missed — a lost emit degrades freshness, never correctness
+missed - a lost emit degrades freshness, never correctness
 *(`lib/inngest/emit.ts:5–25`)*.
 
 <Tip>
 In production with Inngest Cloud configured, the inline fallback should rarely
 trigger. If you see the *"Inngest unavailable"* warnings in logs, check that the
-serve endpoint is synced and the `INNGEST_*` keys are correct — the inline path is
+serve endpoint is synced and the `INNGEST_*` keys are correct - the inline path is
 capped and not a substitute for the queue at scale.
 </Tip>
 
 ## Monitoring
 
-- **PostHog** — wired up server-side (`posthog-node`) and client-side (`posthog-js`),
-  but currently **dormant**: only user identify/reset is live — there is no
+- **PostHog** - wired up server-side (`posthog-node`) and client-side (`posthog-js`),
+  but currently **dormant**: only user identify/reset is live - there is no
   `posthog.init()` or `posthog.capture()` in the codebase yet, so no product events are
   captured (see [Logging](/backend/logging#posthog-analytics)). Browser traffic still routes through the
   first-party `/ingest` rewrite ([see Vercel](/deployment/vercel#the-posthog-ingest-rewrite));
   configure with `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST`.
   See [Logging & analytics](/backend/logging).
-- **API cost tracking** — external-API spend is recorded in `api_cost_events`
+- **API cost tracking** - external-API spend is recorded in `api_cost_events`
   (migration `drizzle/0041_api_cost_events.sql`) and surfaced in the superadmin
   **Cost** panel; the DataForSEO daily budget cap reads from the same accounting.
-- **Superadmin panel** — orgs, users, usage, billing, cost, and an audit log at
+- **Superadmin panel** - orgs, users, usage, billing, cost, and an audit log at
   `superadmin.<your-domain>`, gated by a dedicated credential set and optional IP
   allowlist. See [Middleware](/backend/middleware) and [Logging](/backend/logging).
-- **Inngest dashboard** — per-run logs, retries, and failures for every job; the
+- **Inngest dashboard** - per-run logs, retries, and failures for every job; the
   first place to look when a scheduled task didn't happen.
 
 ## Scaling
@@ -168,12 +168,12 @@ capped and not a substitute for the queue at scale.
   `maxDuration` to `800` only after upgrading the Vercel project to Pro.
 - **Per-workspace fan-out** spreads weekly load across the hours of the week instead
   of stampeding one global cron tick *(`fns/dispatcher.ts`)*.
-- **DataForSEO spend** is the main external cost lever — use
+- **DataForSEO spend** is the main external cost lever - use
   `DATAFORSEO_DAILY_BUDGET_USD` as a hard daily cap.
 - **One sharp version** must stay pinned for the native bundle to keep working at
-  build time — see the [sharp/libvips gotcha](/deployment/vercel#the-sharp-libvips-file-tracing-gotcha).
+  build time - see the [sharp/libvips gotcha](/deployment/vercel#the-sharp-libvips-file-tracing-gotcha).
 - **PDF rendering** is offloaded to the external Gotenberg container, so report
-  generation does not consume Vercel function CPU for headless Chrome — scale
+  generation does not consume Vercel function CPU for headless Chrome - scale
   Gotenberg (Railway) independently. See [PDF engine](/backend/pdf-engine).
 
 ## Related

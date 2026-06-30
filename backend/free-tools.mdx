@@ -1,6 +1,6 @@
 ---
 title: "Free Tools"
-description: "Spyro's five public, no-auth SEO/GEO tools — their shared architecture, the engine isolation boundary, async job store, SSRF + rate-limit guards, report persistence, email capture, and PDF export."
+description: "Spyro's five public, no-auth SEO/GEO tools - their shared architecture, the engine isolation boundary, async job store, SSRF + rate-limit guards, report persistence, email capture, and PDF export."
 ---
 
 Spyro ships **five public tools** on the marketing site. They need no account,
@@ -17,7 +17,7 @@ deliberately **isolated** from the authed app: you can delete
 | **Meta & Snippet Preview** | `/free-tools/meta-snippet-preview` | Pixel-accurate SERP preview + title/description scoring |
 
 The five public pages are listed in `app/(marketing)/free-tools/page.tsx`. None
-of the free-tool API routes call `getCurrentUser()` or `requireAccess()` — they
+of the free-tool API routes call `getCurrentUser()` or `requireAccess()` - they
 are genuinely public. See also [Marketing site](/frontend/marketing-site).
 
 ## The isolation boundary
@@ -35,7 +35,7 @@ export { runGeoChecks, geoChecksToIssues } from "@/lib/geo/checks";
 export { buildPageReports } from "@/lib/audit/pages";
 ```
 
-It is a **pure re-export — no logic, no forking** (`engine.ts:19-21`). The point
+It is a **pure re-export - no logic, no forking** (`engine.ts:19-21`). The point
 is that free-tool output and paid output stay byte-for-byte identical (same
 engine), and a developer changing a core engine has exactly one integration
 point to audit. The `shared/` folder also re-exports the `db` client and the
@@ -45,7 +45,7 @@ free-tool tables (`shared/db.ts`) and `normalizeDomainInput` (`shared/normalize.
 
 The four **crawl-based** tools (audit, AI visibility, AI crawler, schema) follow
 one request pattern because a real crawl can outlive a serverless response. The
-**Meta & Snippet Preview** is the exception — it is synchronous.
+**Meta & Snippet Preview** is the exception - it is synchronous.
 
 ### The async job pattern
 
@@ -76,7 +76,7 @@ The browser polls the `GET` route (`?domain=…`) every 2.5s until the report is
 </Steps>
 
 <Note>
-These tools do **not** use Inngest — they use the Next.js `after()` callback to
+These tools do **not** use Inngest - they use the Next.js `after()` callback to
 keep work alive after the 202 response (e.g.
 `app/api/ai-crawler-check/route.ts:72`). The shared
 [background jobs](/backend/background-jobs) system is for the authed app.
@@ -93,7 +93,7 @@ Both guards are mandatory on every free-tool fetch and are documented in full on
 the [Security](/backend/security) page:
 
 - `assertPublicUrl` (`lib/free-tools/shared/ssrf.ts`) blocks private IPs,
-  localhost, cloud-metadata, non-default ports, and DNS-rebinding — injected as
+  localhost, cloud-metadata, non-default ports, and DNS-rebinding - injected as
   the crawler's `validateUrl`.
 - `rateLimit` (`lib/free-tools/shared/rate-limit.ts`) is a per-IP sliding window;
   per-route limits are tabulated in [Security → rate limiting](/backend/security#free-tool-sliding-window).
@@ -118,10 +118,10 @@ PDF/email capture wired end to end.
 
 Crawls up to 20 pages plus probes ~21 common paths (`about`, `faq`, …) for
 existence (`run.ts:18-67`), then scores **citation readiness** across 6 weighted
-categories — citation readiness, entity clarity, content coverage, GEO
+categories - citation readiness, entity clarity, content coverage, GEO
 readiness, knowledge signals, citation authority
 (`ai-visibility/types.ts:25-32`). **Output:** `AiVisibilityReport` (v2). No LLM
-calls — scoring is deterministic. Persists to **`free_tool_reports`** under tool
+calls - scoring is deterministic. Persists to **`free_tool_reports`** under tool
 key `ai-visibility`.
 </Accordion>
 
@@ -130,8 +130,8 @@ key `ai-visibility`.
 
 Fetches `robots.txt` (with retries), the homepage, the sitemap, and `llms.txt`,
 and live-probes answer-engine bot user-agents (`run.ts:107-166`). Scores 3
-categories — answer-engine access (0.5), robots config (0.25), content discovery
-(0.25) — and **generates a copy-paste recommended `robots.txt`**
+categories - answer-engine access (0.5), robots config (0.25), content discovery
+(0.25) - and **generates a copy-paste recommended `robots.txt`**
 (`scoring.ts:261-269`). **Output:** `AiCrawlerReport` (v1). Persists to
 **`free_tool_reports`** under tool key `ai-crawler`.
 </Accordion>
@@ -140,19 +140,19 @@ categories — answer-engine access (0.5), robots config (0.25), content discove
 **Route:** `POST/GET /api/schema-validator`
 
 Crawls up to 20 pages, extracts and validates JSON-LD/microdata/RDFa, and scores
-6 categories — availability, validity, completeness, presence coverage, rich
+6 categories - availability, validity, completeness, presence coverage, rich
 results, connectivity (`schema-validator/types.ts:35-42`). **Output:**
 `SchemaReport` (v1) with a per-page `SchemaSummary`. Persists to
 **`free_tool_reports`** under tool key `schema`.
 </Accordion>
 
 <Accordion title="Meta & Snippet Preview (meta-snippet)">
-**Route:** `POST /api/meta-snippet/extract` (synchronous — no job store)
+**Route:** `POST /api/meta-snippet/extract` (synchronous - no job store)
 
 The only **non-crawl** tool. `extract` server-side fetches up to 3 URLs
 (`route.ts:11`), parses `title`/`description`/`og:*`/`canonical`/`favicon` with
 cheerio, and returns `ExtractResult[]`. **All scoring is client-side and
-zero-token** (`lib/free-tools/meta-snippet/scoring.ts`) — pixel-accurate field
+zero-token** (`lib/free-tools/meta-snippet/scoring.ts`) - pixel-accurate field
 status, a 0–100 score, and rule-based CTR recommendations, with **no
 persistence**. The folder has no `run.ts` or `store.ts`, by design. It still has
 a Gotenberg PDF (`/api/meta-snippet/pdf`), but because nothing is stored the
@@ -162,17 +162,17 @@ route takes the snippet state from the **query string** rather than a DB row.
 
 ## Persistence: a three-way split
 
-This is the part most likely to trip you up — the five tools do **not** persist
+This is the part most likely to trip you up - the five tools do **not** persist
 uniformly:
 
 | Tools | Table | Migration |
 | --- | --- | --- |
 | AI Visibility, AI Crawler, Schema Validator | `free_tool_reports` (one row per `tool` + `domain`) | `drizzle/0058_free_tool_reports.sql` |
 | SEO & GEO Audit | `free_audit_reports` + `free_audit_subscribers` | in `lib/db/schema.ts` |
-| Meta & Snippet Preview | *none* | — |
+| Meta & Snippet Preview | *none* | - |
 
 The shared `free_tool_reports` table replaces per-tool in-memory maps so jobs
-survive serverless restarts. It is **server-only, no RLS** — it holds no
+survive serverless restarts. It is **server-only, no RLS** - it holds no
 user-scoped data:
 
 ```sql
@@ -217,12 +217,12 @@ return NextResponse.json({ ok: true });
 So a captured lead is: **(1)** stored in `free_audit_subscribers`
 (`onConflictDoNothing`), **(2)** synced to **MailerLite** when
 `MAILERLITE_API_KEY` is set, and **(3)** emailed to `support@spyro.app` via
-`sendEmail` (Resend). Both side-effects are fire-and-forget — a failure never
+`sendEmail` (Resend). Both side-effects are fire-and-forget - a failure never
 blocks the response.
 
 <Warning>
 The route's own docstring says *"Store-only; no email is sent yet (spec §7)"*
-(`subscribe/route.ts:20-23`) — that comment is **stale**. The code does send the
+(`subscribe/route.ts:20-23`) - that comment is **stale**. The code does send the
 MailerLite sync and the `support@spyro.app` team notification. Trust the code.
 </Warning>
 
@@ -230,7 +230,7 @@ MailerLite sync and the `support@spyro.app` team notification. Trust the code.
 
 **All five tools** expose `GET /api/<tool>/pdf` (the meta-snippet route is
 `/api/meta-snippet/pdf`). Each renders its public report page with the
-**external Gotenberg service** (real Chromium) — a different path from the authed
+**external Gotenberg service** (real Chromium) - a different path from the authed
 audit's react-pdf export. The four crawl-based tools render from their stored
 report row; **meta-snippet has no DB row, so its PDF route passes the snippet
 state entirely via query string** to its `/meta-snippet-report` render page and
@@ -261,9 +261,9 @@ flowchart TD
 
 ## Related
 
-- [PDF engine](/backend/pdf-engine) — the Gotenberg path these reports use.
-- [Security](/backend/security) — SSRF guard and rate limits in full.
-- [Crawler](/backend/crawler) / [SEO engine](/backend/seo-engine) / [GEO engine](/backend/geo-engine) — the engines behind the scores.
-- [Database](/backend/database) — `free_tool_reports`, `free_audit_reports`, subscribers.
-- [Marketing site](/frontend/marketing-site) — where the tool pages live.
-- [Background jobs](/backend/background-jobs) — why these use `after()`, not Inngest.
+- [PDF engine](/backend/pdf-engine) - the Gotenberg path these reports use.
+- [Security](/backend/security) - SSRF guard and rate limits in full.
+- [Crawler](/backend/crawler) / [SEO engine](/backend/seo-engine) / [GEO engine](/backend/geo-engine) - the engines behind the scores.
+- [Database](/backend/database) - `free_tool_reports`, `free_audit_reports`, subscribers.
+- [Marketing site](/frontend/marketing-site) - where the tool pages live.
+- [Background jobs](/backend/background-jobs) - why these use `after()`, not Inngest.

@@ -9,11 +9,11 @@ Spyro is one Next.js application, but it is layered deliberately. This page is t
 
 From top to bottom:
 
-1. **Frontend (App Router, RSC)** — pages and layouts are React Server Components by default. Client components (`"use client"`) are used only where interactivity is required. The UI mutates data through **server actions** and reads through RSC or **route handlers**.
-2. **Server actions + route handlers** — `lib/actions/*` are the typed mutation entry points called from forms and buttons; `app/api/*` route handlers serve webhooks, OAuth callbacks, streaming endpoints, the public API, and PDF/report generation.
-3. **`lib/` service layer** — all business logic. It wraps every external vendor behind an interface (`lib/serp`, `lib/llm`, `lib/engines`) so feature code is vendor-agnostic, and holds the domain engines (`lib/seo`, `lib/geo`, `lib/crawler`, `lib/audit`, `lib/writer`, `lib/billing`, …).
-4. **Data — Drizzle + Supabase Postgres + RLS** — the server connection uses Drizzle over `postgres-js` and connects as the service role (`lib/db/index.ts`). Postgres RLS (`drizzle/rls.sql`) scopes user-session access by **org/workspace membership** via the `org_role()` / `has_workspace_access()` security-definer helpers (not simple `user_id = auth.uid()` ownership).
-5. **Background jobs — Inngest** — anything slow runs as an Inngest function (`lib/inngest/fns/*`). Request handlers enqueue an event and return immediately.
+1. **Frontend (App Router, RSC)** - pages and layouts are React Server Components by default. Client components (`"use client"`) are used only where interactivity is required. The UI mutates data through **server actions** and reads through RSC or **route handlers**.
+2. **Server actions + route handlers** - `lib/actions/*` are the typed mutation entry points called from forms and buttons; `app/api/*` route handlers serve webhooks, OAuth callbacks, streaming endpoints, the public API, and PDF/report generation.
+3. **`lib/` service layer** - all business logic. It wraps every external vendor behind an interface (`lib/serp`, `lib/llm`, `lib/engines`) so feature code is vendor-agnostic, and holds the domain engines (`lib/seo`, `lib/geo`, `lib/crawler`, `lib/audit`, `lib/writer`, `lib/billing`, …).
+4. **Data - Drizzle + Supabase Postgres + RLS** - the server connection uses Drizzle over `postgres-js` and connects as the service role (`lib/db/index.ts`). Postgres RLS (`drizzle/rls.sql`) scopes user-session access by **org/workspace membership** via the `org_role()` / `has_workspace_access()` security-definer helpers (not simple `user_id = auth.uid()` ownership).
+5. **Background jobs - Inngest** - anything slow runs as an Inngest function (`lib/inngest/fns/*`). Request handlers enqueue an event and return immediately.
 
 ### Overall system architecture
 
@@ -25,7 +25,7 @@ flowchart TD
   end
 
   subgraph EdgeRuntime["Edge"]
-    PROXY["proxy.ts — Supabase auth check + superadmin IP gate"]
+    PROXY["proxy.ts - Supabase auth check + superadmin IP gate"]
   end
 
   subgraph NextApp["Next.js App Router"]
@@ -84,7 +84,7 @@ There are three distinct abstraction families, and they solve different problems
 
 | Abstraction | Entry point | What it wraps | Missing-key behavior |
 | --- | --- | --- | --- |
-| SERP / keyword data | `getSerpProvider()` (`lib/serp/index.ts:20`) | DataForSEO (the only impl) | **Throws** — no mock, so failures are visible |
+| SERP / keyword data | `getSerpProvider()` (`lib/serp/index.ts:20`) | DataForSEO (the only impl) | **Throws** - no mock, so failures are visible |
 | Internal LLM | `getLLM()` (`lib/llm/index.ts:19`) | OpenRouter → OpenAI → Gemini, in that order | **Throws** when none configured |
 | Citation-target engines | `getEngine()` / `allEngineImpls()` (`lib/engines/index.ts`) | The AIs Spyro *queries* (ChatGPT, Claude, Perplexity, Gemini, Google AI Overview) | Engine omitted when its key is absent |
 
@@ -116,7 +116,7 @@ export function getLLM(): LLMProvider {
 
 ## Request lifecycle
 
-Every non-static request passes through `proxy.ts` first — Spyro's edge middleware. (In Next.js 16 the middleware file is named `proxy.ts`, not `middleware.ts`.) It does three jobs: gate the superadmin panel by IP, rewrite the `superadmin.<domain>` subdomain onto the internal `/superadmin/*` segment, and refresh the Supabase session, redirecting unauthenticated users away from private paths.
+Every non-static request passes through `proxy.ts` first - Spyro's edge middleware. (In Next.js 16 the middleware file is named `proxy.ts`, not `middleware.ts`.) It does three jobs: gate the superadmin panel by IP, rewrite the `superadmin.<domain>` subdomain onto the internal `/superadmin/*` segment, and refresh the Supabase session, redirecting unauthenticated users away from private paths.
 
 ```mermaid
 sequenceDiagram
@@ -152,7 +152,7 @@ See [Middleware](/backend/middleware) for the full breakdown and [Authentication
 
 ## Background jobs
 
-Long work — site crawls, scheduled rank / citation / AI-overview checks, blog generation, and the weekly digest — never runs inside a request handler. Instead the handler **enqueues an Inngest event** and returns; the UI then **polls a status row** in Postgres for progress. The Inngest client is created once (`lib/inngest/client.ts`, app id `"spyro"`) and every function is registered at the serve endpoint `app/api/inngest/route.ts`.
+Long work - site crawls, scheduled rank / citation / AI-overview checks, blog generation, and the weekly digest - never runs inside a request handler. Instead the handler **enqueues an Inngest event** and returns; the UI then **polls a status row** in Postgres for progress. The Inngest client is created once (`lib/inngest/client.ts`, app id `"spyro"`) and every function is registered at the serve endpoint `app/api/inngest/route.ts`.
 
 ```mermaid
 sequenceDiagram
@@ -182,9 +182,9 @@ Each Inngest function splits its work into one `step.run` per phase so no single
 
 Spyro's tenancy is a three-level hierarchy, verified from `lib/db/schema.ts`:
 
-- **`profiles`** — identity only. `id` equals `auth.users.id`; created by the signup trigger in `drizzle/rls.sql` (`lib/db/schema.ts:64`).
-- **`organizations`** — the tenancy and billing root. Holds `ownerUserId`, the `plan` (`growth` / `pro` / `agency`), Dodo billing ids, trial state, and credit balance. Billing moved here from `profiles` in migration `0006` / `0007` (`lib/db/schema.ts:73`).
-- **`workspaces`** — exactly one website each (1:1). Carries `userId` and a nullable `orgId`, plus the site's SEO/GEO scores, brand/tone profiles, and onboarding state. Plan caps the count: Growth/Pro = 1, Agency = many (`lib/db/schema.ts:159`).
+- **`profiles`** - identity only. `id` equals `auth.users.id`; created by the signup trigger in `drizzle/rls.sql` (`lib/db/schema.ts:64`).
+- **`organizations`** - the tenancy and billing root. Holds `ownerUserId`, the `plan` (`growth` / `pro` / `agency`), Dodo billing ids, trial state, and credit balance. Billing moved here from `profiles` in migration `0006` / `0007` (`lib/db/schema.ts:73`).
+- **`workspaces`** - exactly one website each (1:1). Carries `userId` and a nullable `orgId`, plus the site's SEO/GEO scores, brand/tone profiles, and onboarding state. Plan caps the count: Growth/Pro = 1, Agency = many (`lib/db/schema.ts:159`).
 
 Membership and roles are separate join tables: `organization_members` (roles `owner` / `admin` / `manager` / `member`) and `workspace_members` (roles `admin` / `member`), each with a unique `(scope, user)` index (`lib/db/schema.ts:101` and `:117`). Invites are tokenized in `organization_invites`.
 
@@ -231,8 +231,8 @@ erDiagram
 
 Two enforcement layers protect tenant data:
 
-1. **`user_id` on every data row** — every user-owned table carries `user_id` (and usually a workspace id), so queries scope by owner.
-2. **Postgres RLS** — `drizzle/rls.sql` (plus `rls_site_chunks.sql`) enables **membership-driven** policies via the `has_workspace_access()` / `org_role()` helpers as defence-in-depth for any access made with the **user's own Supabase session**. The server-side Drizzle connection runs as the **service role and bypasses RLS** (`lib/db/index.ts`), which is why it must only be imported from server code and jobs.
+1. **`user_id` on every data row** - every user-owned table carries `user_id` (and usually a workspace id), so queries scope by owner.
+2. **Postgres RLS** - `drizzle/rls.sql` (plus `rls_site_chunks.sql`) enables **membership-driven** policies via the `has_workspace_access()` / `org_role()` helpers as defence-in-depth for any access made with the **user's own Supabase session**. The server-side Drizzle connection runs as the **service role and bypasses RLS** (`lib/db/index.ts`), which is why it must only be imported from server code and jobs.
 
 The URL mirrors the hierarchy: authenticated pages live under `app/(app)/[org]/[workspace]/…`, so the org and workspace are resolved from the path. See [Authorization](/backend/authorization) and [Database](/backend/database).
 

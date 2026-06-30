@@ -6,8 +6,8 @@ description: "A folder-by-folder tour of the Spyro repository: app route groups,
 Spyro is a single Next.js App Router project. The top level splits cleanly into routes (`app/`), the service layer (`lib/`), UI (`components/`), the database (`drizzle/`), CLI tooling (`scripts/`), and static assets (`public/`). This page maps each one. For an exhaustive listing see the [folder reference](/reference/folder-reference).
 
 ```
-app/          Next.js App Router — routes, layouts, route handlers
-lib/          the service layer — all business logic + vendor abstractions
+app/          Next.js App Router - routes, layouts, route handlers
+lib/          the service layer - all business logic + vendor abstractions
 components/   React components grouped by area (ui / app / marketing / shared)
 drizzle/      generated SQL migrations + RLS policies
 scripts/      one-off CLI / inspection tools (run via tsx)
@@ -16,7 +16,7 @@ proxy.ts      edge middleware (auth + superadmin gate)
 *.config.*    next / drizzle / eslint / postcss / vitest config
 ```
 
-## `app/` — routes and route handlers
+## `app/` - routes and route handlers
 
 Routes are organized with **route groups** (parenthesized folders that don't affect the URL) and **dynamic segments** (`[org]`, `[workspace]`, `[slug]`).
 
@@ -42,7 +42,7 @@ app/
 
 The nested `[org]/[workspace]` segments are the URL form of Spyro's multi-tenancy: a path like `/(app)/acme/blog-site/audit` scopes the page to one organization and one workspace. See [Architecture](/getting-started/architecture#multi-tenancy) and [Routing](/frontend/routing).
 
-### `app/api/` — route handlers
+### `app/api/` - route handlers
 
 ```
 api/
@@ -62,40 +62,40 @@ api/
 
 The internal handlers are catalogued in [Internal APIs](/backend/apis); the `v1/` external API in [Public API](/backend/public-api).
 
-## `lib/` — the service layer
+## `lib/` - the service layer
 
 All business logic lives here. Feature code in `app/` calls into `lib/`; `lib/` calls vendors only through abstractions. Highlights:
 
 <AccordionGroup>
   <Accordion title="Vendor abstractions">
-    - `lib/serp/` — `getSerpProvider()`; DataForSEO is the only impl, no mock fallback.
-    - `lib/llm/` — `getLLM()`; OpenRouter → OpenAI → Gemini provider chain.
-    - `lib/engines/` — citation-target engines (the AIs Spyro *queries* to check citations).
-    - `lib/dataforseo/`, `lib/ahrefs/`, `lib/keyword-data/` — keyword/SERP data sources.
+    - `lib/serp/` - `getSerpProvider()`; DataForSEO is the only impl, no mock fallback.
+    - `lib/llm/` - `getLLM()`; OpenRouter → OpenAI → Gemini provider chain.
+    - `lib/engines/` - citation-target engines (the AIs Spyro *queries* to check citations).
+    - `lib/dataforseo/`, `lib/ahrefs/`, `lib/keyword-data/` - keyword/SERP data sources.
   </Accordion>
   <Accordion title="Data + auth + tenancy">
-    - `lib/db/` — Drizzle client (`index.ts`), `schema.ts` (the full schema), `retry.ts`.
-    - `lib/supabase/` — SSR + server Supabase clients.
-    - `lib/auth/`, `lib/auth-guard.ts` — session + route guarding.
-    - `lib/org.ts`, `lib/workspace.ts`, `lib/profile.ts`, `lib/plans.ts`, `lib/usage.ts` — tenancy, plans, and metering.
-    - `lib/env.ts` — typed env access + `featureFlags`.
+    - `lib/db/` - Drizzle client (`index.ts`), `schema.ts` (the full schema), `retry.ts`.
+    - `lib/supabase/` - SSR + server Supabase clients.
+    - `lib/auth/`, `lib/auth-guard.ts` - session + route guarding.
+    - `lib/org.ts`, `lib/workspace.ts`, `lib/profile.ts`, `lib/plans.ts`, `lib/usage.ts` - tenancy, plans, and metering.
+    - `lib/env.ts` - typed env access + `featureFlags`.
   </Accordion>
   <Accordion title="Engines (domain logic)">
-    - `lib/seo/` — difficulty, intent, clusters, issues, ideas, health.
-    - `lib/geo/` — AI-visibility / citation readiness scoring.
-    - `lib/crawler/`, `lib/site-intel/`, `lib/discovery/` — crawling and site intelligence.
-    - `lib/audit/` — site/page audit, CWV, bot access, AI suggestions.
-    - `lib/citations/`, `lib/competitors/`, `lib/calendar.ts` — tracking + planning.
-    - `lib/writer/`, `lib/research/`, `lib/publish/`, `lib/images/` — the content engine.
-    - `lib/embed/`, `lib/vector/`, `lib/rerank/` — RAG (embeddings + pgvector + rerank).
+    - `lib/seo/` - difficulty, intent, clusters, issues, ideas, health.
+    - `lib/geo/` - AI-visibility / citation readiness scoring.
+    - `lib/crawler/`, `lib/site-intel/`, `lib/discovery/` - crawling and site intelligence.
+    - `lib/audit/` - site/page audit, CWV, bot access, AI suggestions.
+    - `lib/citations/`, `lib/competitors/`, `lib/calendar.ts` - tracking + planning.
+    - `lib/writer/`, `lib/research/`, `lib/publish/`, `lib/images/` - the content engine.
+    - `lib/embed/`, `lib/vector/`, `lib/rerank/` - RAG (embeddings + pgvector + rerank).
   </Accordion>
   <Accordion title="Integrations + platform">
-    - `lib/inngest/` — background-job client and `fns/` (every function + cron).
-    - `lib/actions/` — Next.js **server actions** (the mutation entry points from the UI).
-    - `lib/billing/`, `lib/dodo/` — billing logic + Dodo Payments adapter.
-    - `lib/email/` (Resend), `lib/wordpress.ts`, `lib/ga4/`, `lib/gsc/` — integrations.
-    - `lib/admin/`, `lib/agent/`, `lib/free-tools/`, `lib/onboarding/`, `lib/scheduling/`, `lib/tracking/` — supporting subsystems.
-    - `lib/crypto.ts`, `lib/rate-limit.ts`, `lib/storage.ts`, `lib/utils.ts` — shared utilities.
+    - `lib/inngest/` - background-job client and `fns/` (every function + cron).
+    - `lib/actions/` - Next.js **server actions** (the mutation entry points from the UI).
+    - `lib/billing/`, `lib/dodo/` - billing logic + Dodo Payments adapter.
+    - `lib/email/` (Resend), `lib/wordpress.ts`, `lib/ga4/`, `lib/gsc/` - integrations.
+    - `lib/admin/`, `lib/agent/`, `lib/free-tools/`, `lib/onboarding/`, `lib/scheduling/`, `lib/tracking/` - supporting subsystems.
+    - `lib/crypto.ts`, `lib/rate-limit.ts`, `lib/storage.ts`, `lib/utils.ts` - shared utilities.
   </Accordion>
 </AccordionGroup>
 
@@ -105,7 +105,7 @@ All business logic lives here. Feature code in `app/` calls into `lib/`; `lib/` 
 
 The whole `lib/` tree is summarized in [Services](/backend/services).
 
-## `components/` — UI
+## `components/` - UI
 
 ```
 components/
@@ -122,7 +122,7 @@ components/
 
 See [Components](/frontend/components) and the [UI system](/frontend/ui-system).
 
-## `drizzle/` — migrations and RLS
+## `drizzle/` - migrations and RLS
 
 ```
 drizzle/
@@ -133,13 +133,13 @@ drizzle/
   cleanup_unconfirmed_signups.sql           maintenance SQL
 ```
 
-The migration filenames are a useful changelog — e.g. `0006_organizations`, `0022_dodo_payments`, `0029_org_manager_workspace_admin_roles`, `0041_api_cost_events`. The schema itself is a single source file, `lib/db/schema.ts`. Details in [Database](/backend/database).
+The migration filenames are a useful changelog - e.g. `0006_organizations`, `0022_dodo_payments`, `0029_org_manager_workspace_admin_roles`, `0041_api_cost_events`. The schema itself is a single source file, `lib/db/schema.ts`. Details in [Database](/backend/database).
 
-## `scripts/` — CLI tooling
+## `scripts/` - CLI tooling
 
 One-off tools run via `tsx` (excluded from the typecheck). Examples: `fetch-raw.ts`, `inspect-crawled-pages.ts`, `inspect-report.ts`, `query-reports.ts`, `test-crawl4ai.ts`, `test-cwv-runner.ts`, plus the migration helper `apply-funnel-migration.mjs`. The `package.json` scripts also reference `scripts/check-inngest.ts`, `scripts/send-test-emails.ts`, `scripts/write-blog.ts`, and the admin generator `scripts/setup-admin.ts`.
 
-## `public/` — static assets
+## `public/` - static assets
 
 Brand and platform logos (`logo.svg`, `chatgpt.png`, `claude-color.png`, `gemini-color.png`, `perplexity-color.png`, `google-ai-overview.svg`), integration icons, the social card `Spyro-og.avif`, `site.webmanifest`, and `theme-init.js` (early theme/no-flash script).
 

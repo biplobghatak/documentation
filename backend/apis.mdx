@@ -3,7 +3,7 @@ title: "Internal APIs"
 description: "A catalogue of Spyro's internal route handlers (app/api/*), grouped by domain, with method, auth, request, and response for each."
 ---
 
-This page catalogues the **internal** route handlers under `app/api/*` — the
+This page catalogues the **internal** route handlers under `app/api/*` - the
 endpoints Spyro's own browser app calls. They authenticate with the Supabase
 session cookie (not an API key), and the [middleware](/backend/middleware) leaves
 `/api` open so each handler enforces its own auth.
@@ -22,7 +22,7 @@ Internal handlers use one of a few patterns:
 | `getCurrentUser()` | Requires a signed-in user | `401` or `redirect("/login")` |
 | `requireAccess(orgSlug)` | Requires org membership | `403` / `404` |
 | `resolveWorkspaceForUser(workspaceId)` | Requires workspace/org access | `404` |
-| **Public** | No auth — used by marketing/free tools | per-IP rate limit |
+| **Public** | No auth - used by marketing/free tools | per-IP rate limit |
 | Webhook signature | Verifies a provider HMAC | `400` invalid signature |
 | Admin session | The `spyro_admin` cookie + TOTP | `404` (hidden) |
 
@@ -90,13 +90,13 @@ upsell window.
 
 Each cached-report tool has a sibling **PDF route** (`/api/{tool}/pdf?website=…`)
 that renders the cached report as a downloadable PDF (`404` if missing or
-expired). The exception is `GET /api/meta-snippet/pdf`, which has no cache — it
+expired). The exception is `GET /api/meta-snippet/pdf`, which has no cache - it
 generates the PDF on demand from `title`/`description`/`url` query params.
 Mechanism details live in [PDF Engine](/backend/pdf-engine).
 
 <Info>
 `POST /api/free-audit` additionally enforces a **global concurrency cap**
-(`MAX_CONCURRENT = 4`) and returns **503** when the server is busy crawling —
+(`MAX_CONCURRENT = 4`) and returns **503** when the server is busy crawling -
 protecting the shared crawl budget. None of these tools use Inngest; they run in
 `after()` with `maxDuration` of 110–300s.
 </Info>
@@ -112,15 +112,15 @@ resolves the workspace with `resolveWorkspaceForUser(workspaceId)`.
 
 | Method · Path | Purpose | Inngest? |
 | --- | --- | --- |
-| `GET /api/ga4/connect` · `GET /api/gsc/connect` | Start OAuth — redirect to Google with a signed, CSRF state cookie (600s TTL) | no |
+| `GET /api/ga4/connect` · `GET /api/gsc/connect` | Start OAuth - redirect to Google with a signed, CSRF state cookie (600s TTL) | no |
 | `GET /api/ga4/callback` · `GET /api/gsc/callback` | Validate state, exchange code for tokens, store integration, redirect to property picker | no |
 | `POST /api/ga4/select-property` · `POST /api/gsc/select-property` | Verify the chosen property against Google, store it | **yes** |
 | `POST /api/ga4/disconnect` · `POST /api/gsc/disconnect` | Best-effort revoke at Google, then delete the integration row | no |
 
 The `connect` routes return `503` when OAuth isn't configured
 (`featureFlags.ga4OauthConfigured` / `gscOauthConfigured`). The `select-property`
-routes are the only ones here that **emit Inngest events** —
-`"workspace/ga4.connected"` / `"workspace/gsc.connected"` — to trigger the
+routes are the only ones here that **emit Inngest events** -
+`"workspace/ga4.connected"` / `"workspace/gsc.connected"` - to trigger the
 on-connect data import. GSC's `select-property` also returns a `domainMismatch`
 flag. Token exchange failures surface as `502`; a property the account can't
 access is `403`.
@@ -139,16 +139,16 @@ job; `GET /api/content-plan/{workspaceId}` reports `researching` /`scheduling` /
 
 ## Billing & subscription
 
-Spyro bills through **Dodo Payments** (not Polar — the README is stale). See
+Spyro bills through **Dodo Payments** (not Polar - the README is stale). See
 [Billing](/backend/billing).
 
 | Method · Path | Purpose | Auth | Errors |
 | --- | --- | --- | --- |
 | `GET /api/checkout` | Create a Dodo checkout session and redirect to it | user | `400` bad plan/interval/sites, `404`, `500` |
 | `GET /api/portal` | Open the Dodo customer portal | user | `400` no billing account, `500` |
-| `GET /api/subscription/status` | `{ active }` — polled after checkout | user | `401` |
+| `GET /api/subscription/status` | `{ active }` - polled after checkout | user | `401` |
 | `POST /api/subscription/update` | Change plan/interval/site count in place | `requireAccess`, **owner** | `403` non-owner, `409` no sub yet, `502` Dodo error |
-| `POST /api/webhooks/dodo` | Dodo webhook — reconcile subscription state, send billing emails | **signature** | `400` invalid signature |
+| `POST /api/webhooks/dodo` | Dodo webhook - reconcile subscription state, send billing emails | **signature** | `400` invalid signature |
 
 `GET /api/checkout` takes `plan` (`pro`|`agency`), optional `interval`
 (`month`|`year`), and optional `sites`. `POST /api/subscription/update` is
@@ -158,7 +158,7 @@ Dodo metadata.
 ### The Dodo webhook
 
 `POST /api/webhooks/dodo` is authenticated by **signature verification**, not a
-session — it reads the raw body and calls `verifyDodoWebhook(req, raw)`, returning
+session - it reads the raw body and calls `verifyDodoWebhook(req, raw)`, returning
 `400` on a bad signature. It then routes on event type:
 
 | Event(s) | Effect |
@@ -194,7 +194,7 @@ is returned regardless of which factor failed.
 | `GET` · `POST` · `PUT /api/inngest` | The Inngest function server (`serve()` handler) for all background jobs |
 
 `maxDuration = 300`. Long jobs are split into `step.run()` units, each under the
-300s ceiling. This endpoint is how Inngest Cloud invokes registered functions —
+300s ceiling. This endpoint is how Inngest Cloud invokes registered functions -
 see [Background Jobs](/backend/background-jobs).
 
 ## Error-code conventions
@@ -212,9 +212,9 @@ see [Background Jobs](/backend/background-jobs).
 
 ## Related
 
-- [Public API](/backend/public-api) — the external `/api/v1` surface and API keys.
-- [Authentication](/backend/authentication) ↔ [Authorization](/backend/authorization) — the auth the handlers enforce.
-- [Background Jobs](/backend/background-jobs) — Inngest functions the routes dispatch to.
-- [Billing](/backend/billing) — checkout, portal, and the Dodo webhook.
-- [Integrations](/backend/integrations) — GA4/GSC and publishing targets.
-- [Overview](/backend/overview) — route handlers vs server actions and the request lifecycle.
+- [Public API](/backend/public-api) - the external `/api/v1` surface and API keys.
+- [Authentication](/backend/authentication) ↔ [Authorization](/backend/authorization) - the auth the handlers enforce.
+- [Background Jobs](/backend/background-jobs) - Inngest functions the routes dispatch to.
+- [Billing](/backend/billing) - checkout, portal, and the Dodo webhook.
+- [Integrations](/backend/integrations) - GA4/GSC and publishing targets.
+- [Overview](/backend/overview) - route handlers vs server actions and the request lifecycle.

@@ -1,10 +1,10 @@
 ---
 title: "Connect Spyro to WordPress and Auto-Publish Articles"
 sidebarTitle: "WordPress"
-description: "Connect Spyro to WordPress.org or WordPress.com and automatically publish GEO-optimized articles — with meta tags and schema — every day."
+description: "Connect Spyro to WordPress.org or WordPress.com and automatically publish GEO-optimized articles - with meta tags and schema - every day."
 ---
 
-Spyro integrates directly with both WordPress.org (self-hosted) and WordPress.com, so every article your content pipeline produces lands on your site without manual copy-pasting. Once connected, Spyro publishes one finished article per day at a time you choose — complete with featured image, meta title, meta description, internal links, and schema markup.
+Spyro integrates directly with both WordPress.org (self-hosted) and WordPress.com, so every article your content pipeline produces lands on your site without manual copy-pasting. Once connected, Spyro publishes one finished article per day at a time you choose - complete with featured image, meta title, meta description, internal links, and schema markup.
 
 ## What Gets Published
 
@@ -55,13 +55,13 @@ Before connecting, make sure you have the following ready:
     **WordPress.com**
     1. Click **Authorize with WordPress.com**.
     2. You'll be redirected to WordPress.com to approve Spyro's access.
-    3. Click **Approve** — you'll return to Spyro automatically.
+    3. Click **Approve** - you'll return to Spyro automatically.
   </Step>
   <Step title="Configure publishing settings">
     Set your preferences for every article Spyro publishes:
-    - **Default category** — the category applied to all auto-published posts
-    - **Default author** — the WordPress user shown as the post author
-    - **Publish time** — the daily time Spyro sends the article (based on your account timezone)
+    - **Default category** - the category applied to all auto-published posts
+    - **Default author** - the WordPress user shown as the post author
+    - **Publish time** - the daily time Spyro sends the article (based on your account timezone)
   </Step>
   <Step title="Test the connection">
     Click **Test Connection**. Spyro sends a draft post to your WordPress site and confirms the API is responding correctly. Check your WordPress **Posts → All Posts** list to see the test draft.
@@ -69,7 +69,7 @@ Before connecting, make sure you have the following ready:
 </Steps>
 
 <Note>
-  Spyro defaults to publishing articles as **drafts** when you first enable the integration. Review a few posts in WordPress before switching to **Live** publishing mode — you can change this in your WordPress integration settings at any time.
+  Spyro defaults to publishing articles as **drafts** when you first enable the integration. Review a few posts in WordPress before switching to **Live** publishing mode - you can change this in your WordPress integration settings at any time.
 </Note>
 
 ## Publishing Schedule
@@ -84,7 +84,7 @@ Spyro publishes one article per day on Autopilot. You control the time of day in
 
 <AccordionGroup>
   <Accordion title="Connection test fails for WordPress.org">
-    Confirm that your site URL includes `https://` and that the WordPress REST API is not blocked by a security plugin. Some hosts and firewall plugins (like Wordfence) can restrict REST API access — temporarily disable them to test, then add a Spyro allowlist rule.
+    Confirm that your site URL includes `https://` and that the WordPress REST API is not blocked by a security plugin. Some hosts and firewall plugins (like Wordfence) can restrict REST API access - temporarily disable them to test, then add a Spyro allowlist rule.
   </Accordion>
   <Accordion title="Application Password option is missing">
     Application Passwords require WordPress 5.6 or later and HTTPS. If you're on an older version, update WordPress first. If your host has disabled the feature, you can re-enable it by adding `add_filter('wp_is_application_passwords_available', '__return_true');` to your theme's `functions.php`.

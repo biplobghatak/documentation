@@ -35,7 +35,7 @@ const SUPABASE_KEY =
 
 The server client binds Supabase to the request cookies through the
 `@supabase/ssr` cookie adapter, and tolerates being called from a Server
-Component (where setting cookies throws) by swallowing the error — the
+Component (where setting cookies throws) by swallowing the error - the
 [middleware](/backend/middleware) refreshes the session instead
 (`lib/supabase/server.ts:11-29`):
 
@@ -52,7 +52,7 @@ return createServerClient(env.SUPABASE_URL ?? "", env.SUPABASE_ANON_KEY ?? "", {
           cookieStore.set(name, value, options),
         );
       } catch {
-        // Called from a Server Component — safe to ignore; middleware refreshes the session.
+        // Called from a Server Component - safe to ignore; middleware refreshes the session.
       }
     },
   },
@@ -77,7 +77,7 @@ combined (`lib/actions/auth.ts:32-42`), using the in-memory limiter
 (`lib/rate-limit.ts`), and supports an optional Cloudflare Turnstile captcha
 token.
 
-## Signup — a custom OTP flow
+## Signup - a custom OTP flow
 
 Spyro deliberately **never calls `supabase.auth.signUp()`**. A naive signup would
 insert an *unconfirmed* `auth.users` row before the user verifies their email,
@@ -93,7 +93,7 @@ because unverified signups create no rows (`lib/actions/auth.ts:96-103`).
 </Step>
 <Step title="Stash pending signup + email an OTP">
 It generates an 8-digit OTP and stores the email, name, password, code, and
-expiry in an encrypted cookie — **no Supabase user is created yet**
+expiry in an encrypted cookie - **no Supabase user is created yet**
 (`lib/actions/auth.ts:109-131`):
 
 ```ts
@@ -111,7 +111,7 @@ codes decrement an attempt counter (`MAX_OTP_ATTEMPTS`); too many wipes the
 pending session (`lib/actions/auth.ts:176-185`).
 </Step>
 <Step title="Create the confirmed user">
-Only after the code matches does Spyro create the user — **already confirmed** —
+Only after the code matches does Spyro create the user - **already confirmed** -
 via the service-role admin client. This is the first and only write to Supabase
 in the whole flow (`lib/actions/auth.ts:189-195`):
 
@@ -137,7 +137,7 @@ signs the user in with their password and clears the pending cookie
 the window, keeping the same pending details (`lib/actions/auth.ts:218-241`).
 </Note>
 
-## Login — password and Google OAuth
+## Login - password and Google OAuth
 
 **Password login** (`signInWithPasswordAction`, `lib/actions/auth.ts:146-150`):
 
@@ -180,10 +180,10 @@ if (code) {
 <Tip>
 The callback rebuilds the origin from forwarded headers (`originFromHeaders`) so
 recovery/OAuth redirects land on the host the user is actually on (ngrok, Vercel
-preview, or prod) — not the internal localhost origin Next sees behind a tunnel.
+preview, or prod) - not the internal localhost origin Next sees behind a tunnel.
 </Tip>
 
-## Password reset — two steps
+## Password reset - two steps
 
 1. **Request** (`requestPasswordResetAction`, `lib/actions/auth.ts:254-257`)
    calls `resetPasswordForEmail`, routing the recovery link through
@@ -222,7 +222,7 @@ membership. The function `handle_new_user()` is defined canonically in
 `drizzle/rls.sql` §9, with `drizzle/0047_gate_handle_new_user.sql` carrying the
 same definition as a standalone migration (re-running `rls.sql` is equivalent).
 
-The critical detail is the **email-confirmation gate** — it fires on
+The critical detail is the **email-confirmation gate** - it fires on
 `INSERT OR UPDATE` of `auth.users` but only acts on the `NULL → confirmed`
 transition:
 
@@ -258,7 +258,7 @@ create trigger on_auth_user_created after insert or update on auth.users
 The application-side `ensureProfile()` (`lib/profile.ts:25-37`) is an idempotent
 backstop that does the same work if the trigger hasn't run, and `createPersonalOrg()`
 (`lib/org.ts:38-71`) is the org-creation half. New orgs start **inactive**
-(`subscription_active = false`) with no local trial — the billing gate lives on
+(`subscription_active = false`) with no local trial - the billing gate lives on
 the org, set by the Dodo webhook. See [Authorization](/backend/authorization#plan--usage-gating).
 
 ## Login sequence
@@ -305,8 +305,8 @@ refresh happens in the middleware. Use `getCurrentUser()` to read, and let
 
 ## Related
 
-- [Authorization](/backend/authorization) — roles, guards, and plan gating after sign-in.
-- [Middleware](/backend/middleware) — the edge gate that protects pages and refreshes sessions.
-- [Public API](/backend/public-api) — API-key auth for external callers.
-- [Database](/backend/database) — the `profiles`, `organizations`, and membership tables.
-- [Architecture](/getting-started/architecture) — the overall request lifecycle.
+- [Authorization](/backend/authorization) - roles, guards, and plan gating after sign-in.
+- [Middleware](/backend/middleware) - the edge gate that protects pages and refreshes sessions.
+- [Public API](/backend/public-api) - API-key auth for external callers.
+- [Database](/backend/database) - the `profiles`, `organizations`, and membership tables.
+- [Architecture](/getting-started/architecture) - the overall request lifecycle.

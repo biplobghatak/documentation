@@ -9,9 +9,9 @@
 ## 2\. What we collect
 
 - **Account data:** email address, hashed password (or magic-link token), display name, account creation date, last login.
-- **Billing data:**we don't store card numbers. Dodo Payments (our Merchant of Record) collects and processes payment details and returns a customer ID, subscription ID, plan, billing interval and the country we're instructed to invoice — we store those.
+- **Billing data:**we don't store card numbers. Dodo Payments (our Merchant of Record) collects and processes payment details and returns a customer ID, subscription ID, plan, billing interval and the country we're instructed to invoice - we store those.
 - **Project data you give us:** the domains you add, keywords you research, prompts you track, sites you crawl, blog ideas, and the generated content and reports.
-- **Crawl & API outputs:**public HTML and SEO metadata we fetch from your own sites (and from the public SERP) on your behalf. We do not crawl pages behind authentication unless you give us credentials, and we don't store full page bodies — only the structured findings.
+- **Crawl & API outputs:**public HTML and SEO metadata we fetch from your own sites (and from the public SERP) on your behalf. We do not crawl pages behind authentication unless you give us credentials, and we don't store full page bodies - only the structured findings.
 - **Usage data:** feature events (which screens you opened, which jobs you ran), error/diagnostic logs, and aggregate counters used to enforce plan limits.
 - **Technical data:** IP address (truncated after 30 days), browser type, device type, referring URL. We use this for security and fraud prevention only.
 
@@ -19,10 +19,10 @@ We do **not**collect special-category personal data (health, biometric, politica
 
 ## 3\. Why we collect it (legal bases)
 
-- **Performance of contract** — to actually run keyword lookups, audits, citation checks, the AI writer and the dashboard you signed up for.
-- **Legitimate interest** — security, fraud prevention, abuse detection, debugging, and improving the Service.
-- **Legal obligation** — tax/invoicing records (kept by Dodo Payments on our behalf as Merchant of Record).
-- **Consent** — optional product-update emails. You can opt out from any email or from Settings → Account.
+- **Performance of contract** - to actually run keyword lookups, audits, citation checks, the AI writer and the dashboard you signed up for.
+- **Legitimate interest** - security, fraud prevention, abuse detection, debugging, and improving the Service.
+- **Legal obligation** - tax/invoicing records (kept by Dodo Payments on our behalf as Merchant of Record).
+- **Consent** - optional product-update emails. You can opt out from any email or from Settings → Account.
 
 ## 4\. Where your data lives (sub-processors)
 
@@ -53,7 +53,7 @@ We use a strictly-necessary cookie for authentication (your Supabase session). W
 
 ## 7\. Your rights
 
-You can: access your data, get a copy in a portable format (CSV/JSON), correct it, delete it, restrict or object to certain processing, and withdraw consent for optional emails. Most of these are one-click in Settings → Account. For anything else email [support@spyro.app](mailto:support@spyro.app) — we aim to respond within the timeframe required by applicable law.
+You can: access your data, get a copy in a portable format (CSV/JSON), correct it, delete it, restrict or object to certain processing, and withdraw consent for optional emails. Most of these are one-click in Settings → Account. For anything else email [support@spyro.app](mailto:support@spyro.app) - we aim to respond within the timeframe required by applicable law.
 
 If you're in the EEA or UK and unhappy with our response, you may complain to your local supervisory authority. If you're in India, you may complain to the Data Protection Board of India. California residents may request the categories of personal information we collect and request deletion; we do not sell personal information as defined by the CCPA.
 
@@ -67,7 +67,7 @@ Spyro is a business tool not directed at children under 16, and we don't knowing
 
 ## 10\. Changes to this policy
 
-We'll post any change on this page with a new “last updated” date. If the change is material — for example, a new sub-processor with a different purpose — we'll email account holders at least 14 days before it takes effect.
+We'll post any change on this page with a new “last updated” date. If the change is material - for example, a new sub-processor with a different purpose - we'll email account holders at least 14 days before it takes effect.
 
 ## 11\. Contact
 

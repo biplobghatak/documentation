@@ -10,7 +10,7 @@ the [SEO engine](/backend/seo-engine), [GEO engine](/backend/geo-engine),
 [Audit](/backend/audit), and RAG indexer all consume.
 
 <Note>
-  There is no Playwright in the bundle. JS rendering is opt-in and remote — see
+  There is no Playwright in the bundle. JS rendering is opt-in and remote - see
   [crawl4ai render](#fetching-and-optional-js-render) below.
 </Note>
 
@@ -67,7 +67,7 @@ Hard limits keep discovery bounded (`sitemap.ts:10-24`):
 | `MAX_INDEX_DEPTH` | 2 |
 | `DISCOVERY_DEADLINE_MS` | 25,000 |
 
-`fetchText` retries only transient failures — a `404`/`410` means "definitively
+`fetchText` retries only transient failures - a `404`/`410` means "definitively
 absent" and is not retried.
 
 ## robots.txt handling
@@ -121,7 +121,7 @@ const res = await fetch(current, {
 Fetches retry up to twice on `429`/`5xx` with exponential backoff.
 
 **JS render is optional** and only fires when `CRAWL4AI_API_URL` is set and the page
-*looks* JS-rendered — `looksJsRendered` returns true when `wordCount < 30`, or SPA
+*looks* JS-rendered - `looksJsRendered` returns true when `wordCount < 30`, or SPA
 markers (`__next`, `data-reactroot`, `__nuxt`) are present with `wordCount < 120`
 (`lib/crawler/render.ts:37`). The render is POSTed to a self-hosted crawl4ai server:
 
@@ -143,7 +143,7 @@ const res = await fetch(`${API_URL}/crawl`, {
 ```
 
 A rendered page is **only kept if it yields more words** than the Cheerio parse
-(`index.ts:552`), and the render never throws — it returns `null` on any failure.
+(`index.ts:552`), and the render never throws - it returns `null` on any failure.
 `scripts/test-crawl4ai.ts` is a standalone smoke test for this endpoint.
 
 ## Parsing with Cheerio
@@ -185,7 +185,7 @@ and skips error/empty/`wordCount < 30` pages.
 ## Concurrency and limits
 
 `p-limit` is listed as a dependency (`package.json:76`), but `crawlSite` does **not**
-use it for page crawling — that concurrency is hand-rolled with a fixed-size worker
+use it for page crawling - that concurrency is hand-rolled with a fixed-size worker
 pool. `concurrency` workers (default 1; the free-audit passes 5) pull from a shared
 queue, marking `visited` at dequeue and gating an in-flight `active` count so the pool
 never overshoots `maxPages`:
@@ -202,7 +202,7 @@ await Promise.all(Array.from({ length: concurrency }, () => worker()));
 | Queue growth cap | enqueue only while `pages + queue < maxPages * 2` |
 | Per-fetch timeout | 15s |
 | Broken-link sweep | up to `min(maxPages*3, 150)` sampled links, HEAD-then-GET via an **unbounded** `Promise.all` (`index.ts:685-692`); skipped when `checkLinks: false` |
-| Skipped paths | `SKIP_PATH_RE` — login/account/legal/cart/search/feed/sitemap |
+| Skipped paths | `SKIP_PATH_RE` - login/account/legal/cart/search/feed/sitemap |
 
 A generic `mapWithLimit<T>` helper (`index.ts:184`) provides bounded parallelism, but
 it is used by the onboarding `checkLinkStatuses` path (`index.ts:762-768`), **not** the
@@ -236,24 +236,24 @@ export async function assertPublicUrl(rawUrl: string): Promise<void> {
 
 The defenses, layered:
 
-- **Scheme allowlist** — `http`/`https` only.
+- **Scheme allowlist** - `http`/`https` only.
 - **No URL credentials**, **default ports only** (80/443).
-- **Hostname blocklist** — `localhost`, `.local`, `.internal`, `.localhost`.
+- **Hostname blocklist** - `localhost`, `.local`, `.internal`, `.localhost`.
 - **Private-range IP blocking** for both IPv4 and IPv6, including loopback,
   RFC-1918, CGNAT (`100.64.0.0/10`), link-local, and the cloud metadata address
   `169.254.169.254`.
-- **DNS rebinding defense** — resolves the host and checks **all** A/AAAA records;
+- **DNS rebinding defense** - resolves the host and checks **all** A/AAAA records;
   per-hop re-validation bounds the TOCTOU window.
 
 `normalizeDomainInput` (`lib/url/normalize-domain.ts`) does shape-level filtering
 only (rejects `localhost`, IPv6, ports) and defers the real IP/DNS check to
 `assertPublicUrl`. See [Security](/backend/security) for the broader picture.
 
-## site-intel — off-domain intelligence
+## site-intel - off-domain intelligence
 
 `lib/site-intel/*` is a sibling, not part of page crawling. It provides
-**off-domain competitive intelligence** — backlinks, domain authority, the keywords
-a domain ranks for, and its SERP competitors — behind a vendor-agnostic
+**off-domain competitive intelligence** - backlinks, domain authority, the keywords
+a domain ranks for, and its SERP competitors - behind a vendor-agnostic
 `SiteIntelProvider` seam. It uses DataForSEO when credentials exist, else a
 deterministic keyless mock (`lib/site-intel/index.ts:15`):
 
@@ -267,14 +267,14 @@ _provider = env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD
 competitor domains (filtered against a ~90-entry mega-site blocklist so the results
 aren't flooded with YouTube/Reddit), and Ahrefs DR, then writes one
 `workspaceIntelSnapshots` row and warms the keyword cache. It does **no** tech-stack
-detection and never fetches the target's own pages — that is the crawler's job.
+detection and never fetches the target's own pages - that is the crawler's job.
 
 ## Related
 
-- [SEO Engine](/backend/seo-engine) — consumes `CrawledPage` for issue detection
-- [GEO Engine](/backend/geo-engine) — reads JSON-LD, `sameAs`, headings, `needsJsRender`
-- [Audit](/backend/audit) — drives `crawlSite` and stores pages/issues
-- [AI Engine](/backend/ai) — RAG indexer chunks + embeds crawled pages
-- [Free Tools](/backend/free-tools) — the public, SSRF-guarded crawl path
-- [Background Jobs](/backend/background-jobs) — the onboarding + intel crawls
-- [Security](/backend/security) — SSRF, validation, and the public-tool perimeter
+- [SEO Engine](/backend/seo-engine) - consumes `CrawledPage` for issue detection
+- [GEO Engine](/backend/geo-engine) - reads JSON-LD, `sameAs`, headings, `needsJsRender`
+- [Audit](/backend/audit) - drives `crawlSite` and stores pages/issues
+- [AI Engine](/backend/ai) - RAG indexer chunks + embeds crawled pages
+- [Free Tools](/backend/free-tools) - the public, SSRF-guarded crawl path
+- [Background Jobs](/backend/background-jobs) - the onboarding + intel crawls
+- [Security](/backend/security) - SSRF, validation, and the public-tool perimeter

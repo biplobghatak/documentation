@@ -1,6 +1,6 @@
 ---
 title: "Background Jobs"
-description: "Spyro's Inngest job system — the client and serve route, all 41 registered functions (cron vs event), the per-workspace dispatchers, the enqueue-and-poll pattern, and the inline fallback when Inngest is unreachable."
+description: "Spyro's Inngest job system - the client and serve route, all 41 registered functions (cron vs event), the per-workspace dispatchers, the enqueue-and-poll pattern, and the inline fallback when Inngest is unreachable."
 ---
 
 Anything slow, retryable, or scheduled runs as an **[Inngest](https://www.inngest.com)
@@ -25,7 +25,7 @@ flowchart LR
 
 ## The client
 
-The Inngest client carries **no secrets in code** — only an app id. Event keys, signing keys,
+The Inngest client carries **no secrets in code** - only an app id. Event keys, signing keys,
 and the base URL come from Inngest's own env vars (or dev mode):
 
 ```ts
@@ -35,7 +35,7 @@ import { Inngest } from "inngest";
 /**
  * Inngest client. Events are loosely typed here; each function casts
  * `event.data` to the shape it expects. Long-running work (crawls, citation
- * checks, rank checks, blog generation, digests) runs as Inngest functions —
+ * checks, rank checks, blog generation, digests) runs as Inngest functions -
  * never inside request handlers.
  */
 export const inngest = new Inngest({ id: "spyro" });
@@ -43,7 +43,7 @@ export const inngest = new Inngest({ id: "spyro" });
 
 The rest of `client.ts` (lines 11-158) is just TypeScript payload interfaces
 (`AuditRequestedData`, `WriterGenerateRequestedData`, `BlogPlanRequestedData`, …) used by
-callers and handler casts — events are intentionally loosely typed.
+callers and handler casts - events are intentionally loosely typed.
 
 ## The serve route
 
@@ -62,7 +62,7 @@ export const { GET, POST, PUT } = serve({ client: inngest, functions });
 
 `maxDuration = 300` caps each served step at 300s, so long jobs are split one `step.run` per
 phase, and each phase becomes its own sub-300s invocation. "Registering crons" simply means
-syncing this `/api/inngest` endpoint with Inngest Cloud — there is **no Vercel cron array**;
+syncing this `/api/inngest` endpoint with Inngest Cloud - there is **no Vercel cron array**;
 all schedules are Inngest `cron:` triggers on the functions below.
 
 ## Emitting events
@@ -73,8 +73,8 @@ Events are emitted two ways:
 - **Durably** with `step.sendEvent(...)` for fan-out inside a handler (dispatchers, plan
   refill, URL checks).
 
-`lib/inngest/emit.ts` holds two fire-and-forget helpers — `emitKnowledgeChanged()` and
-`emitInitialInsightsRequested()` — that wrap the send in try/catch and **swallow failures**.
+`lib/inngest/emit.ts` holds two fire-and-forget helpers - `emitKnowledgeChanged()` and
+`emitInitialInsightsRequested()` - that wrap the send in try/catch and **swallow failures**.
 A dropped emit is acceptable here because the daily `knowledge-sweep` cron re-indexes any
 delta the emit missed:
 
@@ -145,7 +145,7 @@ There are **41** functions across `lib/inngest/fns/*` (several files export more
   Apart from `plan-refill` (`0 7 * * 1`) and `competitor-gap-analysis` (`0 3 * * 1`), there
   are **no fixed weekly UTC crons left**. Every "weekly" job is actually an hourly cron
   *dispatcher* that fans out to per-workspace event consumers, gated on each workspace's local
-  timezone — see below.
+  timezone - see below.
 </Note>
 
 ## Per-workspace dispatchers
@@ -163,24 +163,24 @@ builds each dispatcher with id `${jobKey}-dispatch` and a `{ cron: "0 * * * *" }
    run per workspace per ISO week (`dispatcher.ts:35-44`).
 
 Five weekly dispatchers are instantiated from the factory (`dispatcher.ts:56-60`): site-intel,
-citations, tracking, audit, and digest. Two more — `gscImportDispatcher` and
-`ga4ImportDispatcher` — are hand-written (also `0 * * * *`) but use a **due-based gate**
+citations, tracking, audit, and digest. Two more - `gscImportDispatcher` and
+`ga4ImportDispatcher` - are hand-written (also `0 * * * *`) but use a **due-based gate**
 instead of a fixed clock time: for each connected integration they check
 `isDueForRefresh(meta.lastImportedAt, now)` (≥~23h old) with an hourly idempotency bucket, so
 each connection self-paces to roughly once a day with a drifting fire time
 (`dispatcher.ts:62-135`).
 
-## Scheduling helpers — `lib/scheduling`
+## Scheduling helpers - `lib/scheduling`
 
 The dispatchers' timezone math is a dependency-free module (`Intl` only):
 
 - **`JOB_SCHEDULE`** (`job-schedule.ts:21-27`) maps each weekly job key to a `{ dayOfWeek,
-  hour }` **local** fire time — all on Monday: citations 0:00, site-intel 1:00, tracking 2:00,
+  hour }` **local** fire time - all on Monday: citations 0:00, site-intel 1:00, tracking 2:00,
   audit 4:00, digest 13:00.
 - **`isLocalFireHour(tz, fire, now)`** (`:84-87`) projects `now` into the workspace tz and
-  returns whether it matches the job's day+hour — the dispatcher's due-gate.
+  returns whether it matches the job's day+hour - the dispatcher's due-gate.
 - **`nextLocalFire(tz, fire, now)`** (`:94-107`) computes the next matching UTC instant
-  (iterating hour-by-hour, ≤192 iterations) — used to render "Next run: …" labels.
+  (iterating hour-by-hour, ≤192 iterations) - used to render "Next run: …" labels.
 - **`isDueForRefresh(lastImportedAt, now, minHours = 23)`** (`:39-48`) gates the GA4/GSC daily
   dispatchers; `REFRESH_MIN_HOURS = 23` (`:35`).
 
@@ -193,7 +193,7 @@ which calls this gate per idea.
 ## Enqueue-and-poll and the inline fallback
 
 User-facing long jobs use an **enqueue-and-poll** pattern so the request returns instantly.
-`enqueueArticleWrite()` (`lib/writer/enqueue.ts:42-152`) is the canonical example — the Ideas
+`enqueueArticleWrite()` (`lib/writer/enqueue.ts:42-152`) is the canonical example - the Ideas
 page, the writer form, and the chat agent all funnel through it:
 
 1. Insert a `blog_posts` row with `status: "queued"` and return its id **immediately**
@@ -203,7 +203,7 @@ page, the writer form, and the chat agent all funnel through it:
 3. The writer UI then **polls** `blog_posts.status` / `step_status` until the function
    transitions it to `done` or `error`.
 
-If `inngest.send` throws — typically local dev or a demo with no Inngest reachable — the
+If `inngest.send` throws - typically local dev or a demo with no Inngest reachable - the
 `catch` runs the entire writer **synchronously, in-process**, so the feature still works
 without a job runner:
 
@@ -218,20 +218,20 @@ without a job runner:
 
 The inline branch (`:81-149`) classifies, researches, writes, persists the finished
 `blog_posts` row (`status: "done"`, markdown, meta, SEO score), and meters usage with
-`addUsage(args.userId, "blogs", 1)` — exactly what the Inngest function would have done. On
+`addUsage(args.userId, "blogs", 1)` - exactly what the Inngest function would have done. On
 error it sets `status: "error"` with the message (`:144-149`). Either way it returns
 `post.id` (`:151`).
 
 The same fallback shape exists for **URL checks**: `performUrlCheck` is shared by the
 `tracked-url-check` Inngest function and an inline path used when Inngest isn't reachable
-(`lib/audit/url-check-run.ts`). The softer variant — swallowing a failed emit and relying on
-the daily `knowledge-sweep` cron — is used by the `emit.ts` helpers above.
+(`lib/audit/url-check-run.ts`). The softer variant - swallowing a failed emit and relying on
+the daily `knowledge-sweep` cron - is used by the `emit.ts` helpers above.
 
 ## Related
 
-- [Content Engine](/backend/content-engine) — the `article-write`, `blog-plan`, `image-pipeline`, and `topic-discovery` functions in their pipeline context
-- [SEO Engine](/backend/seo-engine) — the `audit`, `tracking`, and `competitor-signals` jobs
-- [GEO Engine](/backend/geo-engine) — the `citations` jobs
-- [Integrations](/backend/integrations) — `ga4-import`, `gsc-import`, and `integration-deliver`
-- [Billing](/backend/billing) — `trial-reminders` and `plan-refill`, and `addUsage` metering
-- [Database](/backend/database) — the tables these jobs write
+- [Content Engine](/backend/content-engine) - the `article-write`, `blog-plan`, `image-pipeline`, and `topic-discovery` functions in their pipeline context
+- [SEO Engine](/backend/seo-engine) - the `audit`, `tracking`, and `competitor-signals` jobs
+- [GEO Engine](/backend/geo-engine) - the `citations` jobs
+- [Integrations](/backend/integrations) - `ga4-import`, `gsc-import`, and `integration-deliver`
+- [Billing](/backend/billing) - `trial-reminders` and `plan-refill`, and `addUsage` metering
+- [Database](/backend/database) - the tables these jobs write

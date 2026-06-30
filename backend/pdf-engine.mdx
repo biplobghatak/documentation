@@ -1,6 +1,6 @@
 ---
 title: "PDF Engine"
-description: "How Spyro turns reports into downloadable PDFs — an external Gotenberg service renders the shared branded report (free tools + the in-app audit), with react-pdf as a legacy fallback for older audits."
+description: "How Spyro turns reports into downloadable PDFs - an external Gotenberg service renders the shared branded report (free tools + the in-app audit), with react-pdf as a legacy fallback for older audits."
 ---
 
 Spyro generates PDFs through **two render mechanisms**, chosen per report:
@@ -19,7 +19,7 @@ column existed.
 
 <Note>
 There is **no Chromium binary in the Vercel bundle**. The old
-`puppeteer-core`/`@sparticuz/chromium` approach was removed — PDFs are rendered
+`puppeteer-core`/`@sparticuz/chromium` approach was removed - PDFs are rendered
 by the external Gotenberg service instead. See the comment in
 `next.config.ts:34-36`.
 </Note>
@@ -30,7 +30,7 @@ Both the [free tools](/backend/free-tools) and modern audits produce full
 HTML/CSS report pages, not react-pdf trees. To turn one into a pixel-perfect
 PDF, Spyro renders it with **real Chromium** running in an external
 [Gotenberg](https://gotenberg.dev) container (self-hosted on Railway). The Vercel
-function never touches a browser binary — it just calls Gotenberg over HTTP.
+function never touches a browser binary - it just calls Gotenberg over HTTP.
 
 ### The render helper
 
@@ -70,7 +70,7 @@ res = await fetch(`${GOTENBERG_URL}/forms/chromium/convert/url`, {
 ```
 
 <Warning>
-Gotenberg fetches the report page **itself**, over the public internet — it
+Gotenberg fetches the report page **itself**, over the public internet - it
 cannot reach `localhost`. The origin it fetches is resolved by
 `resolveReportOrigin` (`browser.ts:42-59`), which tries, in order:
 `GOTENBERG_REPORT_ORIGIN` → `NEXT_PUBLIC_APP_URL` →
@@ -96,14 +96,14 @@ See [Environment variables](/reference/environment-variables) for the full list.
 ### The shared report document
 
 Both render pages delegate their entire layout to one component,
-`components/audit/audit-report-document.tsx` — `AuditReportDocument`. It is a
+`components/audit/audit-report-document.tsx` - `AuditReportDocument`. It is a
 branded, print-ready Tailwind document (Lato headings + Inter body, the site's
 own fonts; brand `#ea580c`; CSS `conic-gradient` score gauges and `@media print`
-rules). Every value is read straight from the `report` prop — **nothing is
+rules). Every value is read straight from the `report` prop - **nothing is
 recomputed in the document** (`audit-report-document.tsx:17-29`):
 
 ```tsx
-// components/audit/audit-report-document.tsx — one document, two variants
+// components/audit/audit-report-document.tsx - one document, two variants
 export function AuditReportDocument({
   report,
   variant,           // "free" | "app"
@@ -117,24 +117,24 @@ is why the free tool and the in-app audit produce visually identical PDFs.
 ### The two render pages
 
 The HTML that Gotenberg prints is an ordinary Next.js **server component** that
-reads a stored report from the database and hands it to `AuditReportDocument` —
+reads a stored report from the database and hands it to `AuditReportDocument` -
 no re-crawl:
 
 <CardGroup cols={2}>
   <Card title="/pdf-report (free tools)" icon="globe">
-    `app/pdf-report/page.tsx` — **public**, keyed on the `?website=` domain. Reads
+    `app/pdf-report/page.tsx` - **public**, keyed on the `?website=` domain. Reads
     the cached `free_audit_reports` row via `getReportRow` + `isFresh`, then
     renders `<AuditReportDocument variant="free" />` (`pdf-report/page.tsx:14-32`).
   </Card>
   <Card title="/audit-report (in-app audit)" icon="lock">
-    `app/audit-report/page.tsx` — **token-gated**. Reads `audits.report_json` for
+    `app/audit-report/page.tsx` - **token-gated**. Reads `audits.report_json` for
     the `?auditId=`, but only after `verifyAuditPdfToken(auditId, token)` passes,
     then renders `<AuditReportDocument variant="app" />` (`audit-report/page.tsx:20-39`).
   </Card>
 </CardGroup>
 
 ```tsx
-// app/audit-report/page.tsx:25-38 — anonymous, HMAC-token-gated
+// app/audit-report/page.tsx:25-38 - anonymous, HMAC-token-gated
 const { auditId, token } = await searchParams;
 if (!auditId || !token || !verifyAuditPdfToken(auditId, token)) return notFound();
 
@@ -148,7 +148,7 @@ return <AuditReportDocument report={report} variant="app" />;
 
 <Warning>
 `/audit-report` is in `proxy.ts`'s public allowlist so Gotenberg (which has no
-user session) can fetch it — see [Middleware](/backend/middleware). It is **not**
+user session) can fetch it - see [Middleware](/backend/middleware). It is **not**
 unprotected: it requires a short-lived HMAC token that only the authenticated PDF
 route mints. Without a valid, unexpired token it 404s.
 </Warning>
@@ -164,7 +164,7 @@ on whether a V3 report was stored:
 const user = await getCurrentUser();
 if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
-// Audit scoped to this user — prevents cross-user access.
+// Audit scoped to this user - prevents cross-user access.
 const auditRow = await db.select().from(audits)
   .where(and(eq(audits.id, auditId), eq(audits.userId, user.id)))
   .limit(1).then((r) => r[0] ?? null);
@@ -186,8 +186,7 @@ if (auditRow.reportJson) {
 // else → legacy react-pdf fallback (below)
 ```
 
-So the route does the privileged work — verify the signed-in user owns the audit
-— **once**, then mints a token that lets the anonymous render page read just that
+So the route does the privileged work - verify the signed-in user owns the audit - **once**, then mints a token that lets the anonymous render page read just that
 one audit's report. The token is an HMAC over `auditId` + an expiry, compared in
 constant time (`lib/crypto.ts:78-95`):
 
@@ -204,7 +203,7 @@ export function signAuditPdfToken(auditId: string, ttlMs = PDF_TOKEN_TTL_MS): st
 For audits created **before** migration `0063` there is no `reportJson`, so the
 route falls back to the original lightweight document. It loads the issue rows
 and renders `SpyroAuditPdf` (from `lib/audit/pdf-report.tsx`) straight to a
-buffer with `renderToBuffer` — no browser, no second HTTP hop
+buffer with `renderToBuffer` - no browser, no second HTTP hop
 (`route.ts:83-117`):
 
 ```ts
@@ -266,7 +265,7 @@ passes `tool: "audit"` and `reportPath: "/audit-report"`.
 
 ### Client download
 
-In the browser, the **Download PDF** button does not `window.open` — it fetches
+In the browser, the **Download PDF** button does not `window.open` - it fetches
 the route as a blob and triggers a real file download with the right filename,
 via the shared `downloadFreeToolPdf` helper:
 
@@ -328,7 +327,7 @@ Gotenberg.
 is **not**. Its only consumer is the **content/image pipeline**:
 `lib/images/chart.ts` hand-rolls a grouped-bar SVG and rasterises it to PNG with
 `Resvg`, used by the blog in-content chart generator. Neither PDF path embeds a
-resvg chart — the shared document draws its gauges as CSS `conic-gradient` divs.
+resvg chart - the shared document draws its gauges as CSS `conic-gradient` divs.
 See [Content engine](/backend/content-engine).
 
 ## Common mistakes and tips
@@ -342,17 +341,17 @@ returns *"No public origin for the report page."*
 <Accordion title="The in-app audit export 404s the render page">
 `/audit-report` requires a valid, unexpired HMAC token minted by the PDF route
 (`signAuditPdfToken`). The token has a short TTL (`PDF_TOKEN_TTL_MS`,
-`lib/crypto.ts:78`) — if Gotenberg is slow or the clock skews past expiry, the
+`lib/crypto.ts:78`) - if Gotenberg is slow or the clock skews past expiry, the
 page 404s. The route only mints a token **after** the auth + ownership check.
 </Accordion>
 <Accordion title="The PDF is blank / fonts look wrong">
 The Gotenberg render waits `1s` (`waitDelay`) for Inter/Lato to settle
 (`browser.ts:101`). The legacy react-pdf fallback can only use the built-in
-Helvetica faces — do not reference a web font there (`pdf-report.tsx:64-73`).
+Helvetica faces - do not reference a web font there (`pdf-report.tsx:64-73`).
 </Accordion>
 <Accordion title="Changing PDF layout">
 For both the free tools and the modern audit, edit the **shared document**
-(`components/audit/audit-report-document.tsx`, real Tailwind/CSS) — that one file
+(`components/audit/audit-report-document.tsx`, real Tailwind/CSS) - that one file
 changes both PDFs. The legacy audit fallback is the separate
 `lib/audit/pdf-report.tsx` (react-pdf primitives only, no arbitrary CSS) and only
 affects pre-`0063` audits.
@@ -361,9 +360,9 @@ affects pre-`0063` audits.
 
 ## Related
 
-- [Free tools](/backend/free-tools) — the five tools whose reports become Gotenberg PDFs.
-- [Audit](/backend/audit) — the site audit and the `reportJson` the export renders.
-- [Middleware](/backend/middleware) — why `/pdf-report` and `/audit-report` are public.
-- [Content engine](/backend/content-engine) — the real home of `@resvg/resvg-js`.
-- [Database](/backend/database) — `audits.reportJson`, `free_audit_reports`, `free_tool_reports`.
-- [Security](/backend/security) — auth scoping + the HMAC token on the audit PDF route.
+- [Free tools](/backend/free-tools) - the five tools whose reports become Gotenberg PDFs.
+- [Audit](/backend/audit) - the site audit and the `reportJson` the export renders.
+- [Middleware](/backend/middleware) - why `/pdf-report` and `/audit-report` are public.
+- [Content engine](/backend/content-engine) - the real home of `@resvg/resvg-js`.
+- [Database](/backend/database) - `audits.reportJson`, `free_audit_reports`, `free_tool_reports`.
+- [Security](/backend/security) - auth scoping + the HMAC token on the audit PDF route.

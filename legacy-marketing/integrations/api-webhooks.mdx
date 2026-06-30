@@ -4,7 +4,7 @@ sidebarTitle: "API & Webhooks"
 description: "Use Spyro's API and webhooks to build custom integrations, push content to any CMS, and trigger automated workflows programmatically."
 ---
 
-Spyro's API and webhooks let you connect Spyro to the rest of your stack — without being limited to the native CMS integrations. If you want to push published articles to a headless CMS, fire a Slack notification every time a new article is ready, sync citation data to your analytics platform, or build a trigger in Make or Zapier, webhooks and API keys give you the hooks you need to make it work.
+Spyro's API and webhooks let you connect Spyro to the rest of your stack - without being limited to the native CMS integrations. If you want to push published articles to a headless CMS, fire a Slack notification every time a new article is ready, sync citation data to your analytics platform, or build a trigger in Make or Zapier, webhooks and API keys give you the hooks you need to make it work.
 
 ## What You Can Build
 
@@ -41,7 +41,7 @@ Spyro can notify your endpoint when any of the following events occur:
     Log in to [app.spyro.app](https://app.spyro.app), go to **Integrations → API & Webhooks** in the left sidebar.
   </Step>
   <Step title="Add a new webhook endpoint">
-    Click **Add Webhook**, then enter the URL of the endpoint you want Spyro to call. This should be a publicly reachable HTTPS URL — for example, an endpoint in your own backend or a workflow URL from Make or Zapier.
+    Click **Add Webhook**, then enter the URL of the endpoint you want Spyro to call. This should be a publicly reachable HTTPS URL - for example, an endpoint in your own backend or a workflow URL from Make or Zapier.
   </Step>
   <Step title="Select the events to subscribe to">
     Check the events you want this webhook to fire for. You can subscribe one endpoint to multiple events, or create separate webhooks for different events if you want to route them to different destinations.
@@ -76,7 +76,7 @@ Your endpoint should return a `2xx` HTTP status code to acknowledge receipt. Spy
 
 ## API Access
 
-For programmatic access — querying your tracked keywords, pulling citation reports, or triggering actions via code — generate an API key from your Spyro account.
+For programmatic access - querying your tracked keywords, pulling citation reports, or triggering actions via code - generate an API key from your Spyro account.
 
 <Steps>
   <Step title="Generate an API key">
@@ -98,7 +98,7 @@ For programmatic access — querying your tracked keywords, pulling citation rep
 </Warning>
 
 <Note>
-  Full API reference documentation — including all available endpoints, request parameters, and response schemas — is available for your plan. Email [support@spyro.app](mailto:support@spyro.app) to request access to the API docs.
+  Full API reference documentation - including all available endpoints, request parameters, and response schemas - is available for your plan. Email [support@spyro.app](mailto:support@spyro.app) to request access to the API docs.
 </Note>
 
 ## Troubleshooting
@@ -108,7 +108,7 @@ For programmatic access — querying your tracked keywords, pulling citation rep
     Verify that your endpoint URL is publicly reachable over HTTPS and returns a `2xx` status code. Use webhook.site or a similar tool to test the URL in isolation. Check the delivery log in **Integrations → API & Webhooks** for error codes on failed attempts.
   </Accordion>
   <Accordion title="Webhook deliveries are showing 401 or 403 errors">
-    Your endpoint may require authentication. If your server expects a shared secret or token, add the validation logic on your server side — Spyro sends a standard POST request without additional auth headers by default. Contact [support@spyro.app](mailto:support@spyro.app) to discuss HMAC signature verification for webhook payloads.
+    Your endpoint may require authentication. If your server expects a shared secret or token, add the validation logic on your server side - Spyro sends a standard POST request without additional auth headers by default. Contact [support@spyro.app](mailto:support@spyro.app) to discuss HMAC signature verification for webhook payloads.
   </Accordion>
   <Accordion title="API key requests are returning 401 Unauthorized">
     Confirm you're passing the key in the `Authorization: Bearer` header, not as a query parameter. Also check that the key hasn't been revoked in **Settings → API**.

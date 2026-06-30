@@ -4,7 +4,7 @@ description: "How to deploy the Spyro Next.js app to Vercel: server-external pac
 ---
 
 Spyro is a **Next.js 16 (App Router)** application that runs on Vercel Serverless
-Functions. The Next.js app is the only thing Vercel hosts — everything else is a
+Functions. The Next.js app is the only thing Vercel hosts - everything else is a
 managed service it talks to over the network (Supabase, Inngest Cloud, DataForSEO,
 OpenRouter, Resend, and a self-hosted **Gotenberg** PDF renderer on Railway).
 
@@ -29,7 +29,7 @@ migrations, monitoring) see [Production considerations](/deployment/production).
 | Node.js version | **22.x** (`>=22.17.0`) | `package.json` → `engines.node` |
 | Output | Serverless Functions | App Router default |
 
-`vercel.json` is intentionally a **schema-only stub** — it carries no build, route,
+`vercel.json` is intentionally a **schema-only stub** - it carries no build, route,
 or cron configuration:
 
 ```json
@@ -46,7 +46,7 @@ pick it up automatically.
 <Warning>
 There is **no `crons` array** in `vercel.json`. All scheduled work is declared as
 Inngest cron triggers inside `lib/inngest/fns/*` and runs on **Inngest Cloud**, not
-Vercel Cron. Do not add Vercel crons — see [Background jobs](/backend/background-jobs)
+Vercel Cron. Do not add Vercel crons - see [Background jobs](/backend/background-jobs)
 and [Production](/deployment/production#cron-registration).
 </Warning>
 
@@ -61,12 +61,12 @@ them as real `require()`s and traces their files into the function bundle instea
 // Server-only packages Next.js must not bundle. @react-pdf/renderer + cheerio +
 // @resvg/resvg-js + sharp use Node-only APIs / native bindings. sharp MUST be
 // external so Next traces its native addon AND the libvips shared objects
-// (libvips-cpp.so) into the function bundle — bundling it triggers
+// (libvips-cpp.so) into the function bundle - bundling it triggers
 // ERR_DLOPEN_FAILED on Vercel's linux-x64 runtime.
 serverExternalPackages: ["@react-pdf/renderer", "cheerio", "@resvg/resvg-js", "sharp"],
 ```
 
-The same comment notes that PDF generation **no longer bundles Chromium** — it is
+The same comment notes that PDF generation **no longer bundles Chromium** - it is
 rendered by the external Gotenberg service (below), so `puppeteer-core` /
 `@sparticuz/chromium` and their binary file-tracing are gone.
 
@@ -100,7 +100,7 @@ Three pieces have to line up for this to work, and **all three live outside
 `package.json` pins `pnpm.overrides.sharp` to `0.35.2` so Next's own bundled sharp
 cannot pull a *second* `@img/sharp-libvips-linux-x64` with a different
 `libvips-cpp.so` into a competing hoist slot. The config comment records exactly
-the failure this prevents — a `8.18.3-not-found` error when "Next wanted 1.2.4/8.17,
+the failure this prevents - a `8.18.3-not-found` error when "Next wanted 1.2.4/8.17,
 the app wanted 1.3.1/8.18.3, only one hoists."
 </Step>
 <Step title="Flat, symlink-free node_modules">
@@ -135,7 +135,7 @@ and streams the resulting PDF back *(`lib/free-tools/shared/pdf/browser.ts:5–1
 This is why no browser binary ships in the bundle.
 
 Gotenberg is configured by environment variables that are **read in code but are not
-in `.env.local.example`** — you must add them in Vercel by hand:
+in `.env.local.example`** - you must add them in Vercel by hand:
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -175,7 +175,7 @@ async rewrites() {
 
 The browser SDK is pointed at `/ingest` via `NEXT_PUBLIC_POSTHOG_HOST`
 (default `https://us.i.posthog.com`) and `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`. These
-rewrites work transparently on Vercel — no extra config needed. More in
+rewrites work transparently on Vercel - no extra config needed. More in
 [Logging & analytics](/backend/logging).
 
 ## Image optimization domains
@@ -206,11 +206,11 @@ instead of 400-ing.
 
 ## Function duration ceiling
 
-The Inngest serve route caps every step at 300 seconds — the Vercel **Hobby** limit
+The Inngest serve route caps every step at 300 seconds - the Vercel **Hobby** limit
 *(`app/api/inngest/route.ts:14`)*:
 
 ```ts
-// Per-invocation ceiling for every Inngest step served here. Capped at 300s —
+// Per-invocation ceiling for every Inngest step served here. Capped at 300s -
 // the max allowed on Vercel's Hobby plan. ... (Raise to 800 only after upgrading
 // the Vercel project to Pro.)
 export const maxDuration = 300;
@@ -227,23 +227,23 @@ Set every variable from [the env reference](/reference/environment-variables) in
 **Project Settings → Environment Variables** (Production + Preview). The few that are
 Vercel-specific:
 
-- **`NEXT_PUBLIC_APP_URL`** — set this to your real public domain. If it is missing
+- **`NEXT_PUBLIC_APP_URL`** - set this to your real public domain. If it is missing
   or accidentally left pointing at `localhost` on a Vercel deploy, `lib/env.ts`
   falls back to `VERCEL_PROJECT_PRODUCTION_URL` and logs a warning, because the value
   feeds every canonical URL, `og:url`, checkout/portal/invite link, and the PDF
   render origin *(`lib/env.ts:38–59`)*.
-- **`VERCEL_PROJECT_PRODUCTION_URL`** / **`VERCEL_URL`** / **`VERCEL`** — injected by
+- **`VERCEL_PROJECT_PRODUCTION_URL`** / **`VERCEL_URL`** / **`VERCEL`** - injected by
   the platform; read as the localhost safety net (above) and as PDF-origin fallbacks.
   You do not set these.
 - The **superadmin** subdomain (`superadmin.<your-domain>`) must be added as a domain
-  alias on the Vercel project for the panel to be reachable in production — see
+  alias on the Vercel project for the panel to be reachable in production - see
   [Middleware](/backend/middleware).
 
 ## Related
 
 <CardGroup cols={2}>
 <Card title="Going live checklist" href="/deployment/environment" icon="list-check">
-Supabase, billing, Inngest, Resend, and keys — in order.
+Supabase, billing, Inngest, Resend, and keys - in order.
 </Card>
 <Card title="Production considerations" href="/deployment/production" icon="server">
 Crons, migrations, background-job fallback, monitoring, scaling.

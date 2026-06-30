@@ -1,17 +1,17 @@
 ---
 title: "Environment variables"
-description: "The complete reference of every Spyro environment variable, grouped by service, with required/optional status, purpose, and the feature each one enables. Names only — no values."
+description: "The complete reference of every Spyro environment variable, grouped by service, with required/optional status, purpose, and the feature each one enables. Names only - no values."
 ---
 
 This is the authoritative list of every environment variable Spyro reads, built
 from `.env.local.example` and cross-checked against `lib/env.ts`. It documents
-**names and purposes only** — never copy a real secret value here, and never open
+**names and purposes only** - never copy a real secret value here, and never open
 `.env.local`.
 
 <Info>
 **How Spyro reads env.** `lib/env.ts` reads each key with a light-touch `opt()`
 helper (empty string ⇒ `undefined`) and **does not throw at import time** for most
-keys — features degrade to mocks when a key is absent. Only `NEXT_PUBLIC_APP_URL` is
+keys - features degrade to mocks when a key is absent. Only `NEXT_PUBLIC_APP_URL` is
 effectively required (it throws when a consumer needs the public origin and no
 Vercel fallback exists) *(`lib/env.ts:1–11,38–59`)*. Feature on/off is decided by the
 `featureFlags` object *(`lib/env.ts:189–222`)*.
@@ -19,7 +19,7 @@ Vercel fallback exists) *(`lib/env.ts:1–11,38–59`)*. Feature on/off is decid
 
 <Note>
 **Coverage:** ~70 variables ship in `.env.local.example`. A few more are **read in
-code but not in the example file** — they are listed in their sections and marked
+code but not in the example file** - they are listed in their sections and marked
 *(code-only)*. "Default" columns cite values supplied by `lib/env.ts` even when the
 example leaves the line commented.
 </Note>
@@ -33,7 +33,7 @@ example leaves the line commented.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | One of these two | Legacy anon JWT (fallback if publishable unset). Whichever is set wins *(`lib/env.ts:65–66`)*. |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Required** | Server-side service role (bypasses RLS; also default encryption-key fallback and Storage uploads). |
 | `DATABASE_URL` | **Required** | Postgres connection string used by Drizzle (`drizzle.config.ts`). |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional | Cloudflare Turnstile **site** key — bot/spam widget on auth forms. The secret goes in Supabase, not env. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional | Cloudflare Turnstile **site** key - bot/spam widget on auth forms. The secret goes in Supabase, not env. |
 
 See [Authentication](/backend/authentication) and [Database](/backend/database).
 
@@ -46,9 +46,9 @@ See [Authentication](/backend/authentication) and [Database](/backend/database).
 | `DATAFORSEO_DAILY_BUDGET_USD` | Optional | Max spend per UTC day (USD). Circuit breaker; unset = no cap. |
 | `DATAFORSEO_AI_VOLUME_ENABLED` | Optional *(code-only)* | `"true"` enables the AI Optimization `ai_keyword_search_volume` endpoint. Default `"false"` *(`lib/env.ts:164`)*. |
 
-DataForSEO has **no fallback** — see [SEO engine](/backend/seo-engine).
+DataForSEO has **no fallback** - see [SEO engine](/backend/seo-engine).
 
-## LLM — OpenRouter (primary chat provider)
+## LLM - OpenRouter (primary chat provider)
 
 One key routes every chat model: blog writer, ideation, the Spyro agent, the
 citation engines, and image generation.
@@ -60,7 +60,7 @@ citation engines, and image generation.
 | `OPENROUTER_CAPABLE_MODEL` | Optional | Bulk blog section drafting. Default `moonshotai/kimi-k2.6`. |
 | `OPENROUTER_FAST_MODEL` | Optional | Parsing / classification. Default `openai/gpt-4.1-mini`. |
 | `OPENROUTER_AGENT_MODEL` | Optional | The Spyro chat agent. Default `moonshotai/kimi-k2.6`. |
-| `OPENROUTER_IMAGE_MODEL` | Optional | Featured + in-content images. Code default `google/gemini-2.5-flash-image` (`lib/images/openrouter.ts:13`). *(`.env.local.example` still suggests `bytedance-seed/seedream-4.5` — that comment is stale; the code default wins when unset.)* |
+| `OPENROUTER_IMAGE_MODEL` | Optional | Featured + in-content images. Code default `google/gemini-2.5-flash-image` (`lib/images/openrouter.ts:13`). *(`.env.local.example` still suggests `bytedance-seed/seedream-4.5` - that comment is stale; the code default wins when unset.)* |
 | `OPENROUTER_IMAGE_SIZE` | Optional | Image aspect/resolution hint (`OPENROUTER_IMAGE_RESOLUTION` too). Usually left unset. |
 | `AUDIT_ASSISTANT_MODEL` | Optional | Ask-Spyro audit sidebar model. Default `minimax/minimax-m2.7`; GPT-4.1-mini is the runtime fallback *(`lib/env.ts:85`)*. |
 
@@ -70,7 +70,7 @@ See [AI providers](/backend/ai).
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |
-| `OPENAI_API_KEY` | Recommended | RAG embeddings (`text-embedding-3` family — the site-index / vector search). Also a tier-3 chat + image fallback when OpenRouter is unset. |
+| `OPENAI_API_KEY` | Recommended | RAG embeddings (`text-embedding-3` family - the site-index / vector search). Also a tier-3 chat + image fallback when OpenRouter is unset. |
 
 <Note>
 The source disagrees on the embedding model: `.env.local.example` says
@@ -87,10 +87,10 @@ Confirm in `lib/embed` before relying on a dimension. See [AI providers](/backen
 | `MOONSHOT_MODEL` | Optional | Override the Moonshot model. Default `kimi-k2-0905-preview` *(`lib/env.ts:79`)*. |
 | `OPENAI_AGENT_MODEL` | Optional | Agent fallback model on the direct OpenAI API. |
 
-## Billing — Dodo Payments
+## Billing - Dodo Payments
 
 <Warning>
-The current billing provider is **Dodo**, not Polar — the README's `POLAR_*` vars and
+The current billing provider is **Dodo**, not Polar - the README's `POLAR_*` vars and
 `/api/webhooks/polar` are stale. See [Billing](/backend/billing).
 </Warning>
 
@@ -109,7 +109,7 @@ The current billing provider is **Dodo**, not Polar — the README's `POLAR_*` v
 | `DODO_DISCOUNT_AGENCY_15` | Optional | 15% Agency volume code (6–10 sites). |
 | `DODO_DISCOUNT_AGENCY_20` | Optional | 20% Agency volume code (11–20 sites). |
 
-## Background jobs — Inngest
+## Background jobs - Inngest
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ The current billing provider is **Dodo**, not Polar — the README's `POLAR_*` v
 
 See [Background jobs](/backend/background-jobs).
 
-## Crawler — JS-rendering fallback (crawl4ai)
+## Crawler - JS-rendering fallback (crawl4ai)
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |
@@ -129,7 +129,7 @@ See [Background jobs](/backend/background-jobs).
 
 See [Crawler](/backend/crawler).
 
-## PDF rendering — Gotenberg *(code-only — add by hand)*
+## PDF rendering - Gotenberg *(code-only - add by hand)*
 
 Read in `lib/free-tools/shared/pdf/browser.ts`; **not** in `.env.local.example`.
 
@@ -154,8 +154,8 @@ See [Integrations](/backend/integrations).
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |
-| `RESEND_API_KEY` | Optional | Resend — sends the Monday digest and transactional email. Unset = sending skipped. |
-| `MAILERLITE_API_KEY` | Optional | MailerLite — captures free-audit subscribers. |
+| `RESEND_API_KEY` | Optional | Resend - sends the Monday digest and transactional email. Unset = sending skipped. |
+| `MAILERLITE_API_KEY` | Optional | MailerLite - captures free-audit subscribers. |
 | `MAILERLITE_GROUP_ID` | Optional | When set, adds subscribers to that MailerLite group. |
 
 ## Rerank (Cohere via OpenRouter)
@@ -196,15 +196,15 @@ differs.
 | --- | --- | --- |
 | `GA4_OAUTH_REDIRECT_URI` | Required for GA4 | GA4 callback. Default `http://localhost:3000/api/ga4/callback`. Requires GA4 Data + Admin APIs enabled in GCP. |
 
-## Article pipeline — research & images
+## Article pipeline - research & images
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |
 | `KIMI_RESEARCH_MODEL` | Optional | Live web-search model (OpenRouter `:online`). Default `moonshotai/kimi-k2.6:online` *(`lib/env.ts:153`)*. |
-| `JINA_API_KEY` | Optional | Jina Reader (`r.jina.ai`) verification layer — higher rate limit. Works keyless. |
+| `JINA_API_KEY` | Optional | Jina Reader (`r.jina.ai`) verification layer - higher rate limit. Works keyless. |
 | `SCREENSHOTONE_ACCESS_KEY` | Optional | Real-page screenshots for listicle/comparison/review posts. Unset ⇒ Flux illustration fallback. |
 | `PAGESPEED_API_KEY` | Optional | Google PageSpeed Insights key for Core Web Vitals (legacy fallback). |
-| `CRUX_API_KEY` | Optional | Chrome UX Report API key — **preferred** CWV source (fast p75 field data). |
+| `CRUX_API_KEY` | Optional | Chrome UX Report API key - **preferred** CWV source (fast p75 field data). |
 
 See [Content engine](/backend/content-engine) and [Audit](/backend/audit).
 
@@ -212,14 +212,14 @@ See [Content engine](/backend/content-engine) and [Audit](/backend/audit).
 
 | Variable | Required | Purpose / enables |
 | --- | --- | --- |
-| `NEXT_PUBLIC_APP_URL` | **Required** | Public origin — feeds canonical URLs, `og:url`, checkout/portal/invite links, and the PDF render origin. |
+| `NEXT_PUBLIC_APP_URL` | **Required** | Public origin - feeds canonical URLs, `og:url`, checkout/portal/invite links, and the PDF render origin. |
 | `WORDPRESS_BASE_URL` | Optional | Headless WordPress blog for `/blog`. Default `https://blog.spyro.app` *(`lib/env.ts:182`)*; also derives the `next/image` host. |
 
 Platform-injected on Vercel (you do **not** set these): `VERCEL`,
-`VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL` — read as the localhost safety net and
+`VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL` - read as the localhost safety net and
 PDF-origin fallbacks *(`lib/env.ts:42–48`, `lib/free-tools/shared/pdf/browser.ts:46–47`)*.
 
-## Superadmin panel — dedicated credentials
+## Superadmin panel - dedicated credentials
 
 All env-only (never DB columns). The panel **404s entirely** unless `ADMIN_USERNAME`
 + a password + `ADMIN_SESSION_SECRET` + `ADMIN_TOTP_SECRET` are all set
