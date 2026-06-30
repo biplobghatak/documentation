@@ -1,4 +1,4 @@
-# Documentation Coverage Report
+# Documentation Coverage Report:
 
 Generated for the **Spyro** app (`C:\Users\kullu\Downloads\Spyro-App`) → Mintlify docs
 (`C:\Users\kullu\Downloads\Spyro-Doc`). Every page was reverse-engineered directly from the
