@@ -14,7 +14,7 @@ wins.
 when their key is absent, so you can click through the product with almost nothing
 configured. The one hard requirement for a real flow is **DataForSEO** - it has no
 mock, so keyword/SERP/rank/AI-Overview features error without it
-*(`.env.local.example:3–18`, `lib/env.ts:1–6`)*.
+*(`.env.local.example:3-18`, `lib/env.ts:1-6`)*.
 </Info>
 
 For the complete variable list see [Environment variables](/reference/environment-variables).
@@ -46,7 +46,7 @@ and `DATABASE_URL` (the Postgres connection string Drizzle uses).
 **Key choice.** Use **either** the new publishable key
 (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `sb_publishable_…`, preferred) **or** the
 legacy anon JWT (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). Whichever is set wins -
-`lib/env.ts:65–66` reads `PUBLISHABLE_KEY ?? ANON_KEY`. The README's table only
+`lib/env.ts:65-66` reads `PUBLISHABLE_KEY ?? ANON_KEY`. The README's table only
 mentions the anon key; the code prefers the publishable one.
 </Note>
 </Step>
@@ -62,13 +62,13 @@ pnpm db:push      # drizzle-kit push - straight from lib/db/schema.ts
 committed, ordered migrations, use `pnpm db:migrate` instead - see
 [Running migrations in production](/deployment/production#running-migrations).
 `drizzle.config.ts` loads `.env.local` then `.env`, so `DATABASE_URL` must be present
-in the environment when you run either command *(`drizzle.config.ts:5–6`)*.
+in the environment when you run either command *(`drizzle.config.ts:5-6`)*.
 </Step>
 
 <Step title="Enable Row-Level Security - BOTH files">
 In the Supabase **SQL editor**, run the RLS scripts in order. The README only
 mentions `rls.sql`, but `rls.sql`'s own header defers `site_indexes` / `site_chunks`
-to a second file *(`drizzle/rls.sql:1–4,30–31`)*:
+to a second file *(`drizzle/rls.sql:1-4,30-31`)*:
 
 1. Apply all Drizzle migrations (step above), then
 2. Run **`drizzle/rls.sql`** - RLS policies + the `auth.users → profiles` trigger.
@@ -76,7 +76,7 @@ to a second file *(`drizzle/rls.sql:1–4,30–31`)*:
 
 <Warning>
 RLS here is **membership-driven** (org/workspace membership), not the simple
-`user_id = auth.uid()` model the README describes *(`drizzle/rls.sql:5–13`)*. The
+`user_id = auth.uid()` model the README describes *(`drizzle/rls.sql:5-13`)*. The
 app's own queries run through the service-role Drizzle connection, which **bypasses
 RLS**; these policies are defence-in-depth for any path that touches tables with the
 anon/auth key. See [Authorization](/backend/authorization).
@@ -89,7 +89,7 @@ URL and add `<APP_URL>/auth/callback` as a redirect URL (the route lives at
 `app/auth/callback`). If you enabled the Cloudflare Turnstile widget via
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, also enable CAPTCHA in **Authentication → Bot and
 Abuse Protection** and paste the Turnstile **secret** there (it is *not* an env var)
-*(`.env.local.example:30–34`)*. See [Authentication](/backend/authentication).
+*(`.env.local.example:30-34`)*. See [Authentication](/backend/authentication).
 </Step>
 </Steps>
 
@@ -99,14 +99,14 @@ Abuse Protection** and paste the Turnstile **secret** there (it is *not* an env 
 **The README is stale here.** It documents Polar (`POLAR_ACCESS_TOKEN`,
 `POLAR_PRODUCT_*`, `POLAR_WEBHOOK_SECRET`, webhook `/api/webhooks/polar`). The
 shipped code uses **Dodo Payments** - `lib/dodo`, the `DODO_*` env vars
-*(`lib/env.ts:90–108`)*, the webhook route `app/api/webhooks/dodo`, and migration
+*(`lib/env.ts:90-108`)*, the webhook route `app/api/webhooks/dodo`, and migration
 `drizzle/0022_dodo_payments.sql`. Configure Dodo, not Polar.
 </Warning>
 
 Dodo is a Merchant of Record (it handles tax/VAT). There are two plans - **Pro**
 ($99/mo flat) and **Agency** (per-site pricing, volume discounts). A card on file is
 required before onboarding: checkout opens a Dodo-managed 7-day trial and access
-gates on an active subscription *(`.env.local.example:75–97`)*.
+gates on an active subscription *(`.env.local.example:75-97`)*.
 
 <Steps>
 <Step title="Create the subscription products in Dodo">
@@ -119,8 +119,8 @@ Agency per-site products (monthly/annual), then paste their IDs into:
 </Step>
 <Step title="Create the Agency volume-discount codes">
 Percentage codes restricted to the Agency products with no cycle limit:
-`DODO_DISCOUNT_AGENCY_10` (3–5 sites), `DODO_DISCOUNT_AGENCY_15` (6–10),
-`DODO_DISCOUNT_AGENCY_20` (11–20). Checkout applies one by site-count tier.
+`DODO_DISCOUNT_AGENCY_10` (3-5 sites), `DODO_DISCOUNT_AGENCY_15` (6-10),
+`DODO_DISCOUNT_AGENCY_20` (11-20). Checkout applies one by site-count tier.
 </Step>
 <Step title="Set the API key, webhook, and mode">
 Set `DODO_API_KEY` (server-side) and `DODO_WEBHOOK_SECRET` (`whsec_…`, a Standard
@@ -149,7 +149,7 @@ Create an app in Inngest Cloud. Set `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY
 the REST API key (`sk-inn-api…`) - using the API key gives a 404 *"Event key not
 found"*. The signing key starts `signkey-…`. Branch environments share one Event Key
 and Signing Key and select the branch via `INNGEST_ENV`
-*(`.env.local.example:115–127`)*.
+*(`.env.local.example:115-127`)*.
 </Warning>
 </Step>
 <Step title="Register the serve endpoint">
@@ -178,7 +178,7 @@ sending is skipped (`resendConfigured` flag, `lib/env.ts:200`).
 
 <Note>
 Optional: `MAILERLITE_API_KEY` (+ `MAILERLITE_GROUP_ID`) captures free-audit
-subscribers into a MailerLite list *(`.env.local.example:147–152`)*.
+subscribers into a MailerLite list *(`.env.local.example:147-152`)*.
 </Note>
 
 See [Integrations](/backend/integrations) for the email layer.
@@ -189,20 +189,20 @@ See [Integrations](/backend/integrations) for the email layer.
 <Step title="DataForSEO (required - no mock)">
 Set `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`. This is the only SERP/keyword
 provider and has **no fallback** - keyword research, SERP analysis, AI-Overview
-presence, and rank tracking error without it *(`.env.local.example:36–46`)*.
+presence, and rank tracking error without it *(`.env.local.example:36-46`)*.
 Optionally cap spend with `DATAFORSEO_DAILY_BUDGET_USD` (a per-UTC-day circuit
 breaker). See [SEO engine](/backend/seo-engine).
 </Step>
 <Step title="OpenRouter (every chat LLM)">
 Set `OPENROUTER_API_KEY`. One key routes the blog writer, ideation, the Spyro agent,
 and the ChatGPT / Claude / Gemini / Perplexity citation engines, plus Seedream image
-generation - no per-provider accounts *(`.env.local.example:48–60`)*.
+generation - no per-provider accounts *(`.env.local.example:48-60`)*.
 
 <Warning>
 **The README is stale here too.** It claims Gemini is "the only LLM provider" via
 `GOOGLE_GENAI_API_KEY`. In the code, **OpenRouter is the primary chat provider**;
 `GOOGLE_GENAI_API_KEY` and `MOONSHOT_API_KEY` are *fallbacks* used only when
-`OPENROUTER_API_KEY` is unset *(`.env.local.example:68–73`, `lib/env.ts:76–82`)*.
+`OPENROUTER_API_KEY` is unset *(`.env.local.example:68-73`, `lib/env.ts:76-82`)*.
 </Warning>
 </Step>
 <Step title="OpenAI (RAG embeddings + LLM fallback)">

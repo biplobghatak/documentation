@@ -73,7 +73,7 @@ rendered by the external Gotenberg service (below), so `puppeteer-core` /
 ## The sharp / libvips file-tracing gotcha
 
 This is the single most important Vercel-specific detail in the codebase, and the
-`next.config.ts` comments are worth reading verbatim *(`next.config.ts:38–60`)*:
+`next.config.ts` comments are worth reading verbatim *(`next.config.ts:38-60`)*:
 
 ```ts
 // sharp 0.35 loads libvips-cpp.so from a SEPARATE @img/sharp-libvips-linux-x64
@@ -131,7 +131,7 @@ in any of these reintroduces the crash.
 Spyro does not render PDFs inside Vercel functions. Each free-tool report is a full
 HTML/CSS page; the API route POSTs that page's **public URL** to a self-hosted
 [Gotenberg](https://gotenberg.dev) container (headless Chrome, hosted on Railway)
-and streams the resulting PDF back *(`lib/free-tools/shared/pdf/browser.ts:5–17`)*.
+and streams the resulting PDF back *(`lib/free-tools/shared/pdf/browser.ts:5-17`)*.
 This is why no browser binary ships in the bundle.
 
 Gotenberg is configured by environment variables that are **read in code but are not
@@ -146,7 +146,7 @@ in `.env.local.example`** - you must add them in Vercel by hand:
 
 The origin resolution order is `GOTENBERG_REPORT_ORIGIN` → `NEXT_PUBLIC_APP_URL` →
 `VERCEL_PROJECT_PRODUCTION_URL` → `VERCEL_URL` → the request host
-*(`browser.ts:42–58`)*.
+*(`browser.ts:42-58`)*.
 
 <Warning>
 Gotenberg runs on Railway and **cannot reach `localhost`**. The render request fails
@@ -161,7 +161,7 @@ See [PDF engine](/backend/pdf-engine) for the full render flow and the report pa
 ## The PostHog `/ingest` rewrite
 
 `next.config.ts` rewrites a first-party `/ingest` path to PostHog's US cloud so the
-analytics SDK is not blocked by ad/tracker blockers *(`next.config.ts:13–28`)*:
+analytics SDK is not blocked by ad/tracker blockers *(`next.config.ts:13-28`)*:
 
 ```ts
 async rewrites() {
@@ -182,7 +182,7 @@ rewrites work transparently on Vercel - no extra config needed. More in
 
 `next/image` only optimizes images from hosts you allowlist. Spyro's
 `images.remotePatterns` covers the headless WordPress blog, Gravatar (author
-avatars), Unsplash, and Framer assets *(`next.config.ts:74–85`)*:
+avatars), Unsplash, and Framer assets *(`next.config.ts:74-85`)*:
 
 ```ts
 images: {
@@ -200,7 +200,7 @@ images: {
 ```
 
 `wordpressImageHost` is derived from `WORDPRESS_BASE_URL` at config load, falling
-back to `blog.spyro.app` if the env var is missing or malformed *(`next.config.ts:4–10`)*.
+back to `blog.spyro.app` if the env var is missing or malformed *(`next.config.ts:4-10`)*.
 If you point the blog at a new host, set `WORDPRESS_BASE_URL` so its images optimize
 instead of 400-ing.
 
@@ -231,7 +231,7 @@ Vercel-specific:
   or accidentally left pointing at `localhost` on a Vercel deploy, `lib/env.ts`
   falls back to `VERCEL_PROJECT_PRODUCTION_URL` and logs a warning, because the value
   feeds every canonical URL, `og:url`, checkout/portal/invite link, and the PDF
-  render origin *(`lib/env.ts:38–59`)*.
+  render origin *(`lib/env.ts:38-59`)*.
 - **`VERCEL_PROJECT_PRODUCTION_URL`** / **`VERCEL_URL`** / **`VERCEL`** - injected by
   the platform; read as the localhost safety net (above) and as PDF-origin fallbacks.
   You do not set these.

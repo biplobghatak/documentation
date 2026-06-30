@@ -98,7 +98,7 @@ Mechanism details live in [PDF Engine](/backend/pdf-engine).
 `POST /api/free-audit` additionally enforces a **global concurrency cap**
 (`MAX_CONCURRENT = 4`) and returns **503** when the server is busy crawling -
 protecting the shared crawl budget. None of these tools use Inngest; they run in
-`after()` with `maxDuration` of 110–300s.
+`after()` with `maxDuration` of 110-300s.
 </Info>
 
 `POST /api/free-audit/subscribe` validates the email, stores the lead

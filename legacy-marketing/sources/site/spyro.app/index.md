@@ -591,7 +591,7 @@ Ada is built for companies handling huge volumes - it openly targets businesses 
 
 **Where it falls short:** pricing is quote-only and enterprise-sized; usage-based cost is hard to forecast; more than most SMBs need; real implementation effort.
 
-**Best for:** High-volume enterprise support. **Pricing:** Quote-based and usage-driven - reported around $1–$3.50 per resolved conversation, with contracts that often run into six figures a year. It only really adds up above roughly 300k conversations annually.
+**Best for:** High-volume enterprise support. **Pricing:** Quote-based and usage-driven - reported around $1-$3.50 per resolved conversation, with contracts that often run into six figures a year. It only really adds up above roughly 300k conversations annually.
 
 **Bottom line:** The enterprise option. Choose it when volume is the problem and automation rate is the number you're judged on.
 
@@ -802,7 +802,7 @@ Most of the decision comes down to your size and what you already run. Roughly:
 
 #### What it's actually worth
 
-The savings are real, but they aren't magic. Teams that get this right see first-response times drop from hours to seconds and cost per ticket fall by a third or more, while agents spend their day on fewer, harder cases. A reasonable expectation is 35–45% of tickets handled automatically in the first few months, climbing toward 65–75% by the end of the first year - provided someone keeps the knowledge base current. That last part is the whole game. The model matters far less than the quality of what you feed it.
+The savings are real, but they aren't magic. Teams that get this right see first-response times drop from hours to seconds and cost per ticket fall by a third or more, while agents spend their day on fewer, harder cases. A reasonable expectation is 35-45% of tickets handled automatically in the first few months, climbing toward 65-75% by the end of the first year - provided someone keeps the knowledge base current. That last part is the whole game. The model matters far less than the quality of what you feed it.
 
 #### Where this is heading
 
@@ -844,11 +844,11 @@ Tidio, YourGPT, or the free tier of Freshworks Freddy. They're no-code, inexpens
 
 Are AI chatbots replacing human agents?
 
-Not really. They take the repetitive 60–80% of tickets that were always lookups - password resets, order status, refunds - and leave the harder, messier conversations to people. The teams doing this well supervise the AI and step in on the edge cases.
+Not really. They take the repetitive 60-80% of tickets that were always lookups - password resets, order status, refunds - and leave the harder, messier conversations to people. The teams doing this well supervise the AI and step in on the edge cases.
 
 How much do AI customer support platforms cost?
 
-It varies a lot. Some charge per resolved conversation (HubSpot $0.50, Intercom $0.99, Gorgias around $0.90); others add an AI fee on top of per-seat plans (Zendesk, Freshworks); Chatbase and Botpress sell credit-based and pay-as-you-go tiers from roughly $40–$89 a month; and Ada is enterprise-only, usually a six-figure annual contract. Add up the real total before you sign - the sticker price rarely tells the whole story.
+It varies a lot. Some charge per resolved conversation (HubSpot $0.50, Intercom $0.99, Gorgias around $0.90); others add an AI fee on top of per-seat plans (Zendesk, Freshworks); Chatbase and Botpress sell credit-based and pay-as-you-go tiers from roughly $40-$89 a month; and Ada is enterprise-only, usually a six-figure annual contract. Add up the real total before you sign - the sticker price rarely tells the whole story.
 
 Can AI chatbots integrate with CRMs and help desks?
 
@@ -918,9 +918,9 @@ It helps to picture your metabolism as a fire. Carbohydrate is kindling. It catc
 
 | Nutrient | Share of calories | Why it matters |
 | --- | --- | --- |
-| Fat | 70–80% | Your main fuel once carbs are low. Fat is what keeps you full and your energy steady through the afternoon. |
-| Protein | 15–25% | Enough to protect muscle and keep you satisfied, but not so much that your body turns the surplus into glucose. |
-| Carbohydrate | 5–10% | Usually 20 to 50g of net carbs a day, and almost all of it from vegetables rather than grains or sugar. |
+| Fat | 70-80% | Your main fuel once carbs are low. Fat is what keeps you full and your energy steady through the afternoon. |
+| Protein | 15-25% | Enough to protect muscle and keep you satisfied, but not so much that your body turns the surplus into glucose. |
+| Carbohydrate | 5-10% | Usually 20 to 50g of net carbs a day, and almost all of it from vegetables rather than grains or sugar. |
 
 The ratios matter because the margins are thin. Too many carbs and you never reach ketosis. Too much protein, which is easier than it sounds, and your body quietly turns the surplus into glucose and keeps you out of ketosis even after you have dropped the bread. Fat fills the gap and keeps you full. That is the balancing act.
 
@@ -1523,7 +1523,7 @@ Cancel anytime. No questions asked!
 - Up to 2 Workspaces IncludedEach Workspace is one website. Pro covers up to 2 - the 2nd is +$89/mo. Need 3 or more? You'll move to our Agency plan.
 - Personalized Keyword StrategySpyro checks all your competitors' rankings and targets long-tail keywords for you to rank on Google
 - 30 SEO/GEO-Optimized Articles (1 Daily)
-- 2,500–3,000 Word Long-Form Articles That Rank
+- 2,500-3,000 Word Long-Form Articles That Rank
 - Auto Internal & External Linking
 - AI Mentions TrackingEvery Monday, Spyro checks Google AI Overviews, ChatGPT, Claude, and Perplexity to see where your site ranks and whether it's cited as a source
 - Auto AI Images (20+ image styles to choose from)
@@ -1536,7 +1536,7 @@ Cancel anytime. No questions asked!
 
 More sites, less per site!Volume discounts apply automatically
 
-3–5 sites 10% off|6–10 sites 15% off|11–20 sites 20% off
+3-5 sites 10% off|6-10 sites 15% off|11-20 sites 20% off
 
 [Running 21+ sites? Talk to us](https://spyro.app/contact)
 
@@ -1568,7 +1568,7 @@ No. Spyro is designed for founders, marketers, and product teams. Setup takes mi
 
 How long does it take to see results?
 
-Most users see their first citation data within 24 hours of connecting their brand. Trend data builds meaningfully over the first 2–4 weeks as we accumulate enough query history to show movement.
+Most users see their first citation data within 24 hours of connecting their brand. Trend data builds meaningfully over the first 2-4 weeks as we accumulate enough query history to show movement.
 
 My site is new - is Spyro still useful for me?
 

@@ -24,13 +24,13 @@ Spyro behaves the same in both, but a few things flip:
 `NEXT_PUBLIC_APP_URL` is missing or accidentally points at `localhost` on a Vercel
 deploy, it falls back to `VERCEL_PROJECT_PRODUCTION_URL` and logs a warning, rather
 than leaking a localhost origin into every `<link rel="canonical">` and `og:url`
-*(`lib/env.ts:38–59`)*. Setting `NEXT_PUBLIC_APP_URL` correctly remains the real fix.
+*(`lib/env.ts:38-59`)*. Setting `NEXT_PUBLIC_APP_URL` correctly remains the real fix.
 
 ## Degrade-to-mock behavior
 
 Spyro is built so a missing key degrades a feature instead of crashing the app.
 `lib/env.ts` reads every key with a light-touch `opt()` and exposes `featureFlags`
-that gate features on/off *(`lib/env.ts:189–222`)*:
+that gate features on/off *(`lib/env.ts:189-222`)*:
 
 ```ts
 export const featureFlags = {
@@ -45,7 +45,7 @@ export const featureFlags = {
 <Warning>
 **DataForSEO is the one exception** - it has no mock. A missing key or a failed
 request surfaces as a real error in the UI rather than silent sample data, by design
-*(`.env.local.example:36–46`)*. In production, treat `dataforseoConfigured` as
+*(`.env.local.example:36-46`)*. In production, treat `dataforseoConfigured` as
 mandatory. Optionally set `DATAFORSEO_DAILY_BUDGET_USD` as a spend circuit breaker.
 </Warning>
 
@@ -65,8 +65,8 @@ The scheduled functions and their cron expressions (all UTC):
 
 | Function | Cron | What it does |
 | --- | --- | --- |
-| Weekly-job dispatchers (`audit`, `citations`, `tracking`, `site-intel`, `digest`) | `0 * * * *` (hourly) | Fan out per-workspace so each runs on its **own** local Monday *(`fns/dispatcher.ts:24–60`)* |
-| GSC / GA4 import dispatchers | `0 * * * *` (hourly) | Fire a daily import per connected integration once ~23h have passed *(`fns/dispatcher.ts:71–135`)* |
+| Weekly-job dispatchers (`audit`, `citations`, `tracking`, `site-intel`, `digest`) | `0 * * * *` (hourly) | Fan out per-workspace so each runs on its **own** local Monday *(`fns/dispatcher.ts:24-60`)* |
+| GSC / GA4 import dispatchers | `0 * * * *` (hourly) | Fire a daily import per connected integration once ~23h have passed *(`fns/dispatcher.ts:71-135`)* |
 | `autoGenerateScheduledFn` | `0 * * * *` | Autonomous article generation, top of every hour *(`fns/auto-generate-scheduled.ts:35`)* |
 | `scheduledPublishCronFn` | `*/30 * * * *` | Publish due scheduled posts every 30 min *(`fns/scheduled-publish.ts:21`)* |
 | `competitorSignalsFn` | `0 */6 * * *` | Competitor signal refresh every 6h *(`fns/competitor-signals.ts:24`)* |
@@ -80,7 +80,7 @@ The scheduled functions and their cron expressions (all UTC):
 <Note>
 The weekly jobs were deliberately moved off global UTC crons onto **hourly fan-out
 dispatchers** so each workspace runs on its own timezone's Monday
-*(`fns/dispatcher.ts:1–11`)*. Idempotency is enforced by event IDs keyed on
+*(`fns/dispatcher.ts:1-11`)*. Idempotency is enforced by event IDs keyed on
 `<jobKey>:<workspaceId>:<isoWeek>`, so an at-least-once cron fire collapses to one run
 per workspace per ISO week.
 </Note>
@@ -98,7 +98,7 @@ pnpm db:migrate    # drizzle-kit migrate - applies drizzle/*.sql in order
 `db:push` (`drizzle-kit push`) diffs the schema straight onto the DB and is for dev
 convenience; `db:migrate` applies the ordered, reviewed migration files in `drizzle/`.
 `drizzle.config.ts` loads `.env.local` then `.env`, so `DATABASE_URL` must be set in
-the environment of wherever you run the command *(`drizzle.config.ts:5–6`)*.
+the environment of wherever you run the command *(`drizzle.config.ts:5-6`)*.
 
 <Warning>
 **RLS is not part of the migrations.** After applying migrations, re-run
@@ -115,16 +115,16 @@ history.
 
 The contract is **long work = Inngest, never request handlers**. Request handlers
 enqueue an event and return immediately; the UI polls a status row
-*(`lib/inngest/client.ts:3–9`)*.
+*(`lib/inngest/client.ts:3-9`)*.
 
 For on-demand actions, when Inngest is **unreachable**, several server actions fall
 back to a **capped inline run** so the user still gets a result (mostly a dev/demo
 convenience):
 
 - Audits - `runInline(...)` after a warning *"Inngest unavailable - running inline
-  fallback (capped)"* *(`lib/actions/audit.ts:35–37,107–108`)*.
+  fallback (capped)"* *(`lib/actions/audit.ts:35-37,107-108`)*.
 - Tracked-URL checks - *"Inngest unavailable - running check inline"*
-  *(`lib/actions/tracked-urls.ts:46–52`)*.
+  *(`lib/actions/tracked-urls.ts:46-52`)*.
 - Prompt/citation checks - run the first check inline if the dispatch fails
   *(`lib/actions/prompts.ts:82,155`)*.
 - Spyro agent tools - inline fallback when Inngest isn't reachable
@@ -133,7 +133,7 @@ convenience):
 Fire-and-forget emits (knowledge re-index, initial-insights) **swallow failures
 silently** because a daily safety-sweep cron re-indexes any delta a dropped event
 missed - a lost emit degrades freshness, never correctness
-*(`lib/inngest/emit.ts:5–25`)*.
+*(`lib/inngest/emit.ts:5-25`)*.
 
 <Tip>
 In production with Inngest Cloud configured, the inline fallback should rarely
