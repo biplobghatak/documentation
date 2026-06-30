@@ -1,115 +1,94 @@
 ---
 title: "Google Search Console"
-description: "Connect Google Search Console to ground Spyro in real impressions, clicks, CTR and position - and turn those signals into diagnoses and fix plans."
+description: "Connect Google Search Console so Spyro can show your real Google search performance - clicks, impressions, your best pages and queries, and quick wins you can act on."
 ---
 
-Connecting **Google Search Console (GSC)** lets Spyro work from your *real* search
-data instead of estimates. Once linked, you get query and page performance, trend
-charts, AI-surface impressions, and a set of **diagnoses** that pair GSC signals
-with your latest crawl and hand you concrete fix plans. You'll find it under
-**SEO → Search Console** at `/{org}/{workspace}/gsc`.
+When you connect **Google Search Console**, Spyro starts working from your *real*
+Google search data instead of guesses. You get to see exactly how people find you
+on Google - how many clicks and impressions you get, which pages and search terms
+bring them in, and where there are easy wins waiting for you.
 
-<Note>
-This is the **product guide** - how to use the screen. For how the OAuth flow,
-import jobs and diagnoses are built, see [Integrations](/backend/integrations) in
-the developer docs.
-</Note>
+It's a free Google tool, and connecting it takes about a minute.
 
-## Connect Google Search Console
+## Why connect it
+
+<CardGroup cols={2}>
+  <Card title="See your real numbers" icon="chart-line">
+    Actual clicks, impressions, click-through rate, and average position - not estimates.
+  </Card>
+  <Card title="Know your best pages" icon="file-lines">
+    See which pages and search queries are already bringing you traffic.
+  </Card>
+  <Card title="Spot easy wins" icon="bullseye">
+    Find pages that are almost ranking, or that lots of people see but few click.
+  </Card>
+  <Card title="Watch your trend" icon="arrow-trend-up">
+    Follow how your Google performance changes over the weeks and months.
+  </Card>
+</CardGroup>
+
+## How to connect it
 
 <Steps>
-  <Step title="Start the connection">
-    On the Search Console screen, click **Connect Google Search Console**. Spyro
-    redirects you to Google's sign-in and consent screen.
+  <Step title="Open Search Console">
+    In the sidebar, open **Search Console**, then click **Connect Google Search
+    Console**.
   </Step>
-  <Step title="Grant read-only access">
-    Spyro requests a single **read-only** scope
-    (`webmasters.readonly`). As the screen says: *"Read-only - Spyro can't change
-    anything in your GSC account."* It only reads impressions, clicks, CTR,
-    position and your sitemap inventory.
+  <Step title="Sign in with Google">
+    Spyro sends you to Google's sign-in screen. Sign in with the Google account
+    that owns your website, and approve the request. Spyro only *reads* your data -
+    it can't change anything in your Google account.
   </Step>
-  <Step title="Pick a verified property">
-    After consent you land on **Pick a verified property**. Spyro lists every
-    property your Google account can access - signed in as your Google email.
-    Choose the one whose data should power this workspace and confirm.
+  <Step title="Pick your site">
+    Google shows the sites your account can access. Choose the one that matches the
+    website you're working on, and confirm. Tip: if a site doesn't match your
+    workspace, Spyro warns you - pick the one for the site you're tracking.
   </Step>
-  <Step title="Wait for the first import">
-    Selecting a property queues a performance import. The header shows
-    **Performance import queued - refresh in a minute or two**, then
-    **Last imported: …** once data lands.
+  <Step title="Wait a minute for your data">
+    Spyro starts pulling in your performance. You'll see a short "import queued"
+    message, then your numbers appear once they finish loading. Refresh after a
+    minute or two.
   </Step>
 </Steps>
 
-<Warning>
-If the property's domain doesn't match your workspace domain, Spyro flags it:
-*"This GSC property doesn't match the workspace domain - diagnoses may not line up
-with your crawl."* You can still proceed, but for accurate diagnoses pick the
-property that matches the site you're tracking.
-</Warning>
+## What to expect
 
-A property is either a **URL-prefix** site (like `https://example.com/`) or a
-**Domain** property (`sc-domain:example.com`) - Spyro supports both. To change
-later, use **Switch property**; to remove the link entirely, use **Disconnect**,
-which revokes the token at Google and deletes the stored connection.
+Once connected, Search Console gives you a clear picture of your Google performance:
 
-## What you'll see once connected
+- **Your headline numbers** for the last 28 days - clicks, impressions,
+  click-through rate, and average position.
+- **Trend charts** so you can watch each number rise or fall over time.
+- **Top pages and top queries** - the pages and search terms bringing you the most
+  clicks right now.
+- **Quick-win suggestions** that pair your search data with your latest
+  [site audit](/product/audit), such as:
+  - **Low click-through** - a page lots of people see but few click. Usually a
+    better title or description fixes it.
+  - **Almost ranking** - pages sitting just off page one. A little more content or
+    a few internal links can push them up.
+  - **Slipping pages** - pages that used to get more clicks and now need a refresh.
 
-<AccordionGroup>
-  <Accordion title="Overview (last 28 days)" icon="chart-simple">
-    Four headline stats for the last 28 days - **Clicks**, **Impressions**,
-    **CTR** and **Average position** - over the dated window.
-  </Accordion>
-  <Accordion title="Trend charts" icon="chart-line">
-    A daily time series of clicks, impressions, CTR and average position going back
-    up to ~16 months, with a range slider and metric toggle.
-  </Accordion>
-  <Accordion title="Top pages and queries" icon="table">
-    Your **top pages** and **top queries** by clicks in the latest 28-day window,
-    each showing clicks, impressions, CTR and position.
-  </Accordion>
-  <Accordion title="AI surfaces" icon="robot">
-    Where supported, impressions from Google's generative surfaces - **AI
-    Overviews**, **AI Mode** and **AI in Discover** - as a daily chart plus the top
-    pages by AI impressions. Google exposes this only in its UI today, so Spyro
-    tracks it on a best-effort basis.
-  </Accordion>
-</AccordionGroup>
-
-## Diagnoses and fix plans
-
-Once the first import has a few days of data, Spyro surfaces **diagnosis cards**.
-Each card pairs a GSC signal with the matching finding from your latest
-[site audit](/product/audit) and a step-by-step **fix plan**. The signals Spyro
-looks for:
-
-| Diagnosis | What it catches |
-| --- | --- |
-| **Low CTR** | High-impression pages with an unusually low click-through rate - usually a title/meta-description rewrite. |
-| **Almost ranking** | Pages sitting at positions ~8-20 with real impressions - a nudge of content and internal links could push them to page one. |
-| **Content decay** | Pages whose clicks dropped sharply versus the previous window - refresh the content and date. |
-| **Submitted but noindex** | A page in your sitemap that returns `noindex` - remove the noindex or drop it from the sitemap. |
-| **Canonical mismatch** | A page canonicalised elsewhere - fix the canonical or redirect. |
-| **Missing in GSC** | A crawled page with no impressions in 90 days - get it indexed (sitemap, internal links, request indexing). |
-
-Each fix plan ends with the same reminder: **validate the fix in Google Search
-Console after applying it.** Spyro only *reads* GSC - it never changes anything in
-your Google account, so you confirm the result there yourself. When your site looks
-clean, you'll see a healthy state instead: *"Your site looks healthy against the
-signals Spyro can see… We'll check again on Monday."*
+Each suggestion comes with a simple, step-by-step plan you can follow.
 
 <Note>
-**GA4 / Analytics is built but currently hidden from the nav.** The Analytics item
-is commented out in the sidebar (`components/app/sidebar-nav.tsx`, ~lines 69-71)
-*"until v2 (pending Google sensitive-scope verification)"* - the `/ga4` route and
-`lib/ga4` remain intact for testing. Once Google verifies the sensitive scope,
-**AI Traffic (GA4)** will join the SEO section.
+Support for **Google Analytics (GA4)** is coming soon. Once it's ready, you'll be
+able to see your AI-driven traffic right alongside your Search Console data.
 </Note>
+
+## Tips
+
+- Connect Search Console early - the sooner it's linked, the more history Spyro can
+  show you.
+- Choose the site that exactly matches your workspace so the suggestions line up
+  with your pages.
+- After you fix something, check back in Google Search Console to confirm the
+  improvement - Spyro only reads your data, so you confirm the result there.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Site audit" icon="magnifying-glass" href="/product/audit">The crawl that diagnoses pair with GSC signals.</Card>
-  <Card title="Rank tracker" icon="ranking-star" href="/product/rank-tracker">Track keyword positions over time.</Card>
-  <Card title="Integrations (dev docs)" icon="code" href="/backend/integrations">How the GSC OAuth and import work.</Card>
-  <Card title="Product overview" icon="grid-2" href="/product/overview">The full feature map.</Card>
+  <Card title="Run an audit" icon="magnifying-glass" href="/product/audit">Check your site's health and get clear fixes to act on.</Card>
+  <Card title="Rank tracker" icon="ranking-star" href="/product/rank-tracker">Track how your keywords move on Google over time.</Card>
+  <Card title="Connect your tools" icon="plug" href="/product/integrations">Link Search Console, WordPress, and more.</Card>
+  <Card title="Product overview" icon="grid-2" href="/product/overview">See everything Spyro can do.</Card>
 </CardGroup>

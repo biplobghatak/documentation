@@ -1,79 +1,77 @@
 ---
-title: "Spyro AI research (agent)"
-description: "The conversational AI agent that researches keywords, finds content gaps, recommends topics, reads your Search Console, and drafts articles - grounded in your live site and SERP data."
+title: "AI agent"
+description: "Your SEO assistant in a chat. Ask Spyro in plain English to research keywords, find content gaps, suggest topics, check your rankings, read your Search Console, or even draft an article."
 ---
 
-**Spyro AI research** is a chat agent that does the legwork of SEO and content
-research for you. Ask it a question in plain language and it picks the right tools - keyword discovery, SERP analysis, content-gap finding, your own indexed site,
-Google Search Console, the rank tracker - and answers with real data, not guesses.
-It's at `/{org}/{workspace}/spyro-ai-agent` (**Spyro AI research** in the sidebar).
+The **AI agent** is a chat assistant that does your SEO research for you. Just ask a
+question in plain English, and Spyro figures out the answer using your real data -
+your website, your rankings, your Search Console, and live search results. No
+filters or technical settings to fiddle with - you simply ask.
 
-<Note>
-The agent is **locale-aware**: it uses your workspace's target country and content
-language, so keyword volumes and topic ideas reflect the market you're targeting.
-Set these in [workspace settings](/product/settings).
-</Note>
+## Why use it
+
+- **Get answers fast.** Skip the spreadsheets and tools - ask a question and get a
+  clear answer.
+- **Grounded in your data.** Spyro uses your actual website and rankings, not
+  guesses.
+- **One place for everything.** Research keywords, spot opportunities, and even
+  start an article without leaving the chat.
 
 ## What you can ask
 
-The agent has a large toolset (keyword research, SERP and competitor analysis,
-content-gap and rankable-topic finding, GSC overview/queries/low-CTR/almost-ranking/
-content-decay, internal-link suggestions, your content schedule, and article
-drafting). Some examples:
+Here are some examples to get you started:
 
-- "Find me ten low-difficulty keywords about *cold brew coffee*."
-- "What content gaps do my competitors cover that I don't?"
-- "Which of my pages are almost ranking - page 1, positions 8-20?"
+- "Find me ten easy keywords about *cold brew coffee*."
+- "What topics do my competitors cover that I don't?"
+- "Which of my pages are close to ranking on page one?"
+- "How is my website doing in Google Search Console this month?"
 - "Suggest blog topics for next month and add them to my calendar."
-- "Draft an article for *best travel backpacks*."
+- "Draft an article about *best travel backpacks*."
 
-<Tip>
-When you open the page, Spyro shows **suggested prompts** tailored to your
-workspace - based on your current SEO/GEO scores, top audit issues, Search Console
-opportunities, and seed keywords. They're a good starting point.
-</Tip>
-
-## Using the chat
+## How to use it
 
 <Steps>
-  <Step title="Start a conversation">
-    Type a question, or click a suggested prompt. Each visit opens a **fresh
-    chat** - previous threads aren't auto-resumed.
+  <Step title="Open the AI agent">
+    Click **AI agent** in the sidebar. Spyro shows a few suggested questions based
+    on your website - a handy starting point.
   </Step>
-  <Step title="Watch it use tools">
-    The agent streams its reasoning and the tools it runs (e.g. a keyword lookup or
-    a SERP scan), then summarizes the result. Tool results render inline - for
-    example, recommended blog ideas appear as cards you can send to the writer.
+  <Step title="Ask your question">
+    Type a question in plain English, or click one of the suggestions.
   </Step>
-  <Step title="Rate the answer">
-    Use the **thumbs up / down** on any response. Your feedback is saved per
-    message.
+  <Step title="Read the answer">
+    Spyro shows its work as it researches, then gives you a clear answer. Some
+    results appear as cards - for example, topic ideas you can send straight to the
+    [AI writer](/product/writer).
   </Step>
-  <Step title="Revisit past chats">
-    Open **Chats** (top-right) to reopen any previous thread for this workspace.
+  <Step title="Give feedback">
+    Use the thumbs up or thumbs down on any answer to tell Spyro what was helpful.
+    Your feedback is saved.
   </Step>
 </Steps>
 
-## Credits
+## What to expect
 
-The agent draws from your workspace's shared **AI-credit pool** (the
-`AI credits this month` counter at the top of the page). The same pool powers
-keyword-research searches. Limits come with your plan - see
+Spyro answers conversationally, and you can keep the conversation going with
+follow-up questions. Topic ideas and other suggestions often show up as cards you
+can act on right away. You can also reopen past chats to pick up where you left off.
+
+The AI agent uses your monthly AI credits each time it does research for you. Your
+plan sets how many credits you get - see
 [Plans, billing & usage](/product/billing-and-usage).
 
-## Demo mode and advanced search
+## Tips
 
-If no chat LLM key is configured, the page shows a **demo-mode** banner and the
-agent returns sample answers. The **Advanced search** page
-(`/{org}/{workspace}/spyro-ai-agent/search`) is a non-chat keyword-research tool
-that still works directly - it's no longer in the sidebar but remains reachable by
-URL.
+- Be specific - "ten easy keywords about *cold brew coffee* for beginners" beats
+  "give me keywords."
+- Ask follow-ups to refine an answer instead of starting over.
+- When the agent suggests good topics, send them to your
+  [content calendar](/product/calendar) so they're ready to write.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Article Planner & calendar" icon="calendar" href="/product/calendar">Turn topic ideas into a content plan.</Card>
-  <Card title="Rank tracker" icon="chart-line" href="/product/rank-tracker">Track the keywords the agent finds.</Card>
-  <Card title="Site audit" icon="shield-halved" href="/product/audit">The issues the agent references.</Card>
-  <Card title="How the agent works" icon="brain" href="/backend/ai">The engine behind the chat.</Card>
+  <Card title="Content calendar" icon="calendar" href="/product/calendar">Turn the agent's topic ideas into a content plan.</Card>
+  <Card title="AI writer" icon="pen-nib" href="/product/writer">Draft an article from any topic the agent finds.</Card>
+  <Card title="Rank tracker" icon="chart-line" href="/product/rank-tracker">Track the keywords the agent suggests.</Card>
+  <Card title="Site audit" icon="shield-halved" href="/product/audit">The site issues the agent can reference.</Card>
 </CardGroup>

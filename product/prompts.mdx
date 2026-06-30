@@ -1,124 +1,103 @@
 ---
-title: "AI visibility: prompts"
-description: "Manage the buyer questions Spyro runs against ChatGPT, Gemini, Perplexity, Claude and Google AI Overviews each week - add and edit prompts, pick engines, and read the per-prompt frequency, trend and competitor sources."
+title: "Tracking prompts"
+description: "Set up the buyer questions Spyro asks ChatGPT, Gemini, Claude, Perplexity and Google AI Overviews each week - then see how often they mention you."
 ---
 
-The **Prompts** tab is the *input side* of [AI visibility](/product/ai-visibility):
-it's where you manage the buyer questions Spyro runs against the AI engines every
-week. You reach it at `/{org}/{workspace}/prompts`.
+A **tracking prompt** is a real buyer question - the kind a customer would actually
+type into an AI assistant, like *"best budget standing desk for a home office."*
+Each week, Spyro asks the AI assistants your prompts and records how often the
+answers mention you.
 
-A **tracked prompt** is a natural buyer question - the kind a potential customer
-would actually type into ChatGPT or Perplexity - not an SEO keyword and never your
-own brand name. Spyro runs each one against your chosen engines on a weekly
-schedule and records how often the answers cite you.
+Prompts are the starting point for [AI visibility](/product/ai-visibility): the
+questions you set here are what everything else measures. The trick is to ask the
+way a customer would - never your own brand name - because the whole point is to
+see whether AI recommends you on its own.
 
-<Note>
-Results are always a **frequency**, "cited in N of M runs", never a yes/no -
-because the same question can be answered differently each time an LLM runs it.
-Your plan runs each prompt once per engine per weekly check; the percentages you
-see are these frequencies averaged across engines and weeks.
-</Note>
+## Why use it
 
-## Seed prompts from onboarding
+<CardGroup cols={2}>
+  <Card title="Ask like a buyer" icon="comment-dots">
+    Track the real questions your customers ask AI before they buy.
+  </Card>
+  <Card title="Choose your assistants" icon="robot">
+    Decide which AI assistants Spyro checks for each question.
+  </Card>
+  <Card title="See who you're up against" icon="users">
+    Each prompt shows the competitor sites the assistants mention.
+  </Card>
+  <Card title="Follow the trend" icon="arrow-trend-up">
+    Watch how often you're mentioned for each question, week to week.
+  </Card>
+</CardGroup>
 
-You don't start from a blank page. During [onboarding](/product/onboarding),
-Spyro generates a starter set of **five buyer questions** from your site's niche
-and competitors and lets you review or edit them before they go live. They cover a
-mix of intents - recommendation ("best X for Y"), discovery, comparison and
-how-to - and they deliberately never mention your own brand, because the whole
-point is to measure whether AI recommends you *unprompted*.
+## You start with suggestions
 
-## Adding and managing prompts
+You don't begin with a blank page. When you first set up Spyro during
+[onboarding](/product/onboarding), it suggests a starter set of buyer questions
+based on your website and competitors. They cover a natural mix - recommendations,
+comparisons, and how-to questions - and you can review or edit them before they go
+live.
+
+## How to add and manage prompts
 
 <Steps>
-  <Step title="Write the buyer question">
-    Use the **Add prompt** box at the top of the tab - for example,
-    `best budget standing desk for a home office`. Phrase it the way a real
-    customer would ask, and don't name your own brand.
+  <Step title="Open Tracking prompts">
+    In the sidebar, open **Tracking prompts** (part of AI visibility).
   </Step>
-  <Step title="Choose engines">
-    Tick the engines to run this prompt against. All available engines are
-    selected by default - **Google AI Overviews**, **Gemini**, **ChatGPT**,
-    **Claude** and **Perplexity**. (An engine only appears if its API access is
-    configured for your workspace.)
+  <Step title="Write a buyer question">
+    Use the **Add prompt** box and phrase it the way a real customer would - for
+    example, `best budget standing desk for a home office`. Don't include your own
+    brand name.
+  </Step>
+  <Step title="Choose the AI assistants">
+    Tick which assistants should answer this question - **ChatGPT, Gemini, Claude,
+    Perplexity, and Google AI Overviews**. They're all selected by default.
   </Step>
   <Step title="Track it">
-    Click **Track prompt**. It runs immediately for a first result, then joins the
-    weekly Monday schedule. Each prompt can be **paused** or **deleted** from its
-    detail page.
+    Click **Track prompt**. It runs once right away so you get a first result, then
+    re-checks automatically every week.
   </Step>
 </Steps>
 
-<Warning>
-You can track up to **10 prompts** per workspace. The header shows your usage as
-`N / 10 prompts`. Deleting a prompt frees a slot - but it also removes that
-prompt's entire citation history across all engines, and that can't be undone.
-Pause a prompt instead if you only want to stop running it.
-</Warning>
+To change a question later, edit it from its card. You can **pause** a prompt to
+stop checking it, or **delete** it to remove it for good. (Deleting also erases
+that prompt's history, so pause instead if you might want it back.)
 
-## Reading a prompt card
+## Reading your results
 
-Each prompt in the list is a card summarizing its current week. Paused prompts
-sink to the bottom of the list.
+Each prompt appears as a card showing how it's doing this week:
 
-| Field | What it means |
-| --- | --- |
-| **This week frequency** | Your average citation frequency for this prompt across its engines this week. |
-| **Trend** | The change versus last week. Needs two weeks of data before it means anything. |
-| **Per-engine row** | This week's frequency on each selected engine, with a tile per engine. |
-| **Sources** | The competitor (and your own) source domains the engines cited for this prompt this week. |
-| **Weeks of data** | How many distinct weeks this prompt has been checked. |
-| **Next run** | When the next weekly check is scheduled, in your workspace's timezone. |
+- **How often you're mentioned** - your mention rate for that question this week.
+- **The trend** - whether you're up or down compared with last week.
+- **Per-assistant results** - how you did on each AI assistant you picked.
+- **Competitor sites** - the rival domains the assistants mentioned for this
+  question. This is a quick way to see who you're competing against.
 
-The **summary bar** above the list rolls these up across all your prompts: how many
-are tracked, how many were mentioned this week (`n / m`), the average frequency,
-the average trend, and the engines you track.
+Open any prompt to see its full history - how each assistant's results have moved
+over time, your top competitor for that question, and the most recent answers that
+mentioned you.
 
-<Tip>
-The **Sources** list is a fast way to see who you're competing against on a given
-question - these are the domains the engines pulled into their answers. Rivals
-that show up here are the ones to study on the [Overview](/product/ai-visibility)
-ranking.
-</Tip>
+## What to expect
 
-## The weekly schedule
+- Results are shown as a frequency, like **"mentioned in 3 of 5 checks,"** because
+  AI answers vary each time.
+- Your first result appears the moment you add a prompt; after that, Spyro
+  re-checks every week automatically.
+- The trend needs a couple of weeks of data before it means much.
 
-Citation checks run **weekly, every Monday**, in your workspace's timezone. The
-tab and each prompt card show the next scheduled run as a friendly label (for
-example, `Mon, 9:00 AM PST`).
+## Tips
 
-```mermaid
-flowchart LR
-  A["You add / edit a prompt"] --> B["Instant first check"]
-  B --> C["Weekly Monday check"]
-  C --> D["Per-prompt frequency + trend"]
-  D --> E["Rolls up into Overview & Mentions"]
-```
-
-You can also force a check from the detail page with **Run now**, subject to a
-**24-hour cooldown** - if a prompt already ran in the last day, Run now is
-disabled and tells you when it's next allowed.
-
-## The prompt detail page
-
-Opening a prompt (at `/{org}/{workspace}/prompts/{id}`) shows its full history:
-
-- A **headline strip** - this week's average citation rate and trend, total runs
-  and engines this week, and your **top competitor** for this prompt with their
-  frequency.
-- The **next scheduled run** and how many days away it is.
-- A **per-engine history** of every check (up to the last 30), grouped by engine,
-  so you can see how each engine's frequency moved over time.
-- **Recent mentions for this prompt** - the most recent answers that cited you,
-  each linking through to the full response on the [Mentions](/product/ai-mentions)
-  tab.
-- **Run now**, **Active/Paused** toggle and **Delete** controls.
+- Keep prompts in your customer's words. If it sounds like an SEO keyword, rewrite
+  it as a natural question.
+- Use the competitor sites on each card to spot rivals worth studying over on
+  [AI visibility](/product/ai-visibility).
+- To read the exact wording of an answer, jump to [AI mentions](/product/ai-mentions).
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Overview" icon="chart-pie" href="/product/ai-visibility">Your AI share of voice and the competitor ranking.</Card>
-  <Card title="Mentions" icon="radio" href="/product/ai-mentions">The live feed of every AI answer and whether it cited you.</Card>
-  <Card title="GEO engine (dev)" icon="robot" href="/backend/geo-engine">How prompts are scheduled and checked against each engine.</Card>
-  <Card title="AI internals (dev)" icon="code" href="/backend/ai">The model layer behind seed prompts and citation checks.</Card>
+  <Card title="AI visibility & competitors" icon="chart-pie" href="/product/ai-visibility">Your share of voice and where you rank against rivals.</Card>
+  <Card title="AI mentions" icon="comments" href="/product/ai-mentions">Read the actual AI answers and how they describe you.</Card>
+  <Card title="Set up your account" icon="rocket" href="/product/onboarding">Where Spyro suggests your starter prompts.</Card>
+  <Card title="Product overview" icon="grid-2" href="/product/overview">See everything Spyro can do.</Card>
 </CardGroup>
