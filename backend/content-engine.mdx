@@ -1,6 +1,6 @@
 ---
 title: "Content Engine"
-description: "Spyro's blog pipeline end to end — content-plan ideation, the advanced LLM writer with research and SEO scoring, the image pipeline, the TipTap editor with docx/HTML export, and publishing to WordPress and Notion."
+description: "Spyro's blog pipeline end to end - content-plan ideation, the advanced LLM writer with research and SEO scoring, the image pipeline, the TipTap editor with docx/HTML export, and publishing to WordPress and Notion."
 ---
 
 The content engine turns a workspace's keyword strategy into published, SEO- and GEO-optimized
@@ -31,35 +31,35 @@ flowchart TD
   RENDER --> CMS[(WordPress / Notion)]
 ```
 
-## 1. Ideation — the content plan
+## 1. Ideation - the content plan
 
 Ideas live in the `blog_ideas` table with an `idea_status` of `suggested`, `approved`, `sent`,
 or `needs_review` (`lib/db/schema.ts:52`). They arrive three ways:
 
-- **The content plan** (`lib/seo/content-plan/*`) — the `blog-plan` job
+- **The content plan** (`lib/seo/content-plan/*`) - the `blog-plan` job
   (`ideas/plan.requested`) assembles a 30-day plan. It builds a `BusinessProfile`, gathers and
   gates keyword candidates (relevance, ranking, GEO), then calls `generateTitles()` to turn
   gated candidates into on-brand `PlannedIdea`s with an LLM (`lib/seo/content-plan/assemble.ts:25-52`).
   Each idea carries a `primaryKeyword`, `longTails`, `intent`, `funnelStage`, `difficulty`, a
   pillar, and a two-sentence SEO+GEO brief.
-- **Topic discovery** (`lib/inngest/fns/topic-discovery.ts`, `ideas/discover.requested`) — the
+- **Topic discovery** (`lib/inngest/fns/topic-discovery.ts`, `ideas/discover.requested`) - the
   `findRankableTopics` agent tool persists up to 50 `suggested` ideas per workspace and updates
   `topic_discovery_runs`.
-- **The editorial calendar** (`lib/calendar/*`) — `scheduleIdeas` places approved ideas onto the
+- **The editorial calendar** (`lib/calendar/*`) - `scheduleIdeas` places approved ideas onto the
   next free `YYYY-MM-DD` days without double-booking, tagged with a `batchId`
   (`lib/calendar/mutations.ts`). The dashboard polls plan progress through
   `GET /api/content-plan/[workspaceId]` (`app/api/content-plan/[workspaceId]/route.ts`).
 
-The LLM titles come from `getLLM().generateJson(...)` at the `capable` tier — see
+The LLM titles come from `getLLM().generateJson(...)` at the `capable` tier - see
 [AI](/backend/ai) for the provider stack (OpenRouter primary).
 
 ## 2. Enqueue and write
 
-Every "write this" action — the writer form, an approved idea, the chat agent, or the
-autonomous cron — funnels through `enqueueArticleWrite()` (`lib/writer/enqueue.ts:43`). It
+Every "write this" action - the writer form, an approved idea, the chat agent, or the
+autonomous cron - funnels through `enqueueArticleWrite()` (`lib/writer/enqueue.ts:43`). It
 inserts a `blog_posts` row with `status: "queued"`, returns the id immediately, and emits
 `article/write.requested`. The writer UI then polls. If Inngest is unreachable, the same
-function runs the entire writer inline — see the
+function runs the entire writer inline - see the
 [enqueue-and-poll pattern](/backend/background-jobs#enqueue-and-poll-and-the-inline-fallback).
 
 ## 3. The advanced writer
@@ -76,7 +76,7 @@ under the 300s ceiling) and retry a single failed phase without re-billing the w
     voice sample (`lib/writer/advanced.ts:1-13`). Live web research runs through
     `lib/research/web.ts`, which drives **Kimi K2.6 via OpenRouter's `:online` suffix**
     (`moonshotai/kimi-k2.6:online`, `web.ts:34`, Exa-backed search) with **Jina Reader** as a
-    verification layer — failures degrade to a SERP-only run rather than throwing
+    verification layer - failures degrade to a SERP-only run rather than throwing
     (`lib/research/web.ts:1-16`).
   </Step>
   <Step title="Outline">
@@ -93,8 +93,8 @@ under the 300s ceiling) and retry a single failed phase without re-billing the w
   <Step title="Quality">
     A self-critique pass (`lib/writer/quality.ts` `checkArticle`) returns a JSON verdict; if it
     finds critical issues, the affected section is regenerated once. Deterministic enforcers then
-    fix mechanics — `enforceTitle`, `splitLongParagraphs`, `ensureKeywordInFirst100`,
-    `nudgeDensity` (`lib/writer/enforce.ts`) — and `stripDashes` sanitizes
+    fix mechanics - `enforceTitle`, `splitLongParagraphs`, `ensureKeywordInFirst100`,
+    `nudgeDensity` (`lib/writer/enforce.ts`) - and `stripDashes` sanitizes
     (`lib/writer/sanitize.ts`).
   </Step>
   <Step title="Score">
@@ -114,10 +114,10 @@ and `intent`. The durable Inngest path does this in its `store-and-count` step
 if (!written.mocked) await addUsage(args.userId, "blogs", 1);
 ```
 
-This is the **core credit-metered unit** — the plan's `blogsPerMonth` allowance (30 on both Pro
+This is the **core credit-metered unit** - the plan's `blogsPerMonth` allowance (30 on both Pro
 and Agency). See [Billing](/backend/billing#usage-metering--limit-enforcement).
 
-## 4. Images — the content-aware pipeline
+## 4. Images - the content-aware pipeline
 
 When a draft finishes, `article-write` emits `image/pipeline.requested`, and the
 `image-pipeline` job runs four steps: **plan (director) → featured → in-content → finish**
@@ -125,7 +125,7 @@ When a draft finishes, `article-write` emits `image/pipeline.requested`, and the
 opens once every image is finished, and image failures never fail the article (the status always
 ends terminal).
 
-### Step 1 — the director plans a coherent set
+### Step 1 - the director plans a coherent set
 
 `planImages` (`lib/images/director.ts:274`) reads the article's sections, the workspace style
 preset, brand colours, and any products from the research pack, then plans the **whole image
@@ -134,7 +134,7 @@ belongs to one article. The cap is **6** in-content images, hardcoded at the cal
 (`image-pipeline.ts:89`; the director prompt targets "4-5, max 6", `director.ts:295`).
 
 <Note>
-The plan ignores `inContentImagesPerPost` (the plan value of 3) — that limit is **no longer read
+The plan ignores `inContentImagesPerPost` (the plan value of 3) - that limit is **no longer read
 by the image pipeline**. The live cap is the hardcoded `6`. See [Billing](/backend/billing).
 </Note>
 
@@ -144,14 +144,14 @@ something better drawn deterministically:
 | Kind | How it's produced |
 |---|---|
 | `illustration` / `diagram` | diffusion image generation (the providers below) |
-| `chart` | a **deterministic chart PNG** (`lib/images/chart.ts`) — never diffusion |
-| `table` | kept as **HTML** in the markdown — no image |
+| `chart` | a **deterministic chart PNG** (`lib/images/chart.ts`) - never diffusion |
+| `table` | kept as **HTML** in the markdown - no image |
 | `screenshot` | a **real ScreenshotOne capture** of a validated URL (`lib/images/screenshotone.ts`) |
 
 If the LLM plan fails, `fallbackImagePlan` (`director.ts:192`) produces a deterministic plan so
 the pipeline still completes.
 
-### Step 2 — featured image, presets, and the title overlay
+### Step 2 - featured image, presets, and the title overlay
 
 `runImageGeneration` (`lib/images/run.ts:25`) generates **only the featured banner** (default
 1280×720, `run.ts:19`, override per workspace via `featuredImageWidth/Height`). The provider is
@@ -161,7 +161,7 @@ chosen by key presence in `getImageProvider()` (`lib/images/index.ts:11-18`): **
 
 Style comes from one of **8 fixed presets** (`lib/images/presets.ts:30-58`): `flat-vector`
 (default), `hand-drawn-ink`, `isometric-3d`, `editorial-photographic`,
-`minimal-abstract-geometric`, `risograph`, `paper-cut`, `technical-blueprint` — matching the
+`minimal-abstract-geometric`, `risograph`, `paper-cut`, `technical-blueprint` - matching the
 8 PNG swatches in `public/image-formats/`. Legacy preset ids are remapped (`presets.ts:64`), and
 a `"custom"` preset uses the workspace's freeform prompt + reference images instead.
 `buildImagePrompt` (`presets.ts:187`) injects the brand palette into the chosen scaffold.
@@ -170,42 +170,42 @@ After generation, `compositeTextOverlay` (`lib/images/overlay.ts:12`) renders th
 as a Satori/sharp text overlay onto the featured image (centred) and short labels onto
 in-content images (bottom-left), using the self-hosted Inter-Bold font.
 
-### Step 3 — in-content images
+### Step 3 - in-content images
 
 `generateInContentImages` (`lib/images/in-content.ts:79`) is a **separate** function from the
 featured generator. It walks the planned in-content slots, produces each (diffusion / chart /
 screenshot per the director's plan), and stores them in `blog_posts.inContentImages` (they are
 **not** embedded in the markdown).
 
-### Step 4 — alt text and re-scoring
+### Step 4 - alt text and re-scoring
 
 The `finish` step does two best-effort passes (`image-pipeline.ts:129-232`):
 
 1. **`ensureKeywordAlt`** forces the focus keyword into at least one image `alt` (for the
    RankMath kw-in-alt check).
 2. **Re-scores the article** with `scoreArticle`, now passing `imageCount`, `imagesHaveAlt`, and
-   `kwInImageAlt` — so the SEO score awards the media points the pre-image draft score was
+   `kwInImageAlt` - so the SEO score awards the media points the pre-image draft score was
    missing. **The image pipeline overwrites `blog_posts.seoScore`**; the writer-stage score is
    not final.
 
 ## 5. The editor and exports
 
 The writer page (`app/(app)/[org]/[workspace]/writer/[id]/page.tsx`) renders a **TipTap**
-editor where **markdown is the source of truth** — the editor is seeded from a markdown string
+editor where **markdown is the source of truth** - the editor is seeded from a markdown string
 and emits markdown on every edit (`components/app/writer/article-editor.tsx:37-41`). It composes
 `StarterKit`, `TableKit`, `Placeholder`, `Image`, `tiptap-markdown`, a Notion-style
 `SlashCommand`, and a selection `BubbleMenu` (`article-editor.tsx:10-16`).
 
 Two export routes serve the finished post:
 
-- **`GET .../writer/[id]/docx`** — `markdownToDocx` (`lib/writer/docx.ts`) does a light
+- **`GET .../writer/[id]/docx`** - `markdownToDocx` (`lib/writer/docx.ts`) does a light
   markdown→Word conversion (headings, paragraphs, bullets) and streams a `.docx` attachment
   (`app/(app)/[org]/[workspace]/writer/[id]/docx/route.ts`). It is gated by `requireAccess`
   and only serves posts whose `status === "done"`.
-- **`GET .../writer/[id]/html`** — serves the rendered HTML.
+- **`GET .../writer/[id]/html`** - serves the rendered HTML.
 
 `GET /api/blog-post/[postId]` is the status poller used by the chat agent after a `draftArticle`
-handoff — it returns `status`, `imageStatus`, `wordCount`, and an `href` once `done`
+handoff - it returns `status`, `imageStatus`, `wordCount`, and an `href` once `done`
 (`app/api/blog-post/[postId]/route.ts:33-44`).
 
 ## 6. Render
@@ -213,18 +213,18 @@ handoff — it returns `status`, `imageStatus`, `wordCount`, and an `href` once 
 Publishing always goes through `renderArticle()` (`lib/publish/render/index.ts:73`), which
 converts the post into clean, publish-ready HTML:
 
-- **TOC** — it strips the writer's own `## Table of Contents` markdown section and generates an
+- **TOC** - it strips the writer's own `## Table of Contents` markdown section and generates an
   accessible `<nav class="toc">` from the extracted headings, inserted after the quick-answer
   blockquote (`render/index.ts:60-89`).
-- **JSON-LD schema** — `buildSchema` assembles Article + FAQ (parsed from the `## FAQ` section) +
+- **JSON-LD schema** - `buildSchema` assembles Article + FAQ (parsed from the `## FAQ` section) +
   HowTo step data; `schemaToScript` emits the `<script type="application/ld+json">`. Schema is
   only injected when the target has no SEO plugin of its own (`render/index.ts:96-116`).
-- **Meta** — title, description, canonical URL (`siteUrl/slug`), focus keyword, and slug
+- **Meta** - title, description, canonical URL (`siteUrl/slug`), focus keyword, and slug
   (`render/index.ts:122-128`).
 
 ## 7. Publish to a CMS
 
-`lib/publish/index.ts` registers three real publish providers — no mock path:
+`lib/publish/index.ts` registers three real publish providers - no mock path:
 
 ```ts
 // lib/publish/index.ts:9-19
@@ -240,7 +240,7 @@ const REGISTRY: Record<PublishProviderId, PublishProvider> = {
 decrypts the credentials (`decryptJson(conn.secretCipher)`), resolves the author, renders the
 article, calls `impl.publish(...)`, and writes `publishedProvider`, `publishedUrl`, and
 `publishedAt` back to `blog_posts` (`lib/publish/dispatch.ts:97-105`). WordPress posts are
-created as **drafts** by default — see [Integrations](/backend/integrations#wordpress-publishing-push).
+created as **drafts** by default - see [Integrations](/backend/integrations#wordpress-publishing-push).
 
 Scheduling and fan-out run as jobs: the `scheduled-publish` cron (`*/30 * * * *`) publishes
 posts whose `scheduled_at` has arrived, and `post-fanout` runs durable follow-up after a manual
@@ -248,10 +248,10 @@ publish. The advanced writer can also auto-publish on completion when `autoPubli
 
 ## Related
 
-- [Background Jobs](/backend/background-jobs) — the `article-write`, `blog-plan`, `image-pipeline`, `topic-discovery`, `scheduled-publish`, and `post-fanout` functions
-- [AI](/backend/ai) — `getLLM()` provider tiers, the research model, and prompts
-- [SEO Engine](/backend/seo-engine) — `scoreArticle`, keyword data, and SERP grounding
-- [GEO Engine](/backend/geo-engine) — the GEO half of the SEO+GEO briefs
-- [Integrations](/backend/integrations) — WordPress / Notion publishing and credentials
-- [Billing](/backend/billing) — the `blogsPerMonth` metered unit (the in-content image cap is a hardcoded 6, not a plan limit)
-- [Database](/backend/database) — the `blog_ideas`, `blog_posts`, `blog_plans`, and `article_research` tables
+- [Background Jobs](/backend/background-jobs) - the `article-write`, `blog-plan`, `image-pipeline`, `topic-discovery`, `scheduled-publish`, and `post-fanout` functions
+- [AI](/backend/ai) - `getLLM()` provider tiers, the research model, and prompts
+- [SEO Engine](/backend/seo-engine) - `scoreArticle`, keyword data, and SERP grounding
+- [GEO Engine](/backend/geo-engine) - the GEO half of the SEO+GEO briefs
+- [Integrations](/backend/integrations) - WordPress / Notion publishing and credentials
+- [Billing](/backend/billing) - the `blogsPerMonth` metered unit (the in-content image cap is a hardcoded 6, not a plan limit)
+- [Database](/backend/database) - the `blog_ideas`, `blog_posts`, `blog_plans`, and `article_research` tables

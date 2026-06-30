@@ -5,12 +5,12 @@ description: "A map of Spyro's business-logic layer (lib/*): one row per module,
 
 Almost all of Spyro's domain logic lives under `lib/*` as small, mostly-pure,
 vendor-agnostic modules. Route handlers, server actions, and Inngest functions are
-thin — they call into these services. This page is the **directory**: what each
+thin - they call into these services. This page is the **directory**: what each
 module is responsible for, and where to read more.
 
 <Note>
   Several services share a selector-behind-an-interface shape (a `getXProvider()`-style
-  factory), but their **keyless fallback differs — don't assume a mock**. Only
+  factory), but their **keyless fallback differs - don't assume a mock**. Only
   `lib/site-intel` degrades to a deterministic mock when unkeyed. `lib/llm`, `lib/serp`,
   and `lib/images` **throw** when no provider key is configured (no mock fallback);
   `lib/publish` is a static registry of CMS adapters; and `lib/vector` always returns the
@@ -25,88 +25,88 @@ These are the heavy subsystems; each has its own deep-dive page.
 |---|---|---|
 | `lib/llm` | The internal LLM Spyro **uses** (parse, classify, write). OpenRouter-first provider abstraction with tiers + `generateJson`. | [AI Engine](/backend/ai) |
 | `lib/engines` | The external "citation-target" AIs Spyro **queries** (ChatGPT/Claude/Gemini/Perplexity/AI Overview) to measure citations. | [AI Engine](/backend/ai) |
-| `lib/agent` | The Spyro chat agent — model selection, system prompt, tools, RAG grounding, turn routing, conversation persistence. | [AI Engine](/backend/ai) |
+| `lib/agent` | The Spyro chat agent - model selection, system prompt, tools, RAG grounding, turn routing, conversation persistence. | [AI Engine](/backend/ai) |
 | `lib/citations` | Runs a prompt against an engine N times, parses cited/competitor domains, aggregates to a frequency; seeds buyer-question prompts. | [AI Engine](/backend/ai) |
 | `lib/embed` | OpenAI embeddings (`text-embedding-3-small`), the HTML chunker, and knowledge-document builders for RAG. | [AI Engine](/backend/ai) |
-| `lib/vector` | pgvector store over `site_chunks` — upsert/replace by namespace, cosine-similarity search. | [AI Engine](/backend/ai) · [Database](/backend/database) |
+| `lib/vector` | pgvector store over `site_chunks` - upsert/replace by namespace, cosine-similarity search. | [AI Engine](/backend/ai) · [Database](/backend/database) |
 | `lib/rerank` | Reranks RAG candidates via an OpenRouter-hosted Cohere reranker, falling back to vector order. | [AI Engine](/backend/ai) |
 | `lib/seo` | Keyword difficulty/intent/clustering/opportunity/rankability, issue detection, health scoring, content plan. | [SEO Engine](/backend/seo-engine) |
-| `lib/serp` | `getSerpProvider()` — DataForSEO SERP results + features (no mock fallback). | [SEO Engine](/backend/seo-engine) |
+| `lib/serp` | `getSerpProvider()` - DataForSEO SERP results + features (no mock fallback). | [SEO Engine](/backend/seo-engine) |
 | `lib/dataforseo` | Shared DataForSEO HTTP client: auth, retries, DataForSEO-aware errors, daily-budget circuit breaker. | [SEO Engine](/backend/seo-engine) |
 | `lib/keyword-data` | Keyword metrics (volume/cpc/difficulty) via DataForSEO Labs with a heuristic mock fallback + cache/freshness. | [SEO Engine](/backend/seo-engine) |
 | `lib/geo` | The 16-point GEO/AEO readiness check + weighted GEO score. | [GEO Engine](/backend/geo-engine) |
 | `lib/crawler` | Same-origin Cheerio crawler: discovery, robots/sitemap, fetch + optional JS render, parsing, limits. | [Crawler](/backend/crawler) |
 | `lib/site-intel` | Off-domain competitive intelligence (backlinks, DR, ranked keywords, SERP competitors) via DataForSEO or mock. | [Crawler](/backend/crawler) |
 | `lib/discovery` | Maps persisted blog-idea rows into content-calendar candidates. | [Content Engine](/backend/content-engine) |
-| `lib/url` | `normalizeDomainInput` — shape-level domain validation (defers IP/DNS checks to the SSRF guard). | [Crawler](/backend/crawler) · [Security](/backend/security) |
+| `lib/url` | `normalizeDomainInput` - shape-level domain validation (defers IP/DNS checks to the SSRF guard). | [Crawler](/backend/crawler) · [Security](/backend/security) |
 | `lib/audit` | Site/page audit helpers: per-page report rows, template billing, issue labels, severity summaries, audit diffs. | [Audit](/backend/audit) |
 | `lib/writer` | Article-writing engine: `enqueueArticleWrite`, multi-phase `writeArticleAdvanced`, quality gates. | [Content Engine](/backend/content-engine) |
-| `lib/research` | Live web research (`researchTopicLive` — Kimi `:online` + Jina Reader) producing a `ResearchPack`. | [Content Engine](/backend/content-engine) |
+| `lib/research` | Live web research (`researchTopicLive` - Kimi `:online` + Jina Reader) producing a `ResearchPack`. | [Content Engine](/backend/content-engine) |
 | `lib/publish` | Publish-destination registry (WordPress.org/.com, Notion) + `markdownToHtml`. | [Content Engine](/backend/content-engine) · [Integrations](/backend/integrations) |
 
 ## Workspace, identity, and access
 
 | Module | Responsibility | Deep dive |
 |---|---|---|
-| `lib/org.ts` | Org membership and access — `listUserOrgs`, `getUserOrgBySlug`, `createPersonalOrg`, `workspaceAccess`, `visibleWorkspaces`. | [Authorization](/backend/authorization) |
-| `lib/workspace.ts` | Workspace CRUD/selection — org/workspace cookies, `getWorkspaceBySlug`, `createWorkspace`. | [Authorization](/backend/authorization) |
-| `lib/profile.ts` | User profile + entitlement — `getProfile`, `ensureProfile`, `effectiveAccess(org)`. | [Authorization](/backend/authorization) |
-| `lib/auth-guard.ts` | `requireAccess(orgSlug)` — the membership gate used by routes and the agent. | [Authorization](/backend/authorization) |
-| `lib/brand` | Brand-profile resolution — `getStoredBrand`, `deriveBrandProfile`, cache-or-derive `getOrDeriveBrand`. | [Content Engine](/backend/content-engine) |
-| `lib/onboarding` | Site-discovery toolkit — `quickScan`, crawl batching (`processCrawlBatch`), competitor discovery, brand parse, score aggregation. | [Crawler](/backend/crawler) · [Background Jobs](/backend/background-jobs) |
-| `lib/competitors` | Competitor tracking/analysis — `listCompetitors`, `runCompetitorGapAnalysis`, signal scoring. | [Content Engine](/backend/content-engine) |
+| `lib/org.ts` | Org membership and access - `listUserOrgs`, `getUserOrgBySlug`, `createPersonalOrg`, `workspaceAccess`, `visibleWorkspaces`. | [Authorization](/backend/authorization) |
+| `lib/workspace.ts` | Workspace CRUD/selection - org/workspace cookies, `getWorkspaceBySlug`, `createWorkspace`. | [Authorization](/backend/authorization) |
+| `lib/profile.ts` | User profile + entitlement - `getProfile`, `ensureProfile`, `effectiveAccess(org)`. | [Authorization](/backend/authorization) |
+| `lib/auth-guard.ts` | `requireAccess(orgSlug)` - the membership gate used by routes and the agent. | [Authorization](/backend/authorization) |
+| `lib/brand` | Brand-profile resolution - `getStoredBrand`, `deriveBrandProfile`, cache-or-derive `getOrDeriveBrand`. | [Content Engine](/backend/content-engine) |
+| `lib/onboarding` | Site-discovery toolkit - `quickScan`, crawl batching (`processCrawlBatch`), competitor discovery, brand parse, score aggregation. | [Crawler](/backend/crawler) · [Background Jobs](/backend/background-jobs) |
+| `lib/competitors` | Competitor tracking/analysis - `listCompetitors`, `runCompetitorGapAnalysis`, signal scoring. | [Content Engine](/backend/content-engine) |
 | `lib/dashboard-data.ts` | Single aggregator `getWorkspaceDashboardData` assembling the workspace dashboard payload. | [APIs](/backend/apis) |
 
 ## Billing, usage, and plans
 
 | Module | Responsibility | Deep dive |
 |---|---|---|
-| `lib/plans.ts` | Plan/pricing source of truth — `PLANS` catalog, pricing math, `planLimits`, `blogQuota`, `availableEngines`, `withinLimit`. | [Billing](/backend/billing) |
-| `lib/billing` | The billing gate — `hasBillingAccess(org)` (true only on an active subscription, never the legacy local trial). | [Billing](/backend/billing) |
-| `lib/dodo` | Dodo Payments client — checkout, subscription change, customer portal, `verifyDodoWebhook`. | [Billing](/backend/billing) |
-| `lib/usage.ts` | Metered-usage accounting — `getUsage`/`addUsage`/`checkUsage` over named metrics (AI credits, citation calls, tracked keywords, audit pages). | [Billing](/backend/billing) |
+| `lib/plans.ts` | Plan/pricing source of truth - `PLANS` catalog, pricing math, `planLimits`, `blogQuota`, `availableEngines`, `withinLimit`. | [Billing](/backend/billing) |
+| `lib/billing` | The billing gate - `hasBillingAccess(org)` (true only on an active subscription, never the legacy local trial). | [Billing](/backend/billing) |
+| `lib/dodo` | Dodo Payments client - checkout, subscription change, customer portal, `verifyDodoWebhook`. | [Billing](/backend/billing) |
+| `lib/usage.ts` | Metered-usage accounting - `getUsage`/`addUsage`/`checkUsage` over named metrics (AI credits, citation calls, tracked keywords, audit pages). | [Billing](/backend/billing) |
 
 <Warning>
   Billing is **Dodo Payments, not Polar.** Env vars are `DODO_*`, the webhook route
   is `app/api/webhooks/dodo`, and the migration is `0022_dodo_payments`. README
-  references to Polar are stale — the code wins. See [Billing](/backend/billing).
+  references to Polar are stale - the code wins. See [Billing](/backend/billing).
 </Warning>
 
 ## Integrations and delivery
 
 | Module | Responsibility | Deep dive |
 |---|---|---|
-| `lib/ga4` | Google Analytics 4 — OAuth, `createGa4Client`, `importReferrals`, AI-traffic classification. | [Integrations](/backend/integrations) |
-| `lib/gsc` | Google Search Console — OAuth, `createGscClient`, performance import, diagnosis cards (low CTR, almost-ranking, decay). | [Integrations](/backend/integrations) |
-| `lib/wordpress.ts` | Headless-WordPress REST client for the marketing blog — posts, slugs, related, HTML sanitize, reading time. | [Integrations](/backend/integrations) · [Marketing Site](/frontend/marketing-site) |
-| `lib/email` | Resend transactional sender — `sendEmail` + typed helpers (OTP, invite, welcome, audit-complete, article-published, first-citation, digest). | [Integrations](/backend/integrations) |
-| `lib/images` | Image-generation facade — `getImageProvider()` (Gemini 2.5 Flash Image via OpenRouter by default — `OPENROUTER_IMAGE_MODEL`; `gpt-image-1` via OpenAI as fallback) + `imageIsLive`. In-content diffusion illustrations use Flux. | [Content Engine](/backend/content-engine) |
-| `lib/storage.ts` | Supabase Storage (service-role) for generated images — `uploadImage`, `storageIsLive`, data-URL fallback. | [Integrations](/backend/integrations) |
+| `lib/ga4` | Google Analytics 4 - OAuth, `createGa4Client`, `importReferrals`, AI-traffic classification. | [Integrations](/backend/integrations) |
+| `lib/gsc` | Google Search Console - OAuth, `createGscClient`, performance import, diagnosis cards (low CTR, almost-ranking, decay). | [Integrations](/backend/integrations) |
+| `lib/wordpress.ts` | Headless-WordPress REST client for the marketing blog - posts, slugs, related, HTML sanitize, reading time. | [Integrations](/backend/integrations) · [Marketing Site](/frontend/marketing-site) |
+| `lib/email` | Resend transactional sender - `sendEmail` + typed helpers (OTP, invite, welcome, audit-complete, article-published, first-citation, digest). | [Integrations](/backend/integrations) |
+| `lib/images` | Image-generation facade - `getImageProvider()` (Gemini 2.5 Flash Image via OpenRouter by default - `OPENROUTER_IMAGE_MODEL`; `gpt-image-1` via OpenAI as fallback) + `imageIsLive`. In-content diffusion illustrations use Flux. | [Content Engine](/backend/content-engine) |
+| `lib/storage.ts` | Supabase Storage (service-role) for generated images - `uploadImage`, `storageIsLive`, data-URL fallback. | [Integrations](/backend/integrations) |
 
 ## Scheduling and jobs
 
 | Module | Responsibility | Deep dive |
 |---|---|---|
-| `lib/inngest` | Background-job layer — the `inngest` client, event emitters, and the `functions[]` registry of all workers. | [Background Jobs](/backend/background-jobs) |
-| `lib/scheduling` | Auto-generate/refresh timing — `shouldAutoGenerate`, the weekly `JOB_SCHEDULE`, timezone fan-out helpers. | [Background Jobs](/backend/background-jobs) |
-| `lib/calendar` | Pure content-calendar types/helpers — `entryStatus`, `planMove` over `CalendarEntry` cards. | [Content Engine](/backend/content-engine) |
+| `lib/inngest` | Background-job layer - the `inngest` client, event emitters, and the `functions[]` registry of all workers. | [Background Jobs](/backend/background-jobs) |
+| `lib/scheduling` | Auto-generate/refresh timing - `shouldAutoGenerate`, the weekly `JOB_SCHEDULE`, timezone fan-out helpers. | [Background Jobs](/backend/background-jobs) |
+| `lib/calendar` | Pure content-calendar types/helpers - `entryStatus`, `planMove` over `CalendarEntry` cards. | [Content Engine](/backend/content-engine) |
 
 ## Cross-cutting and platform
 
 | Module | Responsibility | Deep dive |
 |---|---|---|
-| `lib/admin` | Admin/superadmin backend — auth + IP allowlist, impersonation, the cost ledger (`recordCostEvent`, `estimateLlmCostUsd`), dashboard queries. | [Logging & Monitoring](/backend/logging) · [Middleware](/backend/middleware) |
-| `lib/tracking` | Rank-tracker seed selection — `selectSeedKeywords` picks intent/position-diversified seeds from a domain's already-ranking keywords. | [SEO Engine](/backend/seo-engine) |
+| `lib/admin` | Admin/superadmin backend - auth + IP allowlist, impersonation, the cost ledger (`recordCostEvent`, `estimateLlmCostUsd`), dashboard queries. | [Logging & Monitoring](/backend/logging) · [Middleware](/backend/middleware) |
+| `lib/tracking` | Rank-tracker seed selection - `selectSeedKeywords` picks intent/position-diversified seeds from a domain's already-ranking keywords. | [SEO Engine](/backend/seo-engine) |
 | `lib/rate-limit.ts` | In-memory fixed-window limiter `rateLimit(key, limit, windowMs)`. | [Security](/backend/security) |
-| `lib/crypto.ts` | Symmetric encryption for stored third-party credentials — `encryptSecret`/`decryptSecret`, `encryptJson`/`decryptJson`. | [Security](/backend/security) |
+| `lib/crypto.ts` | Symmetric encryption for stored third-party credentials - `encryptSecret`/`decryptSecret`, `encryptJson`/`decryptJson`. | [Security](/backend/security) |
 | `lib/free-tools` | The five public marketing tools; `shared/engine.ts` re-exports the core engines so free and paid output stay identical. | [Free Tools](/backend/free-tools) |
 | `lib/db` | Drizzle client + schema (the database access layer every service imports). | [Database](/backend/database) |
 | `lib/supabase` | Supabase server/client factories for auth + service-role access. | [Authentication](/backend/authentication) |
-| `lib/env.ts` | Validated environment configuration — the single typed source for every key. | [Environment Variables](/reference/environment-variables) |
+| `lib/env.ts` | Validated environment configuration - the single typed source for every key. | [Environment Variables](/reference/environment-variables) |
 
 ## Related
 
-- [Backend overview](/backend/overview) — how these layers fit together
+- [Backend overview](/backend/overview) - how these layers fit together
 - [AI Engine](/backend/ai) · [SEO Engine](/backend/seo-engine) · [GEO Engine](/backend/geo-engine) · [Crawler](/backend/crawler) · [Audit](/backend/audit)
 - [Content Engine](/backend/content-engine) · [Background Jobs](/backend/background-jobs) · [Billing](/backend/billing) · [Integrations](/backend/integrations)
-- [Database](/backend/database) — the schema all services read and write
+- [Database](/backend/database) - the schema all services read and write

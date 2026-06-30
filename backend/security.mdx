@@ -1,11 +1,11 @@
 ---
 title: "Security"
-description: "Spyro's security model — rate limiting, SSRF protection, input validation, the superadmin IP allowlist and impersonation, secret/credential encryption, RLS, and an honest account of what is and isn't implemented."
+description: "Spyro's security model - rate limiting, SSRF protection, input validation, the superadmin IP allowlist and impersonation, secret/credential encryption, RLS, and an honest account of what is and isn't implemented."
 ---
 
 This page is the security map for Spyro's backend. It describes the controls
 that exist **in the code**, quotes the load-bearing implementations, and is
-explicit about the protections that are **not** present — so you don't assume a
+explicit about the protections that are **not** present - so you don't assume a
 defence that isn't there.
 
 <Note>
@@ -19,7 +19,7 @@ cross-links; see [Authentication](/backend/authentication),
 | Surface | Primary control |
 | --- | --- |
 | App pages (`/`, dashboard) | Supabase session, enforced in [`proxy.ts`](/backend/middleware) |
-| Internal API routes (`/api/*`) | **Self-guarded** — middleware lets `/api` through; each route calls `getCurrentUser()`/`requireAccess()` |
+| Internal API routes (`/api/*`) | **Self-guarded** - middleware lets `/api` through; each route calls `getCurrentUser()`/`requireAccess()` |
 | Public API (`/api/v1/*`) | `Bearer` workspace key + DB rate limiting ([Public API](/backend/public-api)) |
 | Free tools (`/api/{tool}`) | No auth, but **SSRF-guarded + rate-limited** |
 | Superadmin (`/superadmin`, `/api/admin`) | IP allowlist (edge 404) + 3-factor admin session |
@@ -28,12 +28,12 @@ cross-links; see [Authentication](/backend/authentication),
 ## Rate limiting
 
 Spyro runs **three** distinct rate limiters. Pick the right mental model for
-each — they have different storage and durability guarantees.
+each - they have different storage and durability guarantees.
 
 ### In-memory fixed window (`lib/rate-limit.ts`)
 
 Pure logic, also callable from the edge (`proxy.ts`). The counter lives in one
-warm instance's memory — best-effort, not globally shared:
+warm instance's memory - best-effort, not globally shared:
 
 ```ts
 // lib/rate-limit.ts:23-42
@@ -54,7 +54,7 @@ export function rateLimit(key: string, limit = 10, windowMs = 60_000): RateLimit
 ```
 
 <Warning>
-This is explicitly **best-effort on serverless** — *"a request that lands on a
+This is explicitly **best-effort on serverless** - *"a request that lands on a
 cold/another instance starts a fresh window"* (`lib/rate-limit.ts:5-9`). It
 blunts scripted spam at the 10/min scale; it is not a hard global cap.
 </Warning>
@@ -117,9 +117,9 @@ create table if not exists "api_rate_counters" (
 ## SSRF protection
 
 The free tools fetch **arbitrary user-supplied URLs** from the server with no
-auth — a textbook SSRF vector. The guard is `assertPublicUrl` in
+auth - a textbook SSRF vector. The guard is `assertPublicUrl` in
 `lib/free-tools/shared/ssrf.ts`. It is injected into the crawler as
-`validateUrl`, so it runs **before every fetch — including each redirect hop and
+`validateUrl`, so it runs **before every fetch - including each redirect hop and
 discovered link**, not just the entry URL (`ssrf.ts:4-9`).
 
 `assertPublicUrl` rejects, in order (`ssrf.ts:60-105`):
@@ -132,7 +132,7 @@ discovered link**, not just the entry URL (`ssrf.ts:4-9`).
 URLs with `username:password@` are rejected (`ssrf.ts:71-73`).
 </Step>
 <Step title="Non-default ports">
-Only `80` and `443` — *"a custom port on a public host is a common SSRF pivot"*
+Only `80` and `443` - *"a custom port on a public host is a common SSRF pivot"*
 (`ssrf.ts:75-77`).
 </Step>
 <Step title="Internal hostnames">
@@ -162,7 +162,7 @@ for (const r of records) {
 <Note>
 This is a **resolve-then-check** guard, which closes the basic DNS-rebinding
 hole at resolution time. The code is candid about the residual: TOCTOU is only
-*bounded*, not eliminated — *"the crawler re-validates each hop"* but the kernel
+*bounded*, not eliminated - *"the crawler re-validates each hop"* but the kernel
 could still resolve a different address at connect time (`ssrf.ts:93-94`). There
 is no pinned-IP connection. This guard lives only in the free-tools layer; the
 authed [crawler](/backend/crawler) accepts an injected `validateUrl`.
@@ -173,7 +173,7 @@ authed [crawler](/backend/crawler) accepts an injected `validateUrl`.
 Validation is **inconsistent by design**, and you should know where each style
 applies:
 
-- **Zod schema validation** is used on the public API — e.g.
+- **Zod schema validation** is used on the public API - e.g.
   `app/api/v1/integrations/register/route.ts:13-17` parses the body with
   `z.object({ platform: z.enum([...]), target_url: z.string().url(), … })` and
   additionally enforces `https` (`:36-39`).
@@ -183,7 +183,7 @@ applies:
   (`app/api/free-audit/subscribe/route.ts:18, 32-35`).
 
 <Warning>
-Do not assume every route validates its body with Zod — most internal and
+Do not assume every route validates its body with Zod - most internal and
 free-tool routes do not. When you add a route that accepts JSON, validate it
 explicitly; there is no global request-validation middleware.
 </Warning>
@@ -274,13 +274,13 @@ The key is `SHA-256(INTEGRATION_SECRET || SUPABASE_SERVICE_ROLE_KEY)`
 If **neither** `INTEGRATION_SECRET` nor `SUPABASE_SERVICE_ROLE_KEY` is set,
 `keyMaterial()` falls back to a **hard-coded dev key** and logs a one-time
 warning (`lib/crypto.ts:21-31`). Always set `INTEGRATION_SECRET` before
-production — encrypting with the dev key is equivalent to not encrypting.
+production - encrypting with the dev key is equivalent to not encrypting.
 </Warning>
 
 ### Env access (`lib/env.ts`)
 
 Secrets are read through a thin `opt()` accessor that returns `undefined` for
-missing/empty vars — there is **no Zod env schema**; missing values surface as
+missing/empty vars - there is **no Zod env schema**; missing values surface as
 `featureFlags.*` booleans instead (`lib/env.ts`). Document variable *names and
 purposes* only; see [Environment variables](/reference/environment-variables).
 Server-only secrets include `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`,
@@ -289,7 +289,7 @@ Server-only secrets include `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`,
 ## Row-level security (recap)
 
 RLS is **membership-driven**, not `user_id = auth.uid()` ownership. Two
-`security definer` helpers — `org_role(org)` and `has_workspace_access(ws)` —
+`security definer` helpers - `org_role(org)` and `has_workspace_access(ws)` -
 back policies like:
 
 ```sql
@@ -306,7 +306,7 @@ RLS here is **defence-in-depth**: the app's own queries run through the
 Drizzle/Postgres role which **bypasses RLS** (`drizzle/rls.sql` header comment).
 RLS protects against direct access using a user's anon/JWT key; it does not
 constrain the app server. The free-tool tables (`free_tool_reports`,
-`free_audit_reports`) are intentionally **server-only with no RLS** — they hold
+`free_audit_reports`) are intentionally **server-only with no RLS** - they hold
 no user-scoped data. See [Authorization](/backend/authorization) and
 [Database](/backend/database).
 </Note>
@@ -320,13 +320,13 @@ Being explicit here prevents false confidence:
   `vercel.json` is empty (`{ "$schema": … }` only). There is **no CSP,
   HSTS, X-Frame-Options, X-Content-Type-Options, or Referrer-Policy** set by the
   app. (The "Server & Security" section in the audit PDF reports on *other
-  sites'* headers — it does not set Spyro's own.)
+  sites'* headers - it does not set Spyro's own.)
 - **No CORS configuration.** No `Access-Control-Allow-*` headers are emitted;
   routes rely on the browser's default same-origin policy.
 - **No HTML sanitization library.** There is no DOMPurify and no
   `dangerouslySetInnerHTML` on untrusted input. The blog renderer
   (`lib/publish/render/html.ts`) hand-escapes `& < >` and passes pre-sanitised
-  `<a>` tags through — adequate for first-party markdown, but it is not a
+  `<a>` tags through - adequate for first-party markdown, but it is not a
   general-purpose sanitizer.
 - **Rate limiting is mostly per-instance/in-memory** (except `/api/v1`), so it
   is best-effort, not a hard global cap.
@@ -340,7 +340,7 @@ Being explicit here prevents false confidence:
 flowchart TD
   R[Request] --> M{proxy.ts}
   M -->|/superadmin, /api/admin| IP{IP allowlist?}
-  IP -->|off-list| X404[404 — hidden]
+  IP -->|off-list| X404[404 - hidden]
   IP -->|ok| ADM[3-factor admin session]
   M -->|app page| S{Supabase session?}
   S -->|no| L[Redirect /login]
@@ -354,10 +354,10 @@ flowchart TD
 
 ## Related
 
-- [Authentication](/backend/authentication) — Supabase sessions and cookies.
-- [Authorization](/backend/authorization) — roles, RLS, plan gating, impersonation.
-- [Middleware](/backend/middleware) — the edge gate and IP allowlist.
-- [Public API](/backend/public-api) — `Bearer` keys and the DB rate limiter.
-- [Crawler](/backend/crawler) — where the injected `validateUrl` SSRF guard runs.
-- [Free tools](/backend/free-tools) — the no-auth surface these guards protect.
-- [Database](/backend/database) — RLS files and the free-tool tables.
+- [Authentication](/backend/authentication) - Supabase sessions and cookies.
+- [Authorization](/backend/authorization) - roles, RLS, plan gating, impersonation.
+- [Middleware](/backend/middleware) - the edge gate and IP allowlist.
+- [Public API](/backend/public-api) - `Bearer` keys and the DB rate limiter.
+- [Crawler](/backend/crawler) - where the injected `validateUrl` SSRF guard runs.
+- [Free tools](/backend/free-tools) - the no-auth surface these guards protect.
+- [Database](/backend/database) - RLS files and the free-tool tables.

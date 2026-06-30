@@ -3,7 +3,7 @@ title: "Spyro"
 description: "A developer's overview of Spyro: what it is, the tech stack, and how the codebase is layered."
 ---
 
-Spyro is a SEO and AI-visibility (GEO/AEO) SaaS. It helps site owners **rank on Google and get cited by AI assistants** (ChatGPT, Gemini, Claude, Perplexity, and Google's AI Overviews). This documentation describes the application as it actually exists in source — it is reverse-engineered from the codebase, not from marketing copy.
+Spyro is a SEO and AI-visibility (GEO/AEO) SaaS. It helps site owners **rank on Google and get cited by AI assistants** (ChatGPT, Gemini, Claude, Perplexity, and Google's AI Overviews). This documentation describes the application as it actually exists in source - it is reverse-engineered from the codebase, not from marketing copy.
 
 <Info>
   This page is written for engineers working *on* Spyro. If you are looking for the product story, start with the running app. If you want to build or extend a feature, start here and follow the links into the subsystem docs.
@@ -13,12 +13,12 @@ Spyro is a SEO and AI-visibility (GEO/AEO) SaaS. It helps site owners **rank on 
 
 Spyro runs a set of analysis and content engines against a customer's website:
 
-- **Keyword research and SERP analysis** — real search volume, difficulty, intent, and live SERP features via DataForSEO.
-- **Website audit** — crawls a site, scores SEO and GEO readiness, checks Core Web Vitals and AI-bot access, and suggests fixes.
-- **AI-visibility tracking** — queries the "citation-target" AIs (ChatGPT, Gemini, Claude, Perplexity, Google AI Overviews) with buyer prompts and records, as a *frequency*, whether the customer's brand is mentioned.
-- **Content engine** — blog ideation, topic clusters, an AI article writer, featured-image generation, and publishing to WordPress / Notion.
-- **Rank tracking and digests** — scheduled rank, citation, and AI-overview checks plus a weekly email digest.
-- **Free public tools** — five no-login marketing tools (AI visibility checker, SEO/GEO audit, schema validator, robots checker, meta-snippet preview).
+- **Keyword research and SERP analysis** - real search volume, difficulty, intent, and live SERP features via DataForSEO.
+- **Website audit** - crawls a site, scores SEO and GEO readiness, checks Core Web Vitals and AI-bot access, and suggests fixes.
+- **AI-visibility tracking** - queries the "citation-target" AIs (ChatGPT, Gemini, Claude, Perplexity, Google AI Overviews) with buyer prompts and records, as a *frequency*, whether the customer's brand is mentioned.
+- **Content engine** - blog ideation, topic clusters, an AI article writer, featured-image generation, and publishing to WordPress / Notion.
+- **Rank tracking and digests** - scheduled rank, citation, and AI-overview checks plus a weekly email digest.
+- **Free public tools** - five no-login marketing tools (AI visibility checker, SEO/GEO audit, schema validator, robots checker, meta-snippet preview).
 
 The data model is **multi-tenant**: every customer is an **organization** that owns one or more **workspaces**, and each workspace is exactly one website. See [Architecture](/getting-started/architecture) for the full tenancy model.
 
@@ -89,7 +89,7 @@ Three ideas define the codebase:
 
 1. **Vendor abstraction.** Feature code never imports a vendor SDK. It calls `getSerpProvider()`, `getLLM()`, or an engine from `lib/engines`. Each returns an interface, so swapping or adding a provider is a config change, not a rewrite (`lib/serp/index.ts`, `lib/llm/index.ts`, `lib/engines/index.ts`).
 2. **Long work is a background job.** Crawls, citation checks, rank checks, and article generation run as Inngest functions; request handlers enqueue an event and return, and the UI polls a status row (`lib/inngest/client.ts`).
-3. **Degrade, don't crash — selectively.** Many integrations fall back to a mock when their key is absent so you can click through the product. The two core providers (DataForSEO and the LLM layer) are the exception: they throw real errors instead of masking missing data. See [Environment](/getting-started/environment).
+3. **Degrade, don't crash - selectively.** Many integrations fall back to a mock when their key is absent so you can click through the product. The two core providers (DataForSEO and the LLM layer) are the exception: they throw real errors instead of masking missing data. See [Environment](/getting-started/environment).
 
 ## Where to go next
 

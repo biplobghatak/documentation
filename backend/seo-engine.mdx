@@ -1,12 +1,12 @@
 ---
 title: "SEO Engine"
-description: "How Spyro sources real SERP and keyword data (DataForSEO), and computes difficulty, intent, clusters, issues, and health scores — with the verbatim scoring functions."
+description: "How Spyro sources real SERP and keyword data (DataForSEO), and computes difficulty, intent, clusters, issues, and health scores - with the verbatim scoring functions."
 ---
 
 The SEO engine (`lib/seo/*`, `lib/serp/*`, `lib/dataforseo/*`, `lib/keyword-data/*`)
 turns **real Google data** into the difficulty, intent, volume, clustering, issue,
 and health numbers shown across the app. Everything here is deterministic and
-testable — the LLM is not in this path. Where a score is computed, the real
+testable - the LLM is not in this path. Where a score is computed, the real
 function is quoted verbatim below.
 
 ## How SEO data is sourced
@@ -20,12 +20,12 @@ flowchart LR
     LABS[Labs API<br/>keyword ideas + difficulty + volume]
   end
   GP["getSerpProvider()"] -->|creds set| SERP
-  GP -->|no creds| THROW[(throws — no mock)]
+  GP -->|no creds| THROW[(throws - no mock)]
   KD["getKeywordData()"] -->|labs ok| LABS
   KD -->|no creds / empty / error| MOCK["mockKeywordRows()<br/>source: heuristic"]
 ```
 
-### SERP — DataForSEO only, no mock fallback
+### SERP - DataForSEO only, no mock fallback
 
 `getSerpProvider()` memoizes a single provider. DataForSEO is the **only** SERP
 provider; if credentials are missing it **throws**, and on a request failure the
@@ -50,14 +50,14 @@ export const serpIsLive = dataForSeoCreds;
 
 <Note>
   `SerpResult` carries a `mocked` field, but every code path sets it to `false`
-  (`lib/serp/dataforseo.ts:147`, `lib/serp/lookup.ts:58`) — a vestige of a removed
+  (`lib/serp/dataforseo.ts:147`, `lib/serp/lookup.ts:58`) - a vestige of a removed
   mock. SERP data is always real or it is an error.
 </Note>
 
-### Keyword data — DataForSEO Labs with a heuristic fallback
+### Keyword data - DataForSEO Labs with a heuristic fallback
 
 Keyword metrics are different: `getKeywordData()` uses DataForSEO Labs when
-credentials exist, and falls back to a deterministic mock in three cases — no
+credentials exist, and falls back to a deterministic mock in three cases - no
 creds, Labs returns zero rows, or Labs throws. The source is tagged `"labs"` or
 `"heuristic"`, and **only `"labs"` rows are cached**.
 
@@ -91,9 +91,9 @@ Every DataForSEO call goes through one HTTP client (`lib/dataforseo/client.ts`):
 - **Auth** HTTP Basic from `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD`.
 - **Retries** on `408/429/500/502/503/504` with exponential backoff honoring
   `Retry-After`.
-- **DataForSEO-aware errors** — an HTTP `200` whose top-level `status_code !==
+- **DataForSEO-aware errors** - an HTTP `200` whose top-level `status_code !==
   20000` is treated as a hard error and throws `DataForSeoError`.
-- **Daily budget circuit breaker** — `assertWithinBudget()` runs before every call.
+- **Daily budget circuit breaker** - `assertWithinBudget()` runs before every call.
 
 ```ts
 // lib/dataforseo/budget.ts:57-73
@@ -105,7 +105,7 @@ export async function assertWithinBudget(): Promise<void> {
   catch (e) { console.warn("[dataforseo] budget check skipped:", (e as Error).message); return; }
   if (spent >= cap) {
     throw new DataForSeoError(
-      `Daily DataForSEO budget reached ($${spent.toFixed(2)} ≥ $${cap.toFixed(2)}) — ` +
+      `Daily DataForSEO budget reached ($${spent.toFixed(2)} ≥ $${cap.toFixed(2)}) - ` +
         "calls are paused until UTC midnight.",
     );
   }
@@ -179,7 +179,7 @@ export function classifyIntent(keyword: string): SearchIntent {
 
 ## Keyword clustering
 
-Clustering is a cheap TF/document-frequency anchor grouping — no LLM. Each keyword
+Clustering is a cheap TF/document-frequency anchor grouping - no LLM. Each keyword
 is labeled by its highest-document-frequency token (the one most shared across the
 set), ties broken by longer token:
 
@@ -211,7 +211,7 @@ tokens of 2 characters or fewer.
 
 Two scores decide what to actually target.
 
-**Opportunity** is volume per unit of softened difficulty — a fast sort key for
+**Opportunity** is volume per unit of softened difficulty - a fast sort key for
 "high reward, low effort":
 
 ```ts
@@ -263,7 +263,7 @@ export function kdCeiling(siteDa: number): number {
 }
 export function passesRanking(volume, difficulty, siteDa): boolean {
   if ((volume || 0) < VOLUME_FLOOR) return false;
-  if (difficulty == null) return true;   // unknown KD — don't reject on missing data
+  if (difficulty == null) return true;   // unknown KD - don't reject on missing data
   return difficulty <= kdCeiling(siteDa);
 }
 ```
@@ -291,7 +291,7 @@ words (`lib/seo/issues.ts:38-43`). There are three detectors:
 |---|---|---|
 | `detectPerPageSeoIssues` | one page | `missing_title` (critical), `short_title`, `thin_content`, `slow_page`, `no_https`, `noindex`, `missing_viewport`, `invalid_schema`, `images_missing_alt` |
 | `detectCrossPageSeoIssues` | whole crawl | `duplicate_title`, `orphan_page`, `hreflang_no_return`, `broken_link` |
-| `detectSeoIssues` | composes both | — |
+| `detectSeoIssues` | composes both | - |
 | `detectSiteIssues` (`site-checks.ts`) | site-level / GEO | `ai_crawler_access` (critical, robots blocks GPTBot/ClaudeBot), `missing_sitemap`, `sitemap_dead_url` |
 
 A nice example of severity context-sensitivity: a broken internal link is
@@ -307,7 +307,7 @@ issues.push({
   severity: inSitemap ? "critical" : "warning",
   category: "seo",
   message: inSitemap
-    ? `Internal link to ${link} is broken (${detail}) — confirmed against the sitemap...`
+    ? `Internal link to ${link} is broken (${detail}) - confirmed against the sitemap...`
     : `Internal link to ${link} appears broken (${detail}).`,
   confidence: inSitemap ? "High" : "Medium",
 });
@@ -323,7 +323,7 @@ tanking an otherwise healthy site. Severity weights are `critical: 12, warning: 
 info: 1`, and **only `category === "seo"` issues count** (GEO issues are scored
 separately by the [GEO engine](/backend/geo-engine)).
 
-Two issue types — `missing_sitemap` and `robots_blocks_assets` — describe the
+Two issue types - `missing_sitemap` and `robots_blocks_assets` - describe the
 site as a whole (they're emitted against the homepage but aren't that page's
 fault), so they are pulled out of the per-page average and applied **once** as a
 capped site penalty (`weight × 2`, never more than `20`) instead of tanking the
@@ -416,10 +416,10 @@ refetch list, so a research run only pays for stale terms.
 
 ## Related
 
-- [Crawler](/backend/crawler) — produces the `CrawledPage` data these detectors consume
-- [GEO Engine](/backend/geo-engine) — scores the `category: "geo"` checks
-- [Audit](/backend/audit) — runs these detectors + health scoring per site/page
-- [AI Engine](/backend/ai) — the agent's SEO tools call this engine
-- [Content Engine](/backend/content-engine) — the content plan uses the ranking gate
-- [Database](/backend/database) — `keyword_metrics_cache`, `serp_snapshots`, `dataforseo_usage`
-- [Background Jobs](/backend/background-jobs) — scheduled keyword/SERP refreshes
+- [Crawler](/backend/crawler) - produces the `CrawledPage` data these detectors consume
+- [GEO Engine](/backend/geo-engine) - scores the `category: "geo"` checks
+- [Audit](/backend/audit) - runs these detectors + health scoring per site/page
+- [AI Engine](/backend/ai) - the agent's SEO tools call this engine
+- [Content Engine](/backend/content-engine) - the content plan uses the ranking gate
+- [Database](/backend/database) - `keyword_metrics_cache`, `serp_snapshots`, `dataforseo_usage`
+- [Background Jobs](/backend/background-jobs) - scheduled keyword/SERP refreshes

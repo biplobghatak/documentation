@@ -3,13 +3,13 @@ title: "Performance"
 description: "Spyro's frontend performance model: RSC streaming with loading skeletons, next/image optimization, automatic code splitting, metadata/SEO, and ISR + revalidatePath caching."
 ---
 
-Spyro's performance strategy is built on the App Router defaults — ship as little JavaScript as
+Spyro's performance strategy is built on the App Router defaults - ship as little JavaScript as
 possible, stream the rest, and cache aggressively where data tolerates it. This page documents the
 concrete mechanisms in the codebase.
 
 ## RSC and streaming
 
-Because Server Components are the default, most of the UI never reaches the browser as JavaScript —
+Because Server Components are the default, most of the UI never reaches the browser as JavaScript -
 layouts, data pages, and the blog render on the server and stream HTML. Interactivity is opted into
 per island with `"use client"` (~210 files), keeping the client bundle scoped to what actually needs
 it.
@@ -55,7 +55,7 @@ images: {
 Key points:
 
 - **AVIF + WebP** are served when the browser supports them, with JPEG/PNG fallback.
-- **`remotePatterns`** allowlists the only external image hosts — the headless WordPress blog
+- **`remotePatterns`** allowlists the only external image hosts - the headless WordPress blog
   (`blog.spyro.app`, also derived dynamically from `WORDPRESS_BASE_URL`), Gravatar avatars, Unsplash,
   and Framer assets. An image from any other host will be rejected by the optimizer.
 - The marketing site and blog (`blog-image.tsx`, author avatars) use `next/image`; `next/image` is
@@ -65,12 +65,12 @@ Key points:
 <Note>
 `sharp` powers image optimization and is pinned and force-traced in `next.config.ts`
 (`serverExternalPackages` + `outputFileTracingIncludes`) so its native `libvips` binaries ship into
-every serverless function on Vercel. This is a deploy concern — see [Vercel](/deployment/vercel).
+every serverless function on Vercel. This is a deploy concern - see [Vercel](/deployment/vercel).
 </Note>
 
 ## Code splitting
 
-Code splitting is **automatic** at the `"use client"` boundary — each client island becomes its own
+Code splitting is **automatic** at the `"use client"` boundary - each client island becomes its own
 chunk loaded only on routes that use it, and route segments are split by the App Router. There is
 **no manual `next/dynamic`** usage anywhere in `app/` or `components/` (0 imports). Heavy client
 dependencies (TipTap editor, Recharts, framer-motion, the AI SDK chat runtime) are confined to the
@@ -80,7 +80,7 @@ specific feature components that import them, so they never load on the marketin
 
 SEO is handled entirely through the Metadata API (see [Routing](/frontend/routing#metadata-and-generatemetadata)):
 
-- Site-wide defaults in `app/layout.tsx` — title template `"%s · Spyro"`, `metadataBase`, favicons,
+- Site-wide defaults in `app/layout.tsx` - title template `"%s · Spyro"`, `metadataBase`, favicons,
   manifest, default OG/Twitter image, and global `Organization` + `WebSite` JSON-LD.
 - Per-page static `metadata` or dynamic `generateMetadata` (blog posts map Yoast SEO fields,
   including canonical URLs and article OG tags).
@@ -150,10 +150,10 @@ flowchart LR
 ## Other tuning details
 
 - **Fonts** are loaded with `next/font/google` (`Inter`, `Lato`) using `display: "swap"` and exposed
-  as CSS variables — self-hosted, no layout shift, no external font request.
-- **No-flash theme** — a `beforeInteractive` inline script in `app/layout.tsx` applies the stored
+  as CSS variables - self-hosted, no layout shift, no external font request.
+- **No-flash theme** - a `beforeInteractive` inline script in `app/layout.tsx` applies the stored
   theme before first paint, avoiding a flash of the wrong color scheme.
-- **Resilient blog fetch** — `fetchWordPress` retries up to twice with backoff and a 10s timeout, so
+- **Resilient blog fetch** - `fetchWordPress` retries up to twice with backoff and a 10s timeout, so
   a slow WordPress response degrades gracefully rather than hanging the request.
 
 ## Related

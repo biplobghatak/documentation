@@ -1,6 +1,6 @@
 ---
 title: "Folder reference"
-description: "A complete, navigable map of the Spyro repository — every top-level area, the App Router route groups, the lib/* business-logic modules, components, database files, and supporting folders, each with a one-line description and deep-dive links."
+description: "A complete, navigable map of the Spyro repository - every top-level area, the App Router route groups, the lib/* business-logic modules, components, database files, and supporting folders, each with a one-line description and deep-dive links."
 ---
 
 A folder-by-folder tour of the Spyro repo. Use it to find where a feature lives and
@@ -9,14 +9,14 @@ to jump to the doc that explains it. Paths are relative to the repository root.
 <Tip>
 The deepest logic lives under `lib/*` (vendor-agnostic business modules) and `app/*`
 (the App Router UI + route handlers). Most `lib/*` modules have a dedicated backend
-doc — follow the links.
+doc - follow the links.
 </Tip>
 
 ## Top level
 
 | Path | What it is |
 | --- | --- |
-| `app/` | Next.js App Router — all pages, layouts, and route handlers. |
+| `app/` | Next.js App Router - all pages, layouts, and route handlers. |
 | `lib/` | Vendor-agnostic business logic (the "services" layer). |
 | `components/` | React components, grouped by area (`ui`, `marketing`, `app`, `shared`, `admin`). |
 | `drizzle/` | Generated SQL migrations + the hand-run RLS scripts. |
@@ -25,13 +25,13 @@ doc — follow the links.
 | `reference/` | Original product planning docs (`nichespy-v3-plan.md`). |
 | `wordpress/` | WordPress `mu-plugins` (REST avatar shim for the headless blog). |
 | `wordpress-plugin/` | The **Spyro Autopilot** WP plugin (auto-publishes generated posts). |
-| `next.config.ts` | Next config — native modules, image hosts, PostHog rewrite ([Vercel](/deployment/vercel)). |
+| `next.config.ts` | Next config - native modules, image hosts, PostHog rewrite ([Vercel](/deployment/vercel)). |
 | `drizzle.config.ts` | Drizzle Kit config (schema path, dialect, `DATABASE_URL`). |
-| `vercel.json` | Schema-only stub — no build/route/cron config. |
+| `vercel.json` | Schema-only stub - no build/route/cron config. |
 | `.npmrc` / `pnpm-workspace.yaml` | `node-linker=hoisted` + pnpm build allowlist (native-module hoisting). |
 | `.env.local.example` | Template for every env var ([reference](/reference/environment-variables)). |
 
-## `app/` — App Router
+## `app/` - App Router
 
 Route groups in parentheses don't add URL segments; they scope layouts. See
 [Routing](/frontend/routing).
@@ -44,7 +44,7 @@ Route groups in parentheses don't add URL segments; they scope layouts. See
 | `app/(marketing)/` | Landing, `pricing`, `about`, `affiliates`, `contact`, `privacy`, `terms`. See [Marketing site](/frontend/marketing-site). |
 | `app/(marketing)/blog/` | Headless-WordPress blog: `[slug]`, `category/[slug]`, `tag/[slug]`, paginated `page/[page]`. |
 | `app/(marketing)/free-tools/` | The 5 public tools: `ai-crawler-robots-checker`, `ai-visibility-checker`, `meta-snippet-preview`, `schema-markup-validator`, `seo-geo-audit`. See [Free tools](/backend/free-tools). |
-| `app/(auth)/` | `login`, `signup`, `reset` (+ `reset/update`), `verify` — Supabase Auth. See [Authentication](/backend/authentication). |
+| `app/(auth)/` | `login`, `signup`, `reset` (+ `reset/update`), `verify` - Supabase Auth. See [Authentication](/backend/authentication). |
 
 ### The authed app
 
@@ -72,10 +72,10 @@ generation, audience, competitors, team-members, …). See
 ### Report render pages (for PDF)
 
 `app/pdf-report`, `app/ai-readiness-report`, `app/ai-crawler-report`,
-`app/meta-snippet-report`, `app/schema-report`, `app/hero-preview` — public HTML pages
+`app/meta-snippet-report`, `app/schema-report`, `app/hero-preview` - public HTML pages
 Gotenberg fetches and prints to PDF. See [PDF engine](/backend/pdf-engine).
 
-### `app/api/` — route handlers
+### `app/api/` - route handlers
 
 | Path | What it is |
 | --- | --- |
@@ -90,7 +90,7 @@ Gotenberg fetches and prints to PDF. See [PDF engine](/backend/pdf-engine).
 | `app/api/onboarding/*`, `site-index/*`, `content-plan/*`, `blog-post/*`, `agent`, `site-brand` | Internal feature endpoints. See [APIs](/backend/apis). |
 | `app/auth/callback`, `app/auth/signout`, `app/invite/[token]` | Supabase auth callback, sign-out, workspace invites. |
 
-## `lib/` — business logic
+## `lib/` - business logic
 
 The vendor-agnostic services layer; feature code never imports a vendor SDK directly.
 
@@ -174,7 +174,7 @@ inspection scripts (`inspect-*.ts`, `test-*.ts`, `query-reports.ts`).
 | Path | What it is |
 | --- | --- |
 | `wordpress/mu-plugins/spyro-rest-avatar.php` | Exposes author avatars over REST for the headless blog. |
-| `wordpress-plugin/spyro-autopilot/` | The **Spyro Autopilot** plugin (v0.2.0) — connects a WP site via a workspace API key and auto-publishes Spyro-generated posts (signature verification, cron heartbeat, receiver). |
+| `wordpress-plugin/spyro-autopilot/` | The **Spyro Autopilot** plugin (v0.2.0) - connects a WP site via a workspace API key and auto-publishes Spyro-generated posts (signature verification, cron heartbeat, receiver). |
 
 The plugin talks to `app/api/v1/*`. See [Public API](/backend/public-api) and
 [Integrations](/backend/integrations).

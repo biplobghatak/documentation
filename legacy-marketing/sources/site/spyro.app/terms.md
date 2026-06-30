@@ -8,7 +8,7 @@ These Terms are a contract between you (“you”) and **Spyro**(“Spyro”, �
 
 Access to the modules described on the [homepage](https://spyro.app/), subject to the per-plan limits listed on our website. Limits and features may change; if a change is material we'll email you at least 14 days before it applies and you can cancel before then for a pro-rated refund of any unused prepaid period.
 
-Modules marked “beta” (AI prompt tracker, AI Overview tracking, GEO readiness audit) work but are still being tuned. We don't guarantee specific accuracy on beta modules; we do guarantee they won't silently fail — if a beta job errors, you'll see it.
+Modules marked “beta” (AI prompt tracker, AI Overview tracking, GEO readiness audit) work but are still being tuned. We don't guarantee specific accuracy on beta modules; we do guarantee they won't silently fail - if a beta job errors, you'll see it.
 
 ## 3\. Account
 
@@ -16,7 +16,7 @@ You're responsible for keeping your login credentials safe and for everything th
 
 ## 4\. Free trial, billing & taxes
 
-- **3-day free trial:**includes up to 3 blog generations. We'll never auto-charge you at the end of the trial — you only pay if you add a payment method.
+- **3-day free trial:**includes up to 3 blog generations. We'll never auto-charge you at the end of the trial - you only pay if you add a payment method.
 - **Subscriptions** are billed in advance and renew monthly or annually until you cancel. Annual plans are billed up front for the year.
 - **Blog and usage allowances** reset at the start of each billing period and do not roll over.
 - **Merchant of Record:** all payments are processed by [Dodo Payments](https://dodopayments.com), which collects and remits any applicable sales tax, GST or VAT on our behalf. The price you see on the pricing page is what you pay (tax handled where Dodo is required to charge it).
@@ -26,14 +26,14 @@ You're responsible for keeping your login credentials safe and for everything th
 
 You can cancel at any time from Settings → Billing, which opens the Dodo Payments customer portal. Cancellation takes effect at the end of the current paid period; you keep access until then. We don't refund partial periods except where required by law.
 
-**14-day money-back guarantee:** if you cancel a _first-time_ paid subscription within 14 days of the first charge, email [support@spyro.app](mailto:support@spyro.app) and we'll refund the charge. Subscriptions cancelled inside the 3-day free trial are free of charge — there's nothing to refund.
+**14-day money-back guarantee:** if you cancel a _first-time_ paid subscription within 14 days of the first charge, email [support@spyro.app](mailto:support@spyro.app) and we'll refund the charge. Subscriptions cancelled inside the 3-day free trial are free of charge - there's nothing to refund.
 
 ## 6\. Acceptable use
 
 You agree not to:
 
 - Use the Service for sites, content or workflows that are illegal where you live or where they target users.
-- Resell, sublicense or proxy access to the Service (the Agency plan already lets you deliver client work — that's fine; selling raw API access isn't).
+- Resell, sublicense or proxy access to the Service (the Agency plan already lets you deliver client work - that's fine; selling raw API access isn't).
 - Reverse-engineer the Service, crawl or scrape Spyro itself, bypass plan limits or usage metering, or pretend to be more than one account.
 - Submit malware, phishing pages, or content that infringes someone else's copyright, trademark or privacy as a target site to audit.
 - Use the Service to attack, overload or disrupt any third-party website. Our crawler is polite by default; don't try to make it impolite.
@@ -74,7 +74,7 @@ We'll post any change here and bump the “last updated” date. Material change
 
 ## 14\. Governing law
 
-These Terms are governed by the laws of India. Any dispute will be subject to the exclusive jurisdiction of the courts located in India — except that you, as a consumer, may also bring proceedings in the country where you live, where local law requires.
+These Terms are governed by the laws of India. Any dispute will be subject to the exclusive jurisdiction of the courts located in India - except that you, as a consumer, may also bring proceedings in the country where you live, where local law requires.
 
 ## 15\. Contact
 

@@ -8,7 +8,7 @@ Spyro stores everything in a single **Postgres** database hosted on **Supabase**
 This page is the reference for the schema: how tables are grouped by domain, the multi-tenancy pattern, the ER model of the core entities, how migrations work, and the rules you must follow when touching the database.
 
 <Note>
-The single source of truth is `lib/db/schema.ts` (≈1,390 lines). Every table, column type, index, and enum on this page is pulled from that file with line citations. When this page and the schema disagree, the schema wins — open the file.
+The single source of truth is `lib/db/schema.ts` (≈1,390 lines). Every table, column type, index, and enum on this page is pulled from that file with line citations. When this page and the schema disagree, the schema wins - open the file.
 </Note>
 
 ## Overview
@@ -24,7 +24,7 @@ The single source of truth is `lib/db/schema.ts` (≈1,390 lines). Every table, 
     1536-dim embeddings in `site_chunks`, searched with an HNSW cosine index. See [AI](/backend/ai).
   </Card>
   <Card title="RLS for multi-tenancy" icon="lock">
-    Membership-driven policies in `drizzle/rls.sql`. Defense-in-depth — the app's own connection bypasses them.
+    Membership-driven policies in `drizzle/rls.sql`. Defense-in-depth - the app's own connection bypasses them.
   </Card>
 </CardGroup>
 
@@ -37,7 +37,7 @@ The app talks to Postgres through one Drizzle client, exported from `lib/db/inde
 /**
  * Server-side Drizzle client. Uses the Supabase Postgres connection string.
  * This bypasses RLS (it connects as the DB user), so it must only ever be
- * imported from server code / Inngest jobs — never shipped to the client.
+ * imported from server code / Inngest jobs - never shipped to the client.
  *
  * If DATABASE_URL is absent we still export a proxy that throws on use, so the
  * app can build and run pages that don't touch the DB.
@@ -49,10 +49,10 @@ The app talks to Postgres through one Drizzle client, exported from `lib/db/inde
 
 The connection is tuned for Supabase's serverless reality (`lib/db/index.ts:32-54`):
 
-- **`max: 1` in production**, `8` in dev — one connection per serverless instance avoids exhausting Supabase's 200-connection ceiling; dev gets a small pool so background crons can't head-of-line-block the UI.
-- **`idle_timeout: 60` + `max_lifetime: 1800`** — Supabase's pooler sits behind an AWS NLB that silently drops sockets idle ~350s; connections are retired well before that so the next query never writes to a half-open socket.
-- **`prepare: false`** — set for Supabase pooler compatibility.
-- **`statement_timeout: 30000`** — admin aggregation queries (e.g. `GROUP BY` over `api_cost_events`) need more headroom than Supabase's short default.
+- **`max: 1` in production**, `8` in dev - one connection per serverless instance avoids exhausting Supabase's 200-connection ceiling; dev gets a small pool so background crons can't head-of-line-block the UI.
+- **`idle_timeout: 60` + `max_lifetime: 1800`** - Supabase's pooler sits behind an AWS NLB that silently drops sockets idle ~350s; connections are retired well before that so the next query never writes to a half-open socket.
+- **`prepare: false`** - set for Supabase pooler compatibility.
+- **`statement_timeout: 30000`** - admin aggregation queries (e.g. `GROUP BY` over `api_cost_events`) need more headroom than Supabase's short default.
 
 The export is a `Proxy` that lazily initializes the pool on first use and caches it on `globalThis` in dev so hot-module reloads reuse the same pool instead of leaking new ones (`lib/db/index.ts:60-81`). If `DATABASE_URL` is missing the proxy throws on use, so pages that don't touch the DB still build. `dbAvailable` exposes whether a URL is configured.
 
@@ -84,39 +84,39 @@ It loads `.env.local` then `.env` itself, because `drizzle-kit` does not read Ne
 
 ## Table reference by domain
 
-The schema defines **53 tables**. They fall into a handful of domains. For each table below: its purpose, the key columns (with types from the schema), important indexes, and how it relates to others. Foreign keys are mostly **logical** — the repo convention is to scope by `user_id` / `workspace_id` / `org_id` columns rather than declare database-level `REFERENCES` constraints, so "relationship" means "joined on this column in code", not an enforced FK.
+The schema defines **53 tables**. They fall into a handful of domains. For each table below: its purpose, the key columns (with types from the schema), important indexes, and how it relates to others. Foreign keys are mostly **logical** - the repo convention is to scope by `user_id` / `workspace_id` / `org_id` columns rather than declare database-level `REFERENCES` constraints, so "relationship" means "joined on this column in code", not an enforced FK.
 
 ### Identity, organizations, and workspaces
 
 This is the tenancy backbone. A **profile** is one user. An **organization** is the billing root and owns **workspaces**; a **workspace** is exactly one website (1:1) and is the scope every piece of user data hangs off.
 
 <AccordionGroup>
-  <Accordion title="profiles — identity only (schema.ts:64)">
+  <Accordion title="profiles - identity only (schema.ts:64)">
     `id` (uuid PK, equals `auth.users.id`), `email` (text), `createdAt`. Billing columns were moved out to `organizations` in migration `0006` and dropped here in `0007`. A row is created by the `handle_new_user` trigger when a user confirms their email (see [Multi-tenancy](#new-user-trigger)).
   </Accordion>
-  <Accordion title="organizations — tenancy + billing root (schema.ts:73)">
+  <Accordion title="organizations - tenancy + billing root (schema.ts:73)">
     `id` (uuid PK), `name`, `slug` (unique), `ownerUserId` (uuid, unique index `organizations_owner_idx`), `plan` (enum `growth|pro|agency`, default `pro`), `planInterval` (`month|year`).
 
     **Billing:** `dodoCustomerId` / `dodoSubscriptionId` are the current Dodo Payments columns; `polarCustomerId` / `polarSubscriptionId` are legacy and kept nullable but receive no new writes (`schema.ts:82-87`). `subscriptionActive` (bool), `trialEndsAt`, `creditsBalance` (int).
 
     **Limits:** `purchasedWorkspaces` (Agency seat count), `workspaceLimitOverride`, `memberLimitOverride`. See [Billing](/backend/billing).
   </Accordion>
-  <Accordion title="organization_members / workspace_members — membership (schema.ts:101, 117)">
+  <Accordion title="organization_members / workspace_members - membership (schema.ts:101, 117)">
     Join tables linking users to orgs/workspaces with a `role`. `organization_members.role` is `org_role` (`owner|admin|manager|member`); `workspace_members.role` is `workspace_role` (`admin|member`). Both have a unique `(scope_id, user_id)` index and per-column indexes. These tables drive every RLS policy.
   </Accordion>
-  <Accordion title="organization_invites — pending invites (schema.ts:133)">
-    `email`, `role`, `wsAssignments` (jsonb — which workspaces the invitee gets), `token` (unique), `status` (`pending|accepted|revoked`), `invitedBy`, `expiresAt`. Indexed by email and by `(orgId, email)`.
+  <Accordion title="organization_invites - pending invites (schema.ts:133)">
+    `email`, `role`, `wsAssignments` (jsonb - which workspaces the invitee gets), `token` (unique), `status` (`pending|accepted|revoked`), `invitedBy`, `expiresAt`. Indexed by email and by `(orgId, email)`.
   </Accordion>
-  <Accordion title="workspaces — one website each (schema.ts:159)">
-    The widest table in the schema. `id` (uuid PK), `userId`, `orgId` (nullable), `domain` (the site), `slug`, `label`, `timezone` (IANA, default `UTC` — drives per-workspace local-time job fan-out).
+  <Accordion title="workspaces - one website each (schema.ts:159)">
+    The widest table in the schema. `id` (uuid PK), `userId`, `orgId` (nullable), `domain` (the site), `slug`, `label`, `timezone` (IANA, default `UTC` - drives per-workspace local-time job fan-out).
 
     **Scores & crawl bookkeeping (1:1 with the site):** `seoScore`, `geoScore`, `weeklyAudit`, `lastCrawledAt`.
 
-    **Derived profiles (jsonb):** `toneProfile`, `brandProfile`, `businessProfile`, `audienceTags`, `businessDescription` — captured at onboarding and used by the writer/image pipeline.
+    **Derived profiles (jsonb):** `toneProfile`, `brandProfile`, `businessProfile`, `audienceTags`, `businessDescription` - captured at onboarding and used by the writer/image pipeline.
 
-    **Article defaults:** `defaultImagePreset`, `featuredImageWidth/Height` (default 1280×720), `contentFocus`, `publishingPace`, `geoModeDefault`, `articleStyle`, `internalLinksCount`, `globalInstructions`, `contentLanguage`, `targetCountry`, author E-E-A-T fields (`authorName/Bio/Url`), and `autoPublishEnabled` (bool, default false; added in `0062` — when on, finished articles auto-publish to the connected integration). Indexed by `userId` and `orgId`.
+    **Article defaults:** `defaultImagePreset`, `featuredImageWidth/Height` (default 1280×720), `contentFocus`, `publishingPace`, `geoModeDefault`, `articleStyle`, `internalLinksCount`, `globalInstructions`, `contentLanguage`, `targetCountry`, author E-E-A-T fields (`authorName/Bio/Url`), and `autoPublishEnabled` (bool, default false; added in `0062` - when on, finished articles auto-publish to the connected integration). Indexed by `userId` and `orgId`.
   </Accordion>
-  <Accordion title="workspace_competitors — competitive landscape (schema.ts:256)">
+  <Accordion title="workspace_competitors - competitive landscape (schema.ts:256)">
     One row per competitor `domain` per workspace (unique `(workspaceId, domain)`). `signalCount`, `sources` (jsonb per-source counts), `firstSeen`/`lastSeen`, `confirmedByUser`/`dismissedByUser`, `topicGaps`, `topKeywordsShared`. Seeded at onboarding and accumulated by the competitor-signals cron.
   </Accordion>
 </AccordionGroup>
@@ -136,7 +136,7 @@ This is the tenancy backbone. A **profile** is one user. An **organization** is 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
 | `keywords` (`schema.ts:298`) | Researched keyword ideas | `keyword`, `volume`, `difficulty`, `cpc` (numeric 8,2), `intent` (`kw_intent` enum), `clusterLabel`, `aiVolume` | `workspaceId` nullable (legacy). Indexed by `userId`. |
-| `keyword_metrics_cache` (`schema.ts:514`) | Global keyword-metric cache (public SEO data) | `keyword`+`locationCode`+`languageCode` (unique `kmc_pk`), `volume`, `cpc`, `competition`, `difficulty`, `source`, `raw` | **Not** user-scoped — owned by the app connection; 30-day TTL in app. |
+| `keyword_metrics_cache` (`schema.ts:514`) | Global keyword-metric cache (public SEO data) | `keyword`+`locationCode`+`languageCode` (unique `kmc_pk`), `volume`, `cpc`, `competition`, `difficulty`, `source`, `raw` | **Not** user-scoped - owned by the app connection; 30-day TTL in app. |
 | `serp_snapshots` (`schema.ts:319`) | Cached SERP results per keyword | `keyword`, `country`, `fetchedAt`, `results` (jsonb), `features` (jsonb), `volatility` | User-scoped. Cache index `(userId, keyword, country, fetchedAt)`. |
 | `ai_overview_checks` (`schema.ts:611`) | Whether a Google AI Overview shows and cites you | `keyword`, `shown`, `userCited`, `userPosition`, `sources` | Workspace-scoped. |
 | `tracked_keywords` (`schema.ts:1095`) | Watchlist of keywords to rank-track | `keyword`, `workspaceId` | Indexed by workspace. |
@@ -160,7 +160,7 @@ The site/page audit subsystem. See [Audit](/backend/audit).
 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
-| `audits` (`schema.ts:341`) | One audit run per workspace | `status` (`audit_status`: `queued|running|done|error`), `pagesCrawled`, `billablePages`, `seoScore`, `geoScore`, `cwv`, `botAccess` (jsonb `BotAccess`), `fixedIssueTypes`, `aiSuggestions`, `reportJson` (jsonb — full V3 SEO+GEO report, added `0063`; renders the PDF export) | Indexed by workspace. |
+| `audits` (`schema.ts:341`) | One audit run per workspace | `status` (`audit_status`: `queued|running|done|error`), `pagesCrawled`, `billablePages`, `seoScore`, `geoScore`, `cwv`, `botAccess` (jsonb `BotAccess`), `fixedIssueTypes`, `aiSuggestions`, `reportJson` (jsonb - full V3 SEO+GEO report, added `0063`; renders the PDF export) | Indexed by workspace. |
 | `audit_issues` (`schema.ts:373`) | Issues found in an audit | `url`, `type`, `severity` (`critical|warning|info`), `category` (`seo|geo`), `message`, `fixText` | Joined via `auditId`; carries `userId` for RLS. |
 | `audit_pages` (`schema.ts:381`) | Per-page audit results | `url`, `templateKey/Label`, `seoScore`, `geoScore`, `status`, `wordCount`, `isBillable`, `geoChecks`, `linkMeta` | Lets the aggregate step recompute scores. |
 | `tracked_urls` (`schema.ts:410`) | Manual single-URL watchlist | `url`, `checkStatus`, `lastSeoScore`, `lastGeoScore`, `lastStatus`, `lastIssueCount` | Latest result denormalized for the list view. |
@@ -170,8 +170,8 @@ The site/page audit subsystem. See [Audit](/backend/audit).
 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
-| `site_indexes` (`schema.ts:1148`) | One row per site-index run (1:1 with workspace) | `workspaceId` (**PK**), `status` (`site_index_status`), `pagesCrawled`, `chunksEmbedded`, per-track statuses (`seoStatus`/`geoStatus`/`serpStatus`/`intelStatus` — onboarding fan-out), `seedNotes` | Polled by the UI without scanning chunks. |
-| `site_chunks` (`schema.ts:1184`) | Embedded page chunks for RAG | `url`, `title`, `heading`, `chunkText`, `tokenCount`, `embedding` (`vector(1536)`), `metadata` | HNSW cosine index — see [pgvector / RAG](#pgvector-rag-storage). |
+| `site_indexes` (`schema.ts:1148`) | One row per site-index run (1:1 with workspace) | `workspaceId` (**PK**), `status` (`site_index_status`), `pagesCrawled`, `chunksEmbedded`, per-track statuses (`seoStatus`/`geoStatus`/`serpStatus`/`intelStatus` - onboarding fan-out), `seedNotes` | Polled by the UI without scanning chunks. |
+| `site_chunks` (`schema.ts:1184`) | Embedded page chunks for RAG | `url`, `title`, `heading`, `chunkText`, `tokenCount`, `embedding` (`vector(1536)`), `metadata` | HNSW cosine index - see [pgvector / RAG](#pgvector-rag-storage). |
 | `workspace_intel_snapshots` (`schema.ts:1127`) | Off-domain intelligence time series | `domainRank`, `backlinks`, `referringDomains`, `rankedKeywordsCount`, `avgPosition`, `topKeywords`, `competitors`, `source` | One row per onboarding/weekly run. See [Crawler](/backend/crawler). |
 
 The `site_index_status` enum is `queued|crawling|embedding|ready|partial|error`; onboarding tracks use `pending|running|ready|error` (`schema.ts:42-44`).
@@ -181,13 +181,13 @@ The `site_index_status` enum is `queued|crawling|embedding|ready|partial|error`;
 The ideation → research → drafting → image → publish pipeline. See [Content Engine](/backend/content-engine).
 
 <AccordionGroup>
-  <Accordion title="blog_plans — a 30-day content plan (schema.ts:770)">
-    `topic`, `status` (`blog_plan_status`: `queued|running|ready|error`), `targetCount`, `ideaCount`, `strategyBrief` (jsonb — business framing, pillars, content-gap findings). Workspace-scoped.
+  <Accordion title="blog_plans - a 30-day content plan (schema.ts:770)">
+    `topic`, `status` (`blog_plan_status`: `queued|running|ready|error`), `targetCount`, `ideaCount`, `strategyBrief` (jsonb - business framing, pillars, content-gap findings). Workspace-scoped.
   </Accordion>
-  <Accordion title="blog_ideas — individual ideas (schema.ts:628)">
+  <Accordion title="blog_ideas - individual ideas (schema.ts:628)">
     `batchId`, `planId` (→ `blog_plans.id`), `scheduledDay`/`scheduledDate` (content calendar), `status` (`idea_status`: `suggested|approved|sent|needs_review`), `title`, `primaryKeyword`, `longTails`, `volume`/`aiVolume`/`difficulty`, `intent`, `funnelStage`, `pillar`, `brief`, `estimated`.
   </Accordion>
-  <Accordion title="blog_posts — drafted articles (schema.ts:668)">
+  <Accordion title="blog_posts - drafted articles (schema.ts:668)">
     The pipeline's main row. `title`, `primaryKeyword`, `modelUsed`, `geoMode`, `wordCount`, `markdown`, `metaTitle/Description`, `status` (reuses `audit_status`), `creditsSpent`.
 
     **Image:** `imageStatus` (`image_status`: `none|queued|running|done|error`), `imagePreset/Prompt`, `featuredImageUrl`, `imageSource`, `inContentImages` (jsonb), `imagePlan`.
@@ -196,10 +196,10 @@ The ideation → research → drafting → image → publish pipeline. See [Cont
 
     **Research link:** `researchId` → `article_research.id`. `qualityChecks`, `stepStatus`, `seoScore`.
   </Accordion>
-  <Accordion title="article_research — versioned research packs (schema.ts:743)">
+  <Accordion title="article_research - versioned research packs (schema.ts:743)">
     `blogPostId`, `version`, `articleType`, `intent`, `pack` (jsonb), `outline`, `researchStatus`. Unique `(blogPostId, version)`; each re-run inserts version+1 and `blog_posts.researchId` points at the current one.
   </Accordion>
-  <Accordion title="topic_discovery_runs — async 'find more topics' (schema.ts:793)">
+  <Accordion title="topic_discovery_runs - async 'find more topics' (schema.ts:793)">
     `status` (`running|ready|error`), `candidateCount`, `seed`. Polled by the planner rail.
   </Accordion>
 </AccordionGroup>
@@ -222,13 +222,13 @@ The `integration_provider` enum is `wordpress_org|wordpress_com|notion|google_se
 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
-| `agent_conversations` (`schema.ts:1222`) | One chat thread per workspace | `title`, `updatedAt`, `lastActiveTools` (jsonb — sticky follow-up routing) | Indexed `(workspaceId, updatedAt)`. |
-| `agent_messages` (`schema.ts:1235`) | One AI-SDK `UIMessage` per row | `conversationId`, `role`, `parts` (jsonb — text/tool-calls/reasoning, stored verbatim), `messageKey` (stable per-response id, added `0064`) | Indexed `(conversationId, createdAt)`. See [AI](/backend/ai). |
+| `agent_conversations` (`schema.ts:1222`) | One chat thread per workspace | `title`, `updatedAt`, `lastActiveTools` (jsonb - sticky follow-up routing) | Indexed `(workspaceId, updatedAt)`. |
+| `agent_messages` (`schema.ts:1235`) | One AI-SDK `UIMessage` per row | `conversationId`, `role`, `parts` (jsonb - text/tool-calls/reasoning, stored verbatim), `messageKey` (stable per-response id, added `0064`) | Indexed `(conversationId, createdAt)`. See [AI](/backend/ai). |
 | `agent_feedback` (`schema.ts:1258`) | Thumbs up/down on one agent response | `workspaceId`, `conversationId`, `messageKey`, `userId`, `rating` (`like\|dislike`), `messagePreview` (denormalized so the vote survives a message delete) | Unique `(userId, messageKey)`; workspace-scoped RLS. Added in `0064`. See [AI](/backend/ai). |
 
 ### Free-tool reports (public, no auth)
 
-These back the public marketing tools and have **no FK to auth** — they are fully public. See [Free tools](/backend/free-tools).
+These back the public marketing tools and have **no FK to auth** - they are fully public. See [Free tools](/backend/free-tools).
 
 | Table | Purpose | Key columns | Notes |
 | --- | --- | --- | --- |
@@ -247,9 +247,9 @@ These back the public marketing tools and have **no FK to auth** — they are fu
 
 Every user-data row is scoped by one or more of three columns:
 
-- **`user_id`** — the owning Supabase user (`auth.users.id`). Present on almost every table.
-- **`workspace_id`** — the website the data belongs to. The primary scope for SEO/GEO/blog/agent data. A workspace is exactly one site.
-- **`org_id`** — the billing/tenancy root that owns workspaces and members.
+- **`user_id`** - the owning Supabase user (`auth.users.id`). Present on almost every table.
+- **`workspace_id`** - the website the data belongs to. The primary scope for SEO/GEO/blog/agent data. A workspace is exactly one site.
+- **`org_id`** - the billing/tenancy root that owns workspaces and members.
 
 The chain is **org → workspace → data**. A user reaches data through membership: they are an `organization_members` row (with an org role) and/or a `workspace_members` row (with a workspace role). Org owners/admins/managers implicitly reach every workspace in their org; plain members reach only the workspaces they are explicitly added to.
 
@@ -297,7 +297,7 @@ Tables are bucketed by how they are scoped (`rls.sql:14-31`):
 - **Self-only**: `profiles` (`id = auth.uid()`).
 - **Server-only** (RLS on, zero policies → deny-all for anon/auth keys): `waitlist`, `processed_events`, and the global service-role tables `keyword_metrics_cache`, `dataforseo_usage`, `api_cost_events`, `admin_impersonation_sessions`.
 
-`site_indexes` and `site_chunks` are handled **exclusively** by `drizzle/rls_site_chunks.sql` (same `has_workspace_access` model) so the two files never define conflicting policy names. `drizzle/rls_enable_all.sql` is a catch-all that turns RLS on for *every* table in `public`, guaranteeing nothing is ever left "Unrestricted" in Supabase — even a table without an explicit policy becomes deny-all for the anon key.
+`site_indexes` and `site_chunks` are handled **exclusively** by `drizzle/rls_site_chunks.sql` (same `has_workspace_access` model) so the two files never define conflicting policy names. `drizzle/rls_enable_all.sql` is a catch-all that turns RLS on for *every* table in `public`, guaranteeing nothing is ever left "Unrestricted" in Supabase - even a table without an explicit policy becomes deny-all for the anon key.
 
 <a id="new-user-trigger" />
 ### The new-user trigger
@@ -322,7 +322,7 @@ if tg_op = 'UPDATE' and old.email_confirmed_at is not null then
 end if;
 ```
 
-This fixes a bug where `supabase.auth.signUp()` inserts an *unconfirmed* row first, which previously created a profile + org for every abandoned signup. OAuth users arrive already-confirmed, so the `INSERT` path still handles them. The org starts **inactive** (`subscription_active = false`) — there is no local no-card trial; the trial is Dodo-managed. See [Authentication](/backend/authentication).
+This fixes a bug where `supabase.auth.signUp()` inserts an *unconfirmed* row first, which previously created a profile + org for every abandoned signup. OAuth users arrive already-confirmed, so the `INSERT` path still handles them. The org starts **inactive** (`subscription_active = false`) - there is no local no-card trial; the trial is Dodo-managed. See [Authentication](/backend/authentication).
 
 ## Entity-relationship diagram
 
@@ -404,13 +404,13 @@ The workflow uses `drizzle-kit` via npm scripts (`package.json`):
 
 <Steps>
   <Step title="Edit the schema">
-    Change `lib/db/schema.ts` — add a table, column, index, or enum.
+    Change `lib/db/schema.ts` - add a table, column, index, or enum.
   </Step>
   <Step title="Generate a migration">
     `pnpm db:generate` (`drizzle-kit generate`) diffs the schema against the latest `meta/` snapshot and writes a new `drizzle/NNNN_*.sql` plus an updated snapshot.
   </Step>
   <Step title="Apply it">
-    `pnpm db:migrate` (`drizzle-kit migrate`) runs pending migrations. `pnpm db:push` (`drizzle-kit push`) pushes the schema directly without a migration file — handy in dev. `pnpm db:studio` opens Drizzle Studio.
+    `pnpm db:migrate` (`drizzle-kit migrate`) runs pending migrations. `pnpm db:push` (`drizzle-kit push`) pushes the schema directly without a migration file - handy in dev. `pnpm db:studio` opens Drizzle Studio.
   </Step>
   <Step title="Re-apply RLS">
     After any new table, re-run `drizzle/rls.sql`, `drizzle/rls_site_chunks.sql`, then `drizzle/rls_enable_all.sql` in the Supabase SQL editor so the new table gets policies (or at least deny-all). All three are idempotent.
@@ -430,7 +430,7 @@ The migration history doubles as a changelog of the product's evolution. Notable
 | `0047_gate_handle_new_user` | New-user trigger gated on email confirmation. |
 | `0058_free_tool_reports` | Shared store for the public crawl tools. |
 | `0062_workspace_auto_publish` | `workspaces.auto_publish_enabled` toggle (auto-publish finished articles). |
-| `0063_audit_report_json` | `audits.report_json` — the full V3 report the PDF export renders. |
+| `0063_audit_report_json` | `audits.report_json` - the full V3 report the PDF export renders. |
 | `0064_agent_feedback` | `agent_feedback` table + `agent_messages.message_key` (thumbs up/down on agent replies). |
 
 <Warning>
@@ -445,13 +445,13 @@ Some migrations (e.g. `api_cost_events`) note that `pnpm db:migrate` can **hang*
 
 <AccordionGroup>
   <Accordion title="Never import the service-role db from client code">
-    `db` from `lib/db/index.ts` connects as the DB owner and **bypasses RLS**. It must only be imported from server code, server actions, route handlers, and Inngest jobs — never a Client Component or anything that ends up in a browser bundle (`lib/db/index.ts:8-9`).
+    `db` from `lib/db/index.ts` connects as the DB owner and **bypasses RLS**. It must only be imported from server code, server actions, route handlers, and Inngest jobs - never a Client Component or anything that ends up in a browser bundle (`lib/db/index.ts:8-9`).
   </Accordion>
   <Accordion title="RLS is defense-in-depth, not your only guard">
     Because the app connection bypasses RLS, you cannot rely on policies to scope queries the app itself makes. Always filter by `workspaceId` / `userId` / `orgId` in code and enforce roles via the [authorization](/backend/authorization) helpers. RLS only saves you if a query somehow runs under a Supabase anon/auth key.
   </Accordion>
   <Accordion title="Use the abstractions, not raw SQL ad hoc">
-    Query through the typed Drizzle schema (`schema.ts` exports `$inferSelect` row types for every table) and the domain modules in `lib/*`. Wrap public free-tool reads/writes in `withDbRetry()` (`lib/db/retry.ts`) — but do **not** wrap the shared `db` client globally, or you'll silently retry non-idempotent paid queries.
+    Query through the typed Drizzle schema (`schema.ts` exports `$inferSelect` row types for every table) and the domain modules in `lib/*`. Wrap public free-tool reads/writes in `withDbRetry()` (`lib/db/retry.ts`) - but do **not** wrap the shared `db` client globally, or you'll silently retry non-idempotent paid queries.
   </Accordion>
   <Accordion title="Mirror partial-index predicates on upsert">
     `integrations` has a **partial** unique index `(workspaceId, platform, targetUrl) WHERE target_url IS NOT NULL` (`schema.ts:836-841`). Upserts must repeat that predicate via Drizzle's `targetWhere`, or the conflict target won't match. The same care applies to every `gsc_*` / `ga4_*` unique constraint.

@@ -1,14 +1,14 @@
 ---
 title: "Forms"
-description: "Spyro's form stack: Zod schemas, React Hook Form with @hookform/resolvers, submission through server actions, and error handling — with a complete real example."
+description: "Spyro's form stack: Zod schemas, React Hook Form with @hookform/resolvers, submission through server actions, and error handling - with a complete real example."
 ---
 
 Spyro builds forms two ways depending on complexity:
 
-1. **React Hook Form + Zod** for rich client forms (contact, affiliate signup) — controlled inputs,
+1. **React Hook Form + Zod** for rich client forms (contact, affiliate signup) - controlled inputs,
    inline field errors, submit-state UI.
 2. **Native `<form action>` + `useActionState`** for the many in-app mutation forms (add workspace,
-   run keyword research, connect an integration) — minimal client code, validation done in the
+   run keyword research, connect an integration) - minimal client code, validation done in the
    server action.
 
 Both validate with **Zod** and submit through **server actions**. This page focuses on pattern (1)
@@ -29,7 +29,7 @@ with a complete real example; pattern (2) is covered in
 `components/contact/contact-form.tsx` is the canonical React Hook Form + Zod form. It is a client
 component that submits to the `onContactUs` server action. The pieces, all verbatim from source.
 
-**1. The Zod schema** (`contact-form.tsx:31`) — the single source of truth for both validation and
+**1. The Zod schema** (`contact-form.tsx:31`) - the single source of truth for both validation and
 the inferred TypeScript type:
 
 ```tsx
@@ -46,7 +46,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 ```
 
-**2. `useForm` with the Zod resolver** (`contact-form.tsx:47`) — `zodResolver` plugs the schema into
+**2. `useForm` with the Zod resolver** (`contact-form.tsx:47`) - `zodResolver` plugs the schema into
 React Hook Form, so field errors come straight from the schema messages:
 
 ```tsx
@@ -67,7 +67,7 @@ const {
 });
 ```
 
-**3. The submit handler** (`contact-form.tsx:63`) — `handleSubmit` only calls `onSubmit` once the
+**3. The submit handler** (`contact-form.tsx:63`) - `handleSubmit` only calls `onSubmit` once the
 schema passes; `onSubmit` calls the server action and maps the result to a local status:
 
 ```tsx
@@ -140,7 +140,7 @@ guarantees validation runs on the server regardless of the client. See the
   pattern) or returned in the action's `message` (native pattern).
 - **Submission errors** are caught and shown as a local status (`contact-form.tsx`) or a Sonner
   toast (`generic-search-form.tsx`).
-- **Server actions never throw to the client for expected failures** — they return
+- **Server actions never throw to the client for expected failures** - they return
   `{ ok: false, message }`. They *do* throw for true authorization violations (e.g. `addWorkspace`
   throws `"Not permitted."` for a member role), which bubble to the route `error.tsx` boundary.
 - **Spam protection** appears on public forms: the affiliate form uses a honeypot field, and a
@@ -148,7 +148,7 @@ guarantees validation runs on the server regardless of the client. See the
 
 <Warning>
 Client-side Zod validation is a UX convenience, not a security boundary. Every server action
-re-validates with Zod and re-checks authorization before touching the database — see
+re-validates with Zod and re-checks authorization before touching the database - see
 [Security](/backend/security).
 </Warning>
 

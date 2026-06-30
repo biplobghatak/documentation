@@ -4,7 +4,7 @@ description: "How Spyro's backend is organized: route handlers vs server actions
 ---
 
 Spyro's backend is a **Next.js App Router** application. There is no separate API
-server — the backend *is* the same Next.js project that renders the frontend,
+server - the backend *is* the same Next.js project that renders the frontend,
 running on Vercel's serverless runtime. Business logic lives in a plain TypeScript
 service layer under `lib/`, data is in Postgres (via Drizzle + Supabase), and
 anything slow or scheduled runs out-of-band on [Inngest](/backend/background-jobs).
@@ -15,14 +15,14 @@ Every request enters the backend through one of four mechanisms:
 
 <CardGroup cols={2}>
 <Card title="Route handlers" icon="server">
-`app/api/**/route.ts` — HTTP endpoints (REST-ish). Used for streaming (the AI
+`app/api/**/route.ts` - HTTP endpoints (REST-ish). Used for streaming (the AI
 agent), polling, OAuth callbacks, webhooks, PDFs, and the external
 [`/api/v1`](/backend/public-api) API. ~46 handlers, catalogued in
 [Internal APIs](/backend/apis).
 </Card>
 <Card title="Server Actions" icon="bolt">
 `"use server"` functions (e.g. `lib/actions/auth.ts`, `lib/actions/api-keys.ts`).
-Called directly from forms/components — the default for mutations that don't need
+Called directly from forms/components - the default for mutations that don't need
 a public URL. Auth, API-key CRUD, and most settings run here.
 </Card>
 <Card title="Server Components" icon="layer-group">
@@ -30,12 +30,12 @@ Pages and layouts read data directly through the `lib/` service layer and the
 [auth guards](/backend/authorization), with no API round-trip.
 </Card>
 <Card title="Inngest functions" icon="clock">
-`lib/inngest/*` — durable, multi-step, and scheduled background work, invoked via
+`lib/inngest/*` - durable, multi-step, and scheduled background work, invoked via
 the `/api/inngest` serve endpoint.
 </Card>
 </CardGroup>
 
-### Route handler vs Server Action — which to use?
+### Route handler vs Server Action - which to use?
 
 | Use a **route handler** when… | Use a **server action** when… |
 | --- | --- |
@@ -65,7 +65,7 @@ point. A few load-bearing modules:
 Server-only modules import `"server-only"` (e.g. `lib/org.ts:1`,
 `lib/usage.ts:1`) so they can never be bundled into client code. A few pure
 helpers deliberately **omit** it because they also run at the edge in
-[`proxy.ts`](/backend/middleware) — notably `lib/admin/ip.ts` and
+[`proxy.ts`](/backend/middleware) - notably `lib/admin/ip.ts` and
 `lib/rate-limit.ts`.
 
 ## Vendor abstractions
@@ -75,7 +75,7 @@ External providers are wrapped so the app depends on intent, not a vendor SDK:
 | Concern | Provider (from code) | Notes |
 | --- | --- | --- |
 | Auth & DB | **Supabase** (Postgres + Auth) | App queries bypass RLS; RLS is defense-in-depth |
-| Billing | **Dodo Payments** | `DODO_*` env vars, webhook `app/api/webhooks/dodo` — **not** Polar (README is stale) |
+| Billing | **Dodo Payments** | `DODO_*` env vars, webhook `app/api/webhooks/dodo` - **not** Polar (README is stale) |
 | Chat LLM | **OpenRouter** (primary) | Gemini/Moonshot are unset-only fallbacks; OpenAI used for embeddings |
 | SERP / keywords | **DataForSEO** | |
 | Email | **Resend** + MailerLite | transactional + newsletter |
@@ -88,7 +88,7 @@ Polar (`lib/env.ts`, `0022_dodo_payments`), and the chat LLM is **OpenRouter**,
 not "Gemini only". When docs and code disagree, the code wins.
 </Warning>
 
-## "Long work = Inngest" — with one real exception
+## "Long work = Inngest" - with one real exception
 
 The guiding rule is that **durable, multi-step, or scheduled work runs on
 [Inngest](/backend/background-jobs)**, not inside a request. Article generation,
@@ -149,7 +149,7 @@ flowchart TD
 
 1. **Middleware** ([`proxy.ts`](/backend/middleware)) refreshes the session and
    redirects unauthenticated users away from private paths.
-2. The **entry point** resolves identity — [auth guards](/backend/authorization)
+2. The **entry point** resolves identity - [auth guards](/backend/authorization)
    for app code, `getCurrentUser()`/`resolveBearer()`/webhook signatures for
    route handlers.
 3. The **service layer** in `lib/` does the work against Postgres.
@@ -181,7 +181,7 @@ Inngest functions, crons, and the dispatcher.
 
 ## Related
 
-- [Architecture](/getting-started/architecture) — the system-wide diagrams.
-- [Database](/backend/database) — schema, migrations, and RLS.
-- [Services](/backend/services) — the full `lib/*` module map.
-- [Billing](/backend/billing) — Dodo checkout, portal, and webhooks.
+- [Architecture](/getting-started/architecture) - the system-wide diagrams.
+- [Database](/backend/database) - schema, migrations, and RLS.
+- [Services](/backend/services) - the full `lib/*` module map.
+- [Billing](/backend/billing) - Dodo checkout, portal, and webhooks.

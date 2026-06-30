@@ -13,15 +13,15 @@ is **Inngest-driven** so it survives serverless time limits and retries cleanly.
 
 | Scope | Entry point | Pages | Where |
 |---|---|---|---|
-| Single page | `checkUrl(url)` | 1 | `lib/audit/url-check.ts` — synchronous, used by the agent's `auditPage` tool |
-| Full site | `audit/requested` event | up to `maxPages` (weekly = 50) | `lib/inngest/fns/audit.ts` — background job |
+| Single page | `checkUrl(url)` | 1 | `lib/audit/url-check.ts` - synchronous, used by the agent's `auditPage` tool |
+| Full site | `audit/requested` event | up to `maxPages` (weekly = 50) | `lib/inngest/fns/audit.ts` - background job |
 
 ### Single-page audit
 
 `checkUrl` reuses `crawlSite(url, 1)` so robots.txt and llms.txt context is
 available to the GEO checks, then runs both detector families and scores the lone
 page. Site-wide checks that need many pages (internal clustering) read as "fail" for
-a single page — that is expected.
+a single page - that is expected.
 
 ```ts
 // lib/audit/url-check.ts:61-89 (condensed)
@@ -92,8 +92,8 @@ const geoScoreVal = geoScore(geoPerPage);
 const { rows, billablePages } = buildPageReports(okPages, [...seoIssues, ...siteIssues, ...cwvIssueList], geoPerPage);
 ```
 
-`analyze-and-store` then also builds a full **V3 SEO+GEO report** — the same
-category-scored report the free SEO/GEO tool produces — and stores it on
+`analyze-and-store` then also builds a full **V3 SEO+GEO report** - the same
+category-scored report the free SEO/GEO tool produces - and stores it on
 `audits.reportJson`. It is **best-effort**: a build failure is logged but never
 fails the audit, and it does **not** change the on-screen scores (those still come
 from `seoHealthScore`/`geoScore`):
@@ -117,11 +117,11 @@ react-pdf document. See [PDF engine](/backend/pdf-engine).
 
 An audit is triggered two ways:
 
-- **Manually** — the `startAudit()` server action (`lib/actions/audit.ts:72`)
+- **Manually** - the `startAudit()` server action (`lib/actions/audit.ts:72`)
   inserts a `queued` `audits` row and sends `audit/requested`. If Inngest is
-  unreachable (local dev) it falls back to `runInline()`, capped at 20 pages — the
+  unreachable (local dev) it falls back to `runInline()`, capped at 20 pages - the
   same detectors and scorers run, just synchronously.
-- **Weekly** — `auditScheduledFn` (`id: audit-weekly`) is fired per-workspace by the
+- **Weekly** - `auditScheduledFn` (`id: audit-weekly`) is fired per-workspace by the
   hourly fan-out dispatcher when the workspace's local clock matches its schedule.
   It respects the workspace's `weeklyAudit` opt-out and enqueues an `audit/requested`
   with `maxPages: 50`.
@@ -133,21 +133,21 @@ See [Background jobs](/backend/background-jobs) for the dispatcher and cron mode
 An audit combines four issue sources, all normalised to the same `DetectedIssue`
 shape (`category: "seo" | "geo"`, `severity: critical | warning | info`):
 
-1. **Per-page technical SEO** — `detectPerPageSeoIssues` (titles, meta, H1, thin
+1. **Per-page technical SEO** - `detectPerPageSeoIssues` (titles, meta, H1, thin
    content, slow pages, schema, https, noindex, viewport, alt text...).
-2. **Cross-page + site SEO** — `detectCrossPageSeoIssues` (duplicate titles, orphan
+2. **Cross-page + site SEO** - `detectCrossPageSeoIssues` (duplicate titles, orphan
    pages, broken links, hreflang) and `detectSiteIssues` (AI crawler access,
    sitemap, robots). See the [SEO engine](/backend/seo-engine) for the full list.
-3. **GEO readiness** — `runGeoChecks` per page → `geoChecksToIssues`. See the
+3. **GEO readiness** - `runGeoChecks` per page → `geoChecksToIssues`. See the
    [GEO engine](/backend/geo-engine).
-4. **Core Web Vitals** — `cwvIssues(cwv)`.
+4. **Core Web Vitals** - `cwvIssues(cwv)`.
 
 ### Core Web Vitals
 
 CWV is sourced from **field data**, not an in-process Lighthouse run.
 
 <Warning>
-  The bundled puppeteer/Lighthouse lab runner was **removed** — it never worked on
+  The bundled puppeteer/Lighthouse lab runner was **removed** - it never worked on
   Vercel (serverless can't launch Chrome). The source note is explicit
   (`lib/seo/cwv.ts:415-417`). CWV now comes from Google's CrUX API and PageSpeed
   Insights (which runs Lighthouse server-side). If you saw `scripts/test-cwv-runner.ts`
@@ -191,20 +191,20 @@ if (m.cls != null && m.cls > 0.1) issues.push({ type: "poor_cls", severity: "war
 ### Bot access
 
 The audit records which AI crawlers a site allows. `botAccessFromRobots` reads the
-parsed robots groups and reports whether the seven `BOT_ACCESS_TARGETS` —
+parsed robots groups and reports whether the seven `BOT_ACCESS_TARGETS` -
 `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `ClaudeBot`, `Googlebot`, `Google-Extended`,
-and `PerplexityBot` — are disallowed (`lib/crawler/robots.ts:83-91`). The result is
+and `PerplexityBot` - are disallowed (`lib/crawler/robots.ts:83-91`). The result is
 stored on `audits.botAccess`. Separately, a blocked crawler from the broader `AI_BOTS`
 list (`robots.ts:12-21`) surfaces as the critical `ai_crawler_access` issue from
 `detectSiteIssues`.
 
 ## Scoring and billing
 
-- **SEO score** — `seoHealthScore(allIssues, pagesCrawled)`: the average of the
+- **SEO score** - `seoHealthScore(allIssues, pagesCrawled)`: the average of the
   per-page SEO scores (clean pages count as 100), minus a small capped penalty for
-  site-global issues — only `category: "seo"` issues count, so CWV and cross-page
+  site-global issues - only `category: "seo"` issues count, so CWV and cross-page
   SEO contribute here too. See [SEO engine](/backend/seo-engine#health-scoring).
-- **GEO score** — `geoScore(geoPerPage)`: the average of per-page weighted GEO
+- **GEO score** - `geoScore(geoPerPage)`: the average of per-page weighted GEO
   pass-rates.
 
 Both land on the `audits` row **and** are mirrored onto the `workspaces` row
@@ -212,8 +212,8 @@ Both land on the `audits` row **and** are mirrored onto the `workspaces` row
 joining the latest audit.
 
 Per-page rows are built by `buildPageReports`. Pages are grouped into **templates**
-(`/blog/:slug`), and only **one representative per template** — the worst combined
-SEO+GEO page — plus every standalone page is marked **billable**. That billable
+(`/blog/:slug`), and only **one representative per template** - the worst combined
+SEO+GEO page - plus every standalone page is marked **billable**. That billable
 count is what's metered:
 
 ```ts
@@ -235,23 +235,23 @@ Each issue in the audit UI can request a tailored fix. `POST
 /api/audit/[auditId]/suggest-fix` (`app/api/audit/[auditId]/suggest-fix/route.ts`)
 verifies the user owns the audit, then **streams** a short, action-first suggestion
 using the audit-assistant model (`minimax/minimax-m2.7` via OpenRouter, with a
-`gpt-4.1-mini` fallback — see [AI engine](/backend/ai)):
+`gpt-4.1-mini` fallback - see [AI engine](/backend/ai)):
 
 ```ts
 // app/api/audit/[auditId]/suggest-fix/route.ts:28-35 (system prompt)
-const SYSTEM = `You are Spyro — a technical SEO and AI-visibility expert.
+const SYSTEM = `You are Spyro - a technical SEO and AI-visibility expert.
 Your job: give a precise, actionable fix for a specific website issue.
 Rules:
 - 2–4 sentences max. No fluff.
 - Start with the action ("Add…", "Set…", "Update…", "Remove…").
-- Don't repeat the issue back — jump straight to the fix.
+- Don't repeat the issue back - jump straight to the fix.
 - Include a short HTML/code snippet when it helps (use backticks for inline code).
 - Tailor the advice to the domain and affected pages provided.`;
 ```
 
 The prompt is built from the issue type, standard guidance (`fixText`), and the
 affected URLs (capped at 6), at `temperature: 0.35` with a 600-token cap (250 was too
-tight — MiniMax spends some budget on internal reasoning before emitting text). The
+tight - MiniMax spends some budget on internal reasoning before emitting text). The
 generated text is persisted by the `saveAiSuggestion` server action into the
 `audits.aiSuggestions` jsonb column (a `{ issueType: suggestion }` map, added by
 migration `0037_audit_ai_suggestions`). The related `POST /api/audit/ask` route powers
@@ -261,7 +261,7 @@ the conversational "Ask Spyro about this audit" sidebar.
 
 | Table | Holds |
 |---|---|
-| `audits` | one row per run — status, scores, `pagesCrawled`, `billablePages`, `cwv`, `botAccess`, `reportJson` (V3 report, added `0063`) |
+| `audits` | one row per run - status, scores, `pagesCrawled`, `billablePages`, `cwv`, `botAccess`, `reportJson` (V3 report, added `0063`) |
 | `audit_issues` | every `DetectedIssue` (batched inserts of 200) |
 | `audit_pages` | per-page rows with template label, SEO/GEO score, `isBillable` |
 
@@ -271,11 +271,11 @@ so the audit findings are re-embedded into RAG and the agent can reference them.
 
 ## Related
 
-- [Crawler](/backend/crawler) — the `crawlSite` that feeds every audit
-- [SEO Engine](/backend/seo-engine) — technical SEO detectors + health scoring
-- [GEO Engine](/backend/geo-engine) — the GEO readiness checks + score
-- [Background Jobs](/backend/background-jobs) — Inngest steps, retries, the weekly cron
-- [AI Engine](/backend/ai) — the model behind suggest-fix and Ask-Spyro
-- [Free Tools](/backend/free-tools) — the public audit tool that shares the CWV cache
-- [Billing](/backend/billing) — `audit_pages` metering and plan limits
-- [Database](/backend/database) — `audits`, `audit_issues`, `audit_pages`
+- [Crawler](/backend/crawler) - the `crawlSite` that feeds every audit
+- [SEO Engine](/backend/seo-engine) - technical SEO detectors + health scoring
+- [GEO Engine](/backend/geo-engine) - the GEO readiness checks + score
+- [Background Jobs](/backend/background-jobs) - Inngest steps, retries, the weekly cron
+- [AI Engine](/backend/ai) - the model behind suggest-fix and Ask-Spyro
+- [Free Tools](/backend/free-tools) - the public audit tool that shares the CWV cache
+- [Billing](/backend/billing) - `audit_pages` metering and plan limits
+- [Database](/backend/database) - `audits`, `audit_issues`, `audit_pages`

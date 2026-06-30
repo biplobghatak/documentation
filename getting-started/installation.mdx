@@ -3,18 +3,18 @@ title: "Installation"
 description: "Clone Spyro, install dependencies with pnpm, set up Supabase Postgres and RLS, and run the dev and Inngest servers."
 ---
 
-This guide takes you from a fresh clone to a running local dev server. Spyro is designed so that the app **boots without most third-party keys** — most integrations degrade to a deterministic mock. The two exceptions are DataForSEO (SERP/keyword data) and the LLM layer, which throw real errors when unconfigured rather than masking missing data.
+This guide takes you from a fresh clone to a running local dev server. Spyro is designed so that the app **boots without most third-party keys** - most integrations degrade to a deterministic mock. The two exceptions are DataForSEO (SERP/keyword data) and the LLM layer, which throw real errors when unconfigured rather than masking missing data.
 
 ## Prerequisites
 
 <Note>
-  Spyro uses **pnpm**, not npm. The repo ships a `pnpm-lock.yaml` and an `.npmrc` that pins `node-linker=hoisted` — a flat, symlink-free `node_modules` that Vercel needs so native modules like `sharp` are traced correctly. The README's `npm install` examples predate the pnpm switch; use `pnpm`.
+  Spyro uses **pnpm**, not npm. The repo ships a `pnpm-lock.yaml` and an `.npmrc` that pins `node-linker=hoisted` - a flat, symlink-free `node_modules` that Vercel needs so native modules like `sharp` are traced correctly. The README's `npm install` examples predate the pnpm switch; use `pnpm`.
 </Note>
 
-- **Node.js `>=22.17.0`** — enforced by `engines.node` in `package.json:5`.
-- **pnpm** — `corepack enable` (bundled with Node) is the simplest way to get it.
-- **A Supabase project** — for Postgres + Auth. You need the project URL, an anon/publishable key, the service-role key, and the Postgres connection string. The app renders without these, but nothing signed-in works until they are set.
-- (Optional) **DataForSEO credentials** — to use any keyword/SERP feature.
+- **Node.js `>=22.17.0`** - enforced by `engines.node` in `package.json:5`.
+- **pnpm** - `corepack enable` (bundled with Node) is the simplest way to get it.
+- **A Supabase project** - for Postgres + Auth. You need the project URL, an anon/publishable key, the service-role key, and the Postgres connection string. The app renders without these, but nothing signed-in works until they are set.
+- (Optional) **DataForSEO credentials** - to use any keyword/SERP feature.
 
 ## Set up
 
@@ -43,10 +43,10 @@ This guide takes you from a fresh clone to a running local dev server. Spyro is 
   </Step>
 
   <Step title="Apply Row-Level Security">
-    In the **Supabase SQL editor**, run the contents of `drizzle/rls.sql`, then `drizzle/rls_site_chunks.sql` and `drizzle/rls_enable_all.sql`. These enable Postgres RLS — **membership-driven** policies via the `org_role()` / `has_workspace_access()` security-definer helpers (i.e. `auth.uid()` **plus** org/workspace membership, not simple per-row ownership) — and install the `auth.users` → `profiles` trigger that creates a profile row on email confirmation. All three scripts are idempotent.
+    In the **Supabase SQL editor**, run the contents of `drizzle/rls.sql`, then `drizzle/rls_site_chunks.sql` and `drizzle/rls_enable_all.sql`. These enable Postgres RLS - **membership-driven** policies via the `org_role()` / `has_workspace_access()` security-definer helpers (i.e. `auth.uid()` **plus** org/workspace membership, not simple per-row ownership) - and install the `auth.users` → `profiles` trigger that creates a profile row on email confirmation. All three scripts are idempotent.
 
     <Warning>
-      RLS is defence-in-depth. The server-side Drizzle connection uses the service role and **bypasses RLS** (`lib/db/index.ts`), so it must only ever be imported from server code and jobs — never shipped to the client. RLS protects any path that uses the user's own Supabase session.
+      RLS is defence-in-depth. The server-side Drizzle connection uses the service role and **bypasses RLS** (`lib/db/index.ts`), so it must only ever be imported from server code and jobs - never shipped to the client. RLS protects any path that uses the user's own Supabase session.
     </Warning>
   </Step>
 
@@ -62,18 +62,18 @@ This guide takes you from a fresh clone to a running local dev server. Spyro is 
     ```bash
     pnpm inngest:dev
     ```
-    This starts the local Inngest dev server, which auto-discovers the functions served at `/api/inngest` (`app/api/inngest/route.ts`). With it running, crawls, citation checks, blog generation, and cron jobs fire locally. Without it, on-demand actions fall back to a small capped inline run; scheduled crons do not fire. No Inngest keys are needed in dev — leave `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` blank and the SDK connects to `localhost:8288`.
+    This starts the local Inngest dev server, which auto-discovers the functions served at `/api/inngest` (`app/api/inngest/route.ts`). With it running, crawls, citation checks, blog generation, and cron jobs fire locally. Without it, on-demand actions fall back to a small capped inline run; scheduled crons do not fire. No Inngest keys are needed in dev - leave `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` blank and the SDK connects to `localhost:8288`.
   </Step>
 </Steps>
 
 ## What runs without keys (verified against code)
 
-The README says "most external integrations degrade to a deterministic mock." That is broadly true, but the real behavior is a **split** — verified against the provider entry points:
+The README says "most external integrations degrade to a deterministic mock." That is broadly true, but the real behavior is a **split** - verified against the provider entry points:
 
 | Provider | Missing key behavior | Source |
 | --- | --- | --- |
-| DataForSEO (SERP/keywords) | **Throws** — no mock. Keyword research, SERP analysis, AI Overview, rank tracking error out. | `getSerpProvider()` in `lib/serp/index.ts:20` |
-| LLM (writer, ideation, parsing) | **Throws** — no mock. Provider order is OpenRouter → OpenAI → Gemini; with none set, `getLLM()` throws. | `getLLM()` in `lib/llm/index.ts:19` |
+| DataForSEO (SERP/keywords) | **Throws** - no mock. Keyword research, SERP analysis, AI Overview, rank tracking error out. | `getSerpProvider()` in `lib/serp/index.ts:20` |
+| LLM (writer, ideation, parsing) | **Throws** - no mock. Provider order is OpenRouter → OpenAI → Gemini; with none set, `getLLM()` throws. | `getLLM()` in `lib/llm/index.ts:19` |
 | Citation engines (ChatGPT / Claude / Perplexity / Gemini) | Engine is simply **omitted** when its key is absent; the `ai_overview` engine carries a `mocked` flag from the SERP layer. | `lib/engines/index.ts` |
 | Spyro chat agent | Has a **keyless demo mock**: Moonshot → OpenAI → mock. | `featureFlags.agentLive` in `lib/env.ts:196` |
 | Dodo billing, Resend email, GSC/GA4 OAuth, MailerLite, etc. | Feature **gates off** (button hidden / no-op), app keeps running. | `featureFlags` in `lib/env.ts:189` |

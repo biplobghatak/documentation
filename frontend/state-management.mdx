@@ -14,12 +14,11 @@ primitives the App Router gives you, layered by scope:
 
 ## Server actions
 
-Mutations are server actions — functions in files marked `"use server"`, under `lib/actions/`.
+Mutations are server actions - functions in files marked `"use server"`, under `lib/actions/`.
 There are ~29 such files (`workspaces.ts`, `audit.ts`, `writer.ts`, `keywords.ts`, `prompts.ts`,
 `onboarding.ts`, `invites.ts`, `auth.ts`, `contact.ts`, `publish.ts`, `ga4.ts`, `gsc.ts`, …).
 
-Most write-actions follow the **`useActionState` shape** — `(prevState, formData) => Promise<Result>`
-— so they bind directly to a `<form action={…}>`. A real signature
+Most write-actions follow the **`useActionState` shape** - `(prevState, formData) => Promise<Result>` - so they bind directly to a `<form action={…}>`. A real signature
 (`lib/actions/workspaces.ts:39`, verbatim):
 
 ```ts
@@ -43,19 +42,19 @@ export async function addWorkspace(
 Three patterns to notice, all present across `lib/actions/`:
 
 1. **Auth + Zod inside the action.** Every action re-checks access (`requireAccess`) and validates
-   its input with Zod — never trust the client. See [Authorization](/backend/authorization).
+   its input with Zod - never trust the client. See [Authorization](/backend/authorization).
 2. **Return a `{ ok, message }` result** rather than throwing, so the client can show a toast.
 3. **`revalidatePath(...)` after a write** so the affected server segments re-render with fresh data
    (here, the whole `/{org}` layout subtree).
 
-Some actions are invoked as **plain async functions** instead of via a form — e.g. the contact form
+Some actions are invoked as **plain async functions** instead of via a form - e.g. the contact form
 calls `onContactUs(name, email, …)` directly and reads its `{ success }` result. See
 [Forms](/frontend/forms) and the [APIs](/backend/apis) backend.
 
 ### Wiring an action to the UI
 
 The reusable `GenericSearchForm` (`components/app/generic-search-form.tsx`) shows the canonical
-client side — `useActionState` drives the pending state, and a `useEffect` turns the result into a
+client side - `useActionState` drives the pending state, and a `useEffect` turns the result into a
 toast and a `router.refresh()`:
 
 ```tsx
@@ -67,12 +66,12 @@ useEffect(() => {
 }, [state, router]);
 ```
 
-`router.refresh()` re-fetches the current route's Server Components — pairing client feedback with
+`router.refresh()` re-fetches the current route's Server Components - pairing client feedback with
 server-truth data without a full reload.
 
 ## Data fetching in Server Components
 
-Read paths don't use actions — Server Components `await` data directly. The workspace dashboard
+Read paths don't use actions - Server Components `await` data directly. The workspace dashboard
 (`app/(app)/[org]/[workspace]/page.tsx:61`) is representative: it awaits `params`, resolves access,
 and fetches in parallel with `Promise.all` (excerpt):
 
@@ -94,7 +93,7 @@ visible workspaces concurrently). Tenant routes are `force-dynamic`, so this run
 
 ## URL / search-param state
 
-For state that should be shareable and bookmarkable, Spyro keeps it in the URL — there is **no
+For state that should be shareable and bookmarkable, Spyro keeps it in the URL - there is **no
 `nuqs`**; it reads `searchParams` on the server and `useSearchParams`/`useRouter`/`usePathname` on
 the client (used across ~46 files).
 
@@ -116,7 +115,7 @@ Client components that drive their own URL state use `useRouter()` to navigate a
 
 ## React context
 
-Context is used sparingly — only for genuinely cross-cutting UI state. Three providers exist:
+Context is used sparingly - only for genuinely cross-cutting UI state. Three providers exist:
 
 | Context | File | Holds | Hook |
 | --- | --- | --- | --- |
@@ -137,7 +136,7 @@ export function useTheme(): ThemeContextValue {
 }
 ```
 
-The **planner context** is scoped to the calendar feature — `PlannerProvider` wraps the board and
+The **planner context** is scoped to the calendar feature - `PlannerProvider` wraps the board and
 `usePlanner()` reads/writes the in-flight scheduling state.
 
 ## Custom hooks
@@ -155,7 +154,7 @@ The notable ones:
 | `useResizeHandle(setWidth)` | `components/app/calendar/planner-panel.tsx:136` | Mouse-drag width resize (320–900px) for the planner panel. |
 | `useToastResult(state)` | `components/app/workspace-general-cards.tsx:45` | Turns a server-action result into a toast + `router.refresh()`. |
 
-The signature convention is plain — e.g. the backdrop hook (`use-backdrop-scroll-block.ts:28`):
+The signature convention is plain - e.g. the backdrop hook (`use-backdrop-scroll-block.ts:28`):
 
 ```ts
 export function useBackdropScrollBlock<T extends HTMLElement>() {

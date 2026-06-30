@@ -1,12 +1,12 @@
 ---
 title: "Logging & Observability"
-description: "How Spyro observes itself — PostHog analytics behind a first-party /ingest proxy, the console-based error-handling convention, the api_cost_events spend ledger, and Inngest retry/failure behaviour."
+description: "How Spyro observes itself - PostHog analytics behind a first-party /ingest proxy, the console-based error-handling convention, the api_cost_events spend ledger, and Inngest retry/failure behaviour."
 ---
 
 Spyro's observability is deliberately lightweight: **PostHog** for product
 analytics, a **Postgres cost ledger** for spend, **Inngest** for job
 retry/recovery, and plain `console` logging for errors. There is **no Sentry, no
-central logger abstraction, and no APM** — knowing that up front saves you
+central logger abstraction, and no APM** - knowing that up front saves you
 hunting for one.
 
 ## Product analytics: PostHog
@@ -59,7 +59,7 @@ The relevant env vars are `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and
 ### Client-side identify
 
 On the client, `components/app/posthog-identify.tsx` (rendered in
-`app/layout.tsx:150`) ties the PostHog identity to the Supabase user — calling
+`app/layout.tsx:150`) ties the PostHog identity to the Supabase user - calling
 `posthog.identify(...)` on load and on `SIGNED_IN`, and `posthog.reset()` on
 `SIGNED_OUT`:
 
@@ -75,8 +75,8 @@ if (event === "SIGNED_OUT") posthog.reset();
 **PostHog is wired but largely dormant in the committed code.** There is **no
 `posthog.init()` call anywhere**, the server `getPostHogClient()` helper has **no
 consumers** outside its own file, and no `posthog.capture(...)` event calls were
-found. The infrastructure exists — the `/ingest` proxy, the identify component,
-and the server client factory — but custom event capture is effectively not yet
+found. The infrastructure exists - the `/ingest` proxy, the identify component,
+and the server client factory - but custom event capture is effectively not yet
 emitting. Treat analytics coverage as "scaffolded," not "comprehensive," and
 verify in the PostHog project before relying on a given event.
 </Warning>
@@ -85,7 +85,7 @@ verify in the PostHog project before relying on a given event.
 
 There is **no logger utility** (no `lib/logger.ts`, no structured-logging
 wrapper). Errors are handled with `try/catch` and **`console.error` /
-`console.warn`** — roughly **88 call sites across 55 files** in `lib` and `app`.
+`console.warn`** - roughly **88 call sites across 55 files** in `lib` and `app`.
 Two patterns dominate:
 
 <Tabs>
@@ -103,7 +103,7 @@ User-facing routes catch, log a tagged message, and return a safe response:
 </Tab>
 <Tab title="Best-effort, swallow on failure">
 Non-critical side-effects are wrapped so a failure never breaks the primary
-operation — sometimes silently, sometimes with a `console.warn`:
+operation - sometimes silently, sometimes with a `console.warn`:
 
 ```ts
 // lib/admin/cost.ts:73-75
@@ -119,7 +119,7 @@ entirely (`app/api/free-audit/subscribe/route.ts:77-79`).
 
 The convention is to **tag** logs with a `[area]` prefix (`[pdf:…]`,
 `[admin/cost]`, `[crypto]`) so they're greppable in Vercel's function logs.
-There is no log level beyond `error`/`warn` and no log shipping — production logs
+There is no log level beyond `error`/`warn` and no log shipping - production logs
 live in the Vercel dashboard.
 
 ## Cost & usage tracking
@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS api_cost_events (
 );
 ```
 
-It is **service-role only — RLS enabled with no policy**, so only the
+It is **service-role only - RLS enabled with no policy**, so only the
 server-role key (which bypasses RLS) ever reads or writes it
 (`0041_api_cost_events.sql:31-33`). See [Database](/backend/database) and
 [Security](/backend/security#row-level-security-recap).
@@ -156,7 +156,7 @@ server-role key (which bypasses RLS) ever reads or writes it
 ### The recorder + ambient attribution
 
 `recordCostEvent` (`lib/admin/cost.ts`) writes one row per billable call. It is
-**best-effort — it never throws** (a ledger failure must not break a call that
+**best-effort - it never throws** (a ledger failure must not break a call that
 already cost money), and it **skips zero-signal writes** (no cost and no tokens):
 
 ```ts
@@ -187,7 +187,7 @@ export function withCostContext<T>(ctx: CostContext, fn: () => T): T {
 }
 ```
 
-`recordCostEvent`/`withCostContext` are used across ~14 files — the providers
+`recordCostEvent`/`withCostContext` are used across ~14 files - the providers
 (`lib/llm/openrouter.ts`, `lib/embed/openai.ts`, `lib/images/openrouter.ts`,
 `lib/dataforseo/budget.ts`) record, and the entry points (server actions,
 Inngest functions) set the context. Recognised providers are
@@ -198,7 +198,7 @@ Inngest functions) set the context. Recognised providers are
 
 Spyro's durable work runs on [Inngest](/backend/background-jobs), served from
 `app/api/inngest/route.ts`. Each function declares its own **retry count and
-concurrency cap** — there is no single global policy:
+concurrency cap** - there is no single global policy:
 
 | Function | Retries | Source |
 | --- | --- | --- |
@@ -209,7 +209,7 @@ concurrency cap** — there is no single global policy:
 | `article-write` | 1 | `lib/inngest/fns/article.ts:43` |
 
 <Note>
-Several functions deliberately **lower** Inngest's default of 5 retries — e.g.
+Several functions deliberately **lower** Inngest's default of 5 retries - e.g.
 citations runs at `retries: 2` *"+ a concurrency cap so a workspace's …"* runs
 don't stampede (`lib/inngest/fns/citations.ts:212-215`).
 </Note>
@@ -242,7 +242,7 @@ when an audit is requested, the action logs a warning and runs the crawl
 ```ts
 // lib/actions/audit.ts:104-109 (abridged)
 } catch {
-  console.warn("[audit] Inngest unavailable — running inline fallback (capped).");
+  console.warn("[audit] Inngest unavailable - running inline fallback (capped).");
   await runInline(audit.id, ws.id, access.userId, ws.domain, maxPages);
 }
 ```
@@ -276,9 +276,9 @@ superadmin spend panel, and in-product `error` states.
 
 ## Related
 
-- [Background jobs](/backend/background-jobs) — Inngest functions, crons, and the serve route.
-- [Billing](/backend/billing) — how `api_cost_events` feeds margin/usage reporting.
-- [Database](/backend/database) — the `api_cost_events` ledger and RLS posture.
-- [Security](/backend/security) — best-effort patterns and the swallow-on-failure convention.
-- [AI](/backend/ai) — the LLM providers that record cost events.
-- [Deployment: Vercel](/deployment/vercel) — where production logs and the `/ingest` proxy run.
+- [Background jobs](/backend/background-jobs) - Inngest functions, crons, and the serve route.
+- [Billing](/backend/billing) - how `api_cost_events` feeds margin/usage reporting.
+- [Database](/backend/database) - the `api_cost_events` ledger and RLS posture.
+- [Security](/backend/security) - best-effort patterns and the swallow-on-failure convention.
+- [AI](/backend/ai) - the LLM providers that record cost events.
+- [Deployment: Vercel](/deployment/vercel) - where production logs and the `/ingest` proxy run.

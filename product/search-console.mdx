@@ -1,6 +1,6 @@
 ---
 title: "Google Search Console"
-description: "Connect Google Search Console to ground Spyro in real impressions, clicks, CTR and position — and turn those signals into diagnoses and fix plans."
+description: "Connect Google Search Console to ground Spyro in real impressions, clicks, CTR and position - and turn those signals into diagnoses and fix plans."
 ---
 
 Connecting **Google Search Console (GSC)** lets Spyro work from your *real* search
@@ -10,7 +10,7 @@ with your latest crawl and hand you concrete fix plans. You'll find it under
 **SEO → Search Console** at `/{org}/{workspace}/gsc`.
 
 <Note>
-This is the **product guide** — how to use the screen. For how the OAuth flow,
+This is the **product guide** - how to use the screen. For how the OAuth flow,
 import jobs and diagnoses are built, see [Integrations](/backend/integrations) in
 the developer docs.
 </Note>
@@ -24,31 +24,31 @@ the developer docs.
   </Step>
   <Step title="Grant read-only access">
     Spyro requests a single **read-only** scope
-    (`webmasters.readonly`). As the screen says: *"Read-only — Spyro can't change
+    (`webmasters.readonly`). As the screen says: *"Read-only - Spyro can't change
     anything in your GSC account."* It only reads impressions, clicks, CTR,
     position and your sitemap inventory.
   </Step>
   <Step title="Pick a verified property">
     After consent you land on **Pick a verified property**. Spyro lists every
-    property your Google account can access — signed in as your Google email.
+    property your Google account can access - signed in as your Google email.
     Choose the one whose data should power this workspace and confirm.
   </Step>
   <Step title="Wait for the first import">
     Selecting a property queues a performance import. The header shows
-    **Performance import queued — refresh in a minute or two**, then
+    **Performance import queued - refresh in a minute or two**, then
     **Last imported: …** once data lands.
   </Step>
 </Steps>
 
 <Warning>
 If the property's domain doesn't match your workspace domain, Spyro flags it:
-*"This GSC property doesn't match the workspace domain — diagnoses may not line up
+*"This GSC property doesn't match the workspace domain - diagnoses may not line up
 with your crawl."* You can still proceed, but for accurate diagnoses pick the
 property that matches the site you're tracking.
 </Warning>
 
 A property is either a **URL-prefix** site (like `https://example.com/`) or a
-**Domain** property (`sc-domain:example.com`) — Spyro supports both. To change
+**Domain** property (`sc-domain:example.com`) - Spyro supports both. To change
 later, use **Switch property**; to remove the link entirely, use **Disconnect**,
 which revokes the token at Google and deletes the stored connection.
 
@@ -56,8 +56,8 @@ which revokes the token at Google and deletes the stored connection.
 
 <AccordionGroup>
   <Accordion title="Overview (last 28 days)" icon="chart-simple">
-    Four headline stats for the last 28 days — **Clicks**, **Impressions**,
-    **CTR** and **Average position** — over the dated window.
+    Four headline stats for the last 28 days - **Clicks**, **Impressions**,
+    **CTR** and **Average position** - over the dated window.
   </Accordion>
   <Accordion title="Trend charts" icon="chart-line">
     A daily time series of clicks, impressions, CTR and average position going back
@@ -68,8 +68,8 @@ which revokes the token at Google and deletes the stored connection.
     each showing clicks, impressions, CTR and position.
   </Accordion>
   <Accordion title="AI surfaces" icon="robot">
-    Where supported, impressions from Google's generative surfaces — **AI
-    Overviews**, **AI Mode** and **AI in Discover** — as a daily chart plus the top
+    Where supported, impressions from Google's generative surfaces - **AI
+    Overviews**, **AI Mode** and **AI in Discover** - as a daily chart plus the top
     pages by AI impressions. Google exposes this only in its UI today, so Spyro
     tracks it on a best-effort basis.
   </Accordion>
@@ -84,15 +84,15 @@ looks for:
 
 | Diagnosis | What it catches |
 | --- | --- |
-| **Low CTR** | High-impression pages with an unusually low click-through rate — usually a title/meta-description rewrite. |
-| **Almost ranking** | Pages sitting at positions ~8–20 with real impressions — a nudge of content and internal links could push them to page one. |
-| **Content decay** | Pages whose clicks dropped sharply versus the previous window — refresh the content and date. |
-| **Submitted but noindex** | A page in your sitemap that returns `noindex` — remove the noindex or drop it from the sitemap. |
-| **Canonical mismatch** | A page canonicalised elsewhere — fix the canonical or redirect. |
-| **Missing in GSC** | A crawled page with no impressions in 90 days — get it indexed (sitemap, internal links, request indexing). |
+| **Low CTR** | High-impression pages with an unusually low click-through rate - usually a title/meta-description rewrite. |
+| **Almost ranking** | Pages sitting at positions ~8–20 with real impressions - a nudge of content and internal links could push them to page one. |
+| **Content decay** | Pages whose clicks dropped sharply versus the previous window - refresh the content and date. |
+| **Submitted but noindex** | A page in your sitemap that returns `noindex` - remove the noindex or drop it from the sitemap. |
+| **Canonical mismatch** | A page canonicalised elsewhere - fix the canonical or redirect. |
+| **Missing in GSC** | A crawled page with no impressions in 90 days - get it indexed (sitemap, internal links, request indexing). |
 
 Each fix plan ends with the same reminder: **validate the fix in Google Search
-Console after applying it.** Spyro only *reads* GSC — it never changes anything in
+Console after applying it.** Spyro only *reads* GSC - it never changes anything in
 your Google account, so you confirm the result there yourself. When your site looks
 clean, you'll see a healthy state instead: *"Your site looks healthy against the
 signals Spyro can see… We'll check again on Monday."*
@@ -100,7 +100,7 @@ signals Spyro can see… We'll check again on Monday."*
 <Note>
 **GA4 / Analytics is built but currently hidden from the nav.** The Analytics item
 is commented out in the sidebar (`components/app/sidebar-nav.tsx`, ~lines 69–71)
-*"until v2 (pending Google sensitive-scope verification)"* — the `/ga4` route and
+*"until v2 (pending Google sensitive-scope verification)"* - the `/ga4` route and
 `lib/ga4` remain intact for testing. Once Google verifies the sensitive scope,
 **AI Traffic (GA4)** will join the SEO section.
 </Note>

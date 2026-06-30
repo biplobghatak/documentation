@@ -26,14 +26,14 @@ app/(marketing)/
   free-tools/…                   /free-tools 5 public tools (see below)
 ```
 
-The landing page (`AlyticsHomepage`) is composed from `alytics-*` section components — hero,
-features, pricing, testimonials, FAQ, footer — assembled in `components/marketing/`. It also injects
+The landing page (`AlyticsHomepage`) is composed from `alytics-*` section components - hero,
+features, pricing, testimonials, FAQ, footer - assembled in `components/marketing/`. It also injects
 page-specific JSON-LD. Marketing pages are public and cacheable, in contrast to the `force-dynamic`
 authenticated app (see [Overview](/frontend/overview)).
 
 ## The headless WordPress blog
 
-Spyro's blog content is authored in **WordPress** and consumed through its **REST API** — the
+Spyro's blog content is authored in **WordPress** and consumed through its **REST API** - the
 Next.js app is a headless front end. All blog access goes through `lib/wordpress.ts`, which is
 marked `import "server-only"` so it can never be bundled into a client component.
 
@@ -84,7 +84,7 @@ flowchart TD
 
 Step by step:
 
-1. **Fetch.** A Server Component (e.g. `blog/[slug]/page.tsx`) calls a `lib/wordpress.ts` function —
+1. **Fetch.** A Server Component (e.g. `blog/[slug]/page.tsx`) calls a `lib/wordpress.ts` function -
    `getWordPressPostBySlug(slug)`, `getWordPressPosts(query)`, `getWordPressCategoryBySlug`, etc.
    Internally `fetchWordPress` hits `/wp-json/wp/v2/<resource>` with `_embed=1` (so author, featured
    media and terms come back in one request), caches the response for 300s
@@ -98,7 +98,7 @@ Step by step:
    [Routing](/frontend/routing#metadata-and-generatemetadata).
 4. **Render.** Typed helpers (`getPostTitle`, `getPostExcerpt`, `getPostAuthor`,
    `getPostFeaturedImage`, `getPostCategories`, `getReadingTime`, `formatPostDate`) feed the
-   `components/marketing/blog/*` UI — archive grid, post cards, author block, related/adjacent posts,
+   `components/marketing/blog/*` UI - archive grid, post cards, author block, related/adjacent posts,
    trending sidebar, and a newsletter card.
 
 <Note>
@@ -110,12 +110,12 @@ Gravatar with `d=404` → a branded initials avatar (`getAuthorAvatarUrl`).
 
 The blog base URL is configurable via `WORDPRESS_BASE_URL` (default `https://blog.spyro.app`), and
 that hostname is also added to the `next/image` `remotePatterns` so featured images optimize. The
-blog data feeds the dynamic sitemap too — `getAllWordPressPostRefs` and `getWordPressTermRefs` page
+blog data feeds the dynamic sitemap too - `getAllWordPressPostRefs` and `getWordPressTermRefs` page
 through every published slug and non-empty term for `app/sitemap.ts`.
 
 ### Caching
 
-The whole blog is cached at the fetch layer for 5 minutes and surfaces new content automatically —
+The whole blog is cached at the fetch layer for 5 minutes and surfaces new content automatically -
 no redeploy. The details (the `next: { revalidate }` window and the matching `sitemap.ts`
 `revalidate`) are in [Performance](/frontend/performance#caching-and-revalidation).
 
@@ -136,8 +136,8 @@ under `free-tools/<tool>/` with a colocated `_components/` folder for its intera
 These tools are the public, unauthenticated face of the same engines that power the paid app, and
 each posts to a dedicated API route (`/api/free-audit`, `/api/ai-visibility`, `/api/schema-validator`,
 …) plus a PDF export route. The tool UIs use `framer-motion` for progress/report animations and an
-email-capture step. Their server implementation — scoring, isolation, rate-limiting and PDF
-generation — is documented in [Free tools](/backend/free-tools).
+email-capture step. Their server implementation - scoring, isolation, rate-limiting and PDF
+generation - is documented in [Free tools](/backend/free-tools).
 
 ## Related
 
