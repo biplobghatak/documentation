@@ -10,7 +10,10 @@
     "light": "https://media.brand.dev/f625a23d-23e8-420d-9098-0c12b8ef77be.svg",
     "dark": "https://media.brand.dev/f625a23d-23e8-420d-9098-0c12b8ef77be.svg"
   },
-  "favicon": "https://media.brand.dev/880d9180-6ddb-46bd-9a1e-3fcc10514f0f.png",
+  "favicon": {
+    "light": "/images/android-chrome-512x512.png",
+    "dark": "/images/android-chrome-512x512.png"
+  },
   "navbar": {
     "primary": {
       "type": "button",
