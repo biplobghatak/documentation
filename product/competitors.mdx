@@ -48,6 +48,10 @@ Spyro keeps an eye on your competitors so you always know who you're up against 
 
 Competitor data shows up in a few places, depending on what you want to know.
 
+### Competitor Research dashboard
+
+The main place to run a structured keyword gap analysis is the **Competitor research** dashboard inside your workspace. Open it from the sidebar, start a scan with up to 5 competitor domains per scan, and Spyro compares your keyword rankings against theirs. The scan produces an overview of how you stack up and a detailed **Content gaps** view that splits keywords into gaps, shared terms, and quick wins. You can run additional scans later with another set of up to 5 competitor domains.
+
 ### Your competitor list
 
 Open **Settings** and go to **Competitors**. Here you'll see the competitors Spyro has found for you - it discovers them automatically as it runs keyword and search analysis - plus any you add yourself. Next to each one, you'll see how many **keywords you share**, which is a quick sign of how directly you compete. You can add or remove competitors at any time.
@@ -67,11 +71,64 @@ This shows what a competitor is _aiming_ for, based on their own pages - a great
 
 ### Content gaps become article ideas
 
-When Spyro plans your content in the [content calendar](/product/calendar), it looks at what your competitors cover that you don't and turns those gaps into blog topic suggestions. So your competitor research quietly feeds your content plan.
+When Spyro plans your content in the [content calendar](/product/calendar), it looks at what your competitors cover that you don't and turns those gaps into blog topic suggestions. The structured **Content gaps** tab inside Competitor Research gives you the full keyword-level view of these gaps; the calendar integration is a downstream effect of the same data.
 
 ### How often AI recommends them
 
 On the [AI visibility](/product/ai-visibility) page, the **Competitors** ranking shows which rival brands AI assistants mention for your buyer questions, how your **share of voice** compares, and whether you're gaining or losing ground. The [tracking prompts](/product/prompts) view even shows which competitor websites get cited for each question.
+
+## Running a Keyword Gap Analysis scan
+
+### Starting a scan
+
+Open **Competitor research** from the sidebar and start a new scan. Enter 1 to 5 competitor domains — your own domain is excluded automatically. Then set your market:
+
+- **Location** and **language** — where and in what language to look for rankings.
+- **Competitor ranking position** — how deep into search results to look (top 10, 20, 50, or 100 positions).
+- **Minimum search volume** — optionally ignore very low-volume keywords.
+- **Maximum keyword difficulty** — optionally cap results by difficulty score.
+- **Include subdomains** — whether to include subdomains in competitor analysis.
+
+### Credit cost
+
+Each competitor domain costs **150 credits**. For example, scanning 3 competitors uses 450 credits. Spyro checks that you have enough credits before the scan starts. If you don't have enough, the scan is blocked with a message showing how many credits you need and how many you have left.
+
+Credits are charged after a successful scan completes. If a scan fails, you are not charged.
+
+### What happens while the scan runs
+
+The scan runs in the background. When it finishes, the **Overview** tab loads automatically.
+
+### Overview results
+
+The overview shows your domain compared to each competitor, with key metrics like organic keywords, top-10 keywords, and estimated traffic per month. It also includes an AI-generated verdict on the competitive landscape and topic-gap cluster cards that highlight areas where competitors outrank you.
+
+### Content Gaps
+
+Click the **Content gaps** tab to see the full keyword table. Results are split into three bucket tabs:
+
+- **Gaps** — keywords competitors rank for that you don't.
+- **Shared** — keywords both you and your competitors rank for.
+- **Quick wins** — gap keywords where at least one competitor ranks in the top 10 and you rank lower or not at all.
+
+Each keyword row shows volume, CPC, difficulty, intent, your rank, each competitor's rank, and the best competitor position and URL.
+
+### Topic clusters
+
+Spyro groups gap keywords into AI-generated topic clusters to help you plan content. Clusters only form when there are at least 8 gap keywords, and up to 6 clusters are shown. You can filter the keyword table by clicking a cluster chip.
+
+### Actions
+
+From the keyword table you can:
+
+- **Write article** — jump straight to the AI writer with that keyword.
+- **Track keyword** — add the keyword to your rank tracker.
+- **Export to CSV** — download the full keyword table for offline analysis.
+
+### Limits
+
+- Maximum **5 competitors** per scan.
+- Maximum **2,000 keyword rows** stored per scan.
 
 ## How to use it
 
@@ -80,7 +137,7 @@ On the [AI visibility](/product/ai-visibility) page, the **Competitors** ranking
     Open **Settings → Competitors**. Add the rivals you care about, or let Spyro keep finding them for you.
   </Step>
   <Step title="Research their keywords">
-    Ask the [AI agent](/product/spyro-ai-agent) who ranks for a topic, or what keywords a specific competitor targets.
+    Run a scan in [Competitor research](/product/competitor-research) to see a full keyword gap analysis, or ask the [AI agent](/product/spyro-ai-agent) who ranks for a specific topic.
   </Step>
   <Step title="Check who AI recommends">
     Open [AI visibility](/product/ai-visibility) to see the competitor ranking and your share of voice.
@@ -106,5 +163,6 @@ On the [AI visibility](/product/ai-visibility) page, the **Competitors** ranking
 ## Related
 
 <CardGroup cols={2}>
+  <Card title="Plans & billing" icon="credit-card" href="/product/billing-and-usage">Credit costs and how credits work.</Card>
      
 </CardGroup>

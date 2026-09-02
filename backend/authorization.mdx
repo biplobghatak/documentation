@@ -193,19 +193,18 @@ There are two self-serve plans plus a contact-sales tier (`lib/plans.ts:150-220`
 
 | Plan | Price | Workspaces | White-label |
 | --- | --- | --- | --- |
-| **Pro** | $99/mo | up to 2 sites | no |
-| **Agency** | $99/site/mo with volume discounts (10/15/20%) | 3-20 sites | yes |
-| **Custom** | contact sales | 21+ sites | - |
+| **Pro** | $99/mo ($990/yr) | up to 10 | no |
+| **Agency** | $399/mo ($3,990/yr) | unlimited | no |
+| **Custom** | contact sales | tailored | - |
 
 <Warning>
-Plan pricing in the code (`lib/plans.ts:88-130`) is the **source of truth** -
-Pro $99 + Agency per-site. The README's older $14/$39/$69 tiers are stale.
-Per-site capabilities are identical between Pro and Agency; they differ only on
-workspace count and white-label.
+Plan pricing in the code (`lib/plans.ts`) is the **source of truth** - Pro $99/mo,
+Agency $399/mo, with a unified credit pool. Per-site capabilities are identical
+between Pro and Agency; they differ on workspace count and credits per month.
 </Warning>
 
-`PlanLimits` (`lib/plans.ts:33-73`) holds every quota - `blogsPerMonth`,
-`integrationsMax`, `aiCreditsPerMonth`, `trackedKeywordsMax`, allowed citation
+`PlanLimits` (`lib/plans.ts`) holds every quota - `creditsPerMonth`,
+`workspaces`, `trackedPrompts`, `trackedKeywordsMax`, `integrationsMax`, allowed citation
 `engines`, etc. Helpers like `planLimits()`, `withinLimit()`, `blogQuota()`, and
 `workspaceLimit()` derive effective caps. Legacy plan values are coerced with
 `normalizePlan()` (`growth → pro`).
@@ -229,9 +228,9 @@ const effectivePlan: PlanId = normalizePlan(org.subscriptionActive ? org.plan : 
 
 `lib/usage.ts` tracks consumption in `usage_counters`, keyed per **acting user**
 per **calendar month** (UTC). An org's total for a metric is the sum across all
-its members (`lib/usage.ts:49-63`). Metrics include `blogs`, `keywords`,
-`serp`, plus per-workspace counters like `ai_credits:<wsId>`,
-`tracked_keywords:<wsId>`, and `citation_calls:<wsId>`.
+its members. The org-level credit pool uses the metric key `credits:<orgId>`.
+Per-workspace breakdown counters include `ai_credits:<wsId>`,
+`tracked_keywords:<wsId>`, `citation_calls:<wsId>`, and `rank_checks:<wsId>`.
 
 ```ts
 // lib/usage.ts:92-96

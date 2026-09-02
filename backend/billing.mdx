@@ -62,23 +62,17 @@ discount)` (`lib/plans.ts:109-113`). Adding a 3rd site auto-converts a Pro org t
 ### Per-plan limits
 
 Agency is deliberately "Pro × N sites" - every per-site capability is identical; Agency only
-differs on **workspace count** and **white-label** (`lib/plans.ts:188-190`). The shared
-limits (`lib/plans.ts:158-209`):
+differs on **workspace count** and **credits per month** (`lib/plans.ts`). The shared
+limits:
 
 | Limit | Pro | Agency |
 | --- | --- | --- |
-| `blogsPerMonth` (the core metered unit) | `30` | `30` per site |
-| `workspaces` | `2` | `purchasedWorkspaces` (default 3) |
-| `keywordsPerMonth` | `1000` | `1000` |
-| `serpLookupsPerMonth` | `500` | `500` |
-| `auditPages` | `500` | `500` |
-| `blogIdeasPerMonth` | `30` | `30` |
-| `inContentImagesPerPost` _(defined but not enforced)_ | `3` | `3` |
-| `trackedPrompts` | `10` | `10` |
-| `citationCallsPerMonth` | `600` | `600` |
-| `aiCreditsPerMonth` | `200` | `200` |
-| `trackedKeywordsMax` | `500` | `500` |
-| `integrationsMax` | `5` | `5` |
+| `creditsPerMonth` | `10_000` | `50_000` |
+| `workspaces` | `10` | unlimited (`-1`) |
+| `trackedPrompts` (per workspace) | `50` | `250` |
+| `trackedKeywordsMax` (per workspace) | `500` | `500` |
+| `integrationsMax` (per workspace) | `5` | `5` |
+| `rankFrequency` | `weekly` (daily available) | `weekly` (daily available) |
 | `engines` | AI Overview, Gemini, ChatGPT, Claude, Perplexity | same |
 
 <Note>
