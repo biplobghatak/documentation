@@ -126,7 +126,7 @@ Source: `lib/plans.ts:117,226-229`, `lib/profile.ts:46`
 
 ### Competitor Limits
 - Up to 10 competitors can be added to the workspace competitor list
-- Up to 5 competitors per competitor research scan (MAX_COMPETITORS = 5)
+- Up to 5 competitors per individual competitor research scan (MAX_COMPETITORS = 5). Users can return and run additional scans with up to 5 competitor domains each time.
 - Up to 2,000 keyword rows stored per scan
 - Up to 6 topic clusters shown per scan
 
@@ -384,7 +384,7 @@ Source: `lib/plans.ts:117,226-229`, `lib/profile.ts:46`
 | `product/integrations.mdx` | Lists "WordPress.com" as available | WordPress.com NOT in frontend PROVIDERS list |
 | `product/faq.mdx` | "Shopify is coming soon" | Shopify is available |
 | `product/faq.mdx` | "Google Analytics (GA4) support is coming soon" | GA4 is available |
-| `product/billing-and-usage.mdx` | Credit costs table missing SERP lookup, site intel, LLM mentions scan | These are real credit-consuming actions |
+| `product/billing-and-usage.mdx` | Credit costs table missing LLM mentions scan | These are real credit-consuming actions |
 | `product/faq.mdx` | Credit costs list incomplete | Missing several actions |
 | `product/billing-and-usage.mdx` | "What you also get" incomplete | Missing tracked prompts, cadence options, daily rank checks |
 | `product/prompts.mdx` | Only mentions weekly cadence | Daily cadence is also available |
