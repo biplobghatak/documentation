@@ -14,4 +14,4 @@ Message
 
 Send Message
 
-Or email us directly at [hello@spyro.app](mailto:hello@spyro.app)
+Or email us directly at [support@spyro.app](mailto:support@spyro.app)
