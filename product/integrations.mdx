@@ -1,20 +1,20 @@
 ---
 title: "Integrations"
-description: "Connect Spyro to the tools you already use - so it can publish your articles and pull in your real search data. Simple, step-by-step setup."
+description: "Connect Spyro AI to the tools you already use - so it can publish your articles and pull in your real search data. Simple, step-by-step setup."
 ---
 
 ![Integration Settings](/images/Integration-settings.png "Integration Settings")
 
-Integrations let Spyro work with the tools you already use. There are two kinds:
+Integrations let Spyro AI work with the tools you already use. There are two kinds:
 
-1. **Publishing connections** - so Spyro can send finished articles straight to your website.
-2. **Data connections** - so Spyro can pull in your real search performance.
+1. **Publishing connections** - so Spyro AI can send finished articles straight to your website.
+2. **Data connections** - so Spyro AI can pull in your real search performance.
 
 You don't need any coding to set these up.
 
 ## Publish your articles
 
-Connect where your blog lives, and you can publish articles from Spyro with one click. You can set these up under **Content settings → Integrations**.
+Connect where your blog lives, and you can publish articles from Spyro AI with one click. You can set these up under **Content settings → Integrations**.
 
 <CardGroup cols={2}>
   <Card title="WordPress (self-hosted)" icon="wordpress">
@@ -34,10 +34,10 @@ Connect where your blog lives, and you can publish articles from Spyro with one 
 
 <Steps>
   <Step title="Create an Application Password in WordPress">
-    In your WordPress admin, go to your user profile and create a new **Application Password**. This is a special password just for Spyro - safer than your real one.
+    In your WordPress admin, go to your user profile and create a new **Application Password**. This is a special password just for Spyro AI - safer than your real one.
   </Step>
-  <Step title="Add it to Spyro">
-    In Spyro, open **Content settings → Integrations**, choose **WordPress (self-hosted)**, and paste your site address, username, and the application password.
+  <Step title="Add it to Spyro AI">
+    In Spyro AI, open **Content settings → Integrations**, choose **WordPress (self-hosted)**, and paste your site address, username, and the application password.
   </Step>
   <Step title="Publish">
     Now, when you finish an article in the [AI writer](/product/writer), you can publish it straight to your site.
@@ -48,10 +48,10 @@ Connect where your blog lives, and you can publish articles from Spyro with one 
 
 <Steps>
   <Step title="Enter your Shopify store address">
-    In Spyro, open **Content settings → Integrations**, choose **Shopify**, and enter your store address (for example, `my-store.myshopify.com`).
+    In Spyro AI, open **Content settings → Integrations**, choose **Shopify**, and enter your store address (for example, `my-store.myshopify.com`).
   </Step>
   <Step title="Connect with Shopify">
-    Click **Continue with Shopify** and approve the permissions. Spyro publishes articles straight to your Shopify blog via the Admin API.
+    Click **Continue with Shopify** and approve the permissions. Spyro AI publishes articles straight to your Shopify blog via the Admin API.
   </Step>
   <Step title="Publish">
     Now, when you finish an article in the [AI writer](/product/writer), you can publish it straight to your Shopify store.
@@ -60,7 +60,7 @@ Connect where your blog lives, and you can publish articles from Spyro with one 
 
 ### Connect a Webhook
 
-Choose **Webhooks** and paste the web address (URL) that should receive your articles. Spyro will send each published article there. This is handy if your site runs on a different system - ask whoever built your site for the right URL.
+Choose **Webhooks** and paste the web address (URL) that should receive your articles. Spyro AI will send each published article there. This is handy if your site runs on a different system - ask whoever built your site for the right URL.
 
 <Tip>
   After connecting, each integration shows its status (connected, paused, or having trouble) and a history of what was sent, so you can confirm everything is working.
@@ -68,15 +68,27 @@ Choose **Webhooks** and paste the web address (URL) that should receive your art
 
 ## Connect your search data
 
-Connect **Google Search Console** to bring your real Google search performance into Spyro - clicks, impressions, and the pages and searches that bring you visitors. See [Google Search Console](/product/search-console) for the simple sign-in steps.
+Connect **Google Search Console** to bring your real Google search performance into Spyro AI - clicks, impressions, and the pages and searches that bring you visitors. See [Google Search Console](/product/search-console) for the simple sign-in steps.
 
 You can also connect **Google Analytics 4** to track AI-driven referral traffic - visitors who reached your site from ChatGPT, Perplexity, Gemini, Claude, and other AI engines.
 
 ## API keys (for advanced setups)
 
-If you use other software that needs to talk to Spyro directly, you can create an **API key** - a secret code that connects them. You'll find this under **Settings → API**. Most people never need this, so feel free to skip it.
+If you use other software that needs to talk to Spyro AI directly, you can create an **API key** - a secret code that connects them. You'll find this under **Settings → API**. Most people never need this, so feel free to skip it.
 
 ## Related
 
 <CardGroup cols={2}>
+  <Card title="AI writer" icon="pen-nib" href="/product/writer">
+    Publish drafted articles directly to your connected platforms.
+  </Card>
+  <Card title="Content settings" icon="sliders" href="/product/article-settings">
+    Enable auto-publishing and configure platform destination rules.
+  </Card>
+  <Card title="Search Console" icon="google" href="/product/search-console">
+    Sync your live Google Search Console and GA4 metrics.
+  </Card>
+  <Card title="Workspace settings" icon="gear" href="/product/settings">
+    Create API keys and configure custom webhook targets.
+  </Card>
 </CardGroup>
