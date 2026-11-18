@@ -1,88 +1,114 @@
 ---
-title: "Google Search Console"
-description: "Connect Google Search Console so Spyro AI can show your real Google search performance - clicks, impressions, your best pages and queries, and quick wins you can act on."
+title: "GSC & Bing"
+description: "Connect Google Search Console and Bing Webmaster Tools so Spyro AI can show your real search performance: clicks, impressions, your best pages and queries, index status, and fixes you can act on."
 ---
 
-![Google Search Console 1](/images/Google-Search-Console-1.png "Google Search Console 1")
+The **GSC & Bing** page brings your real search data from **Google Search Console** and **Bing Webmaster Tools** into Spyro AI. You see exactly how people find you on Google and Bing: clicks and impressions, the pages and searches that bring visitors, index status, and where there are easy wins.
 
-When you connect **Google Search Console**, Spyro AI starts working from your _real_ Google search data instead of guesses. You get to see exactly how people find you on Google - how many clicks and impressions you get, which pages and search terms bring them in, and where there are easy wins waiting for you.
+Both are free tools from Google and Microsoft. Connecting each one takes about a minute, and Spyro AI only **reads** your data. It can't change anything in your Google or Bing account.
 
-It's a free Google tool, and connecting it takes about a minute.
-
-## Why connect it
+## Why connect them
 
 <CardGroup cols={2}>
-  <Card title="See your real numbers" icon="chart-line">
-    Actual clicks, impressions, click-through rate, and average position - not estimates.
+  <Card title="Your real numbers" icon="chart-simple">
+    Actual clicks, impressions, click-through rate and average position, not estimates.
   </Card>
-
-  <Card title="Know your best pages" icon="file-lines">
-    See which pages and search queries are already bringing you traffic.
+  <Card title="What's working" icon="star">
+    See which pages and searches already bring you traffic.
   </Card>
-
-  <Card title="Spot easy wins" icon="bullseye">
+  <Card title="Easy wins" icon="bullseye">
     Find pages that are almost ranking, or that lots of people see but few click.
   </Card>
-
-  <Card title="Watch your trend" icon="arrow-trend-up">
-    Follow how your Google performance changes over the weeks and months.
+  <Card title="Index health" icon="list-check">
+    Check which pages are indexed and how your sitemaps are doing.
   </Card>
 </CardGroup>
 
-## How to connect it
+## How to connect
 
 <Steps>
-  <Step title="Open Search Console">
-    In the sidebar, open **Search Console**, then click **Connect Google Search Console**.
+  <Step title="Open GSC & Bing">
+    Choose **GSC & Bing** in the sidebar, under **Search (SEO)**.
   </Step>
-  <Step title="Sign in with Google">
-    Spyro AI sends you to Google's sign-in screen. Sign in with the Google account that owns your website, and approve the request. Spyro AI only _reads_ your data - it can't change anything in your Google account.
+  <Step title="Connect Google, Bing or both">
+    Choose **Connect Google Search Console** or **Connect Bing Webmaster Tools**, and sign in with the account that has access to your website. Approve the request.
   </Step>
-  <Step title="Pick your site">
-    Google shows the sites your account can access. Choose the one that matches the website you're working on, and confirm. Tip: if a site doesn't match your workspace, Spyro AI warns you - pick the one for the site you're tracking.
+  <Step title="Choose your site">
+    Spyro AI lists the sites your account can see. Pick the one for this workspace and choose **Use this site**. If a site's domain doesn't match your workspace, it's marked **Different domain**.
   </Step>
-  <Step title="Wait a minute for your data">
-    Spyro AI starts pulling in your performance. You'll see a short "import queued" message, then your numbers appear once they finish loading. Refresh after a minute or two.
+  <Step title="Wait for your data">
+    Spyro AI starts importing your performance data. Your numbers appear once the first import finishes.
   </Step>
 </Steps>
 
-## What to expect
-
-Once connected, Search Console gives you a clear picture of your Google performance:
-
-- **Your headline numbers** for the last 28 days - clicks, impressions, click-through rate, and average position.
-- **Trend charts** so you can watch each number rise or fall over time.
-- **Top pages and top queries** - the pages and search terms bringing you the most clicks right now.
-- **Quick-win suggestions** that pair your search data with your latest [site audit](/product/audit), such as:
-  - **Low click-through** - a page lots of people see but few click. Usually a better title or description fixes it.
-  - **Almost ranking** - pages sitting just off page one. A little more content or a few internal links can push them up.
-  - **Slipping pages** - pages that used to get more clicks and now need a refresh.
-
-Each suggestion comes with a simple, step-by-step plan you can follow.
-
 <Note>
-  You can also connect **Google Analytics (GA4)** to see AI-driven referral traffic - visitors who reached your site from ChatGPT, Perplexity, Gemini, Claude, and other AI engines.
+  Google reports search data with a delay of a few days, so the most recent days may look low at first.
 </Note>
+
+## What you'll see
+
+Use the **Search engine** switch at the top to view **All engines** (Google and Bing side by side), **GSC** or **Bing**.
+
+### Google Search Console
+
+The Google view has these tabs:
+
+| Tab | What it shows |
+| --- | --- |
+| **Overview** | Total clicks, impressions, average click-through rate and average position, with a trend chart. Filter by search type, device and date range |
+| **Pages** | Your pages and how each performs |
+| **Queries** | The searches people used to find you |
+| **Keywords** | Keyword-level performance |
+| **Location** | Performance by country |
+| **Search appearance** | How your results appear in Google |
+| **Discover & News** | Traffic from Google Discover and Google News |
+| **Opportunities** | Suggested fixes, below |
+| **Indexing** | Index status per URL and your submitted sitemaps |
+
+The **Opportunities** tab pairs your search data with your latest [site audit](/product/audit):
+
+- **Seen but not clicked:** pages many people see but few click, with the clicks you're missing each month. A better title usually helps (**Rewrite title**).
+- **Almost ranking:** searches where you sit just off the top results, with an estimate of the extra clicks a top-5 spot would bring (**Improve page**).
+- **Pages losing traffic:** pages whose clicks are dropping and may need a refresh.
+- **Technical:** mismatches between what Spyro AI crawled and what Search Console reports, plus sitemap problems.
+
+### Bing Webmaster Tools
+
+The Bing view shows daily clicks and impressions on Bing, your top pages and queries, crawl activity and crawl issues, inbound links, submitted sitemaps, and blocked URLs. Some details are only shared with site owners in Bing.
+
+### All engines
+
+The combined view compares Google and Bing: total clicks, each engine's share of clicks, daily clicks by engine, and the pages and queries that appear on both.
+
+## Get help from Spyro AI
+
+Choose **Fix with Spyro** to ask Spyro AI about your search data, for example which pages to improve first. Each answer costs 10 credits.
+
+## Manage the connection
+
+- **Re-sync** pulls in fresh data.
+- **Disconnect GSC** or **Disconnect Bing** removes Spyro AI's access. Your data stays in Google or Bing, and you can reconnect any time.
+- If a connection shows **Reconnect needed**, connect again to restore access.
 
 ## Tips
 
-- Connect Search Console early - the sooner it's linked, the more history Spyro AI can show you.
-- Choose the site that exactly matches your workspace so the suggestions line up with your pages.
-- After you fix something, check back in Google Search Console to confirm the improvement - Spyro AI only reads your data, so you confirm the result there.
+- Connect early: the sooner your accounts are linked, the more history Spyro AI can show you.
+- Choose the site that exactly matches your workspace, so the suggestions line up with your pages.
+- After you fix something, check back here after a few days to see the effect.
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Rank tracker" icon="chart-line" href="/product/rank-tracker">
-    Track daily positions for your high-impact keywords.
+    Track positions for your most important keywords.
   </Card>
   <Card title="Site audit" icon="magnifying-glass" href="/product/audit">
-    Pair search performance with actionable technical fixes.
+    Pair search performance with technical fixes.
   </Card>
   <Card title="Integrations" icon="plug" href="/product/integrations">
-    Manage your Google connections and CMS publishing integrations.
+    Connect your website to publish articles.
   </Card>
   <Card title="Your dashboard" icon="gauge" href="/product/dashboard">
-    Monitor 28-day search performance trends from your home screen.
+    See your scores and AI visibility at a glance.
   </Card>
 </CardGroup>

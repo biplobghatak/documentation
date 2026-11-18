@@ -1,86 +1,83 @@
 ---
 title: "Your dashboard"
-description: "Your home base in Spyro AI - see your SEO and AI-visibility scores, recent activity, and AI mentions at a glance, with quick links to every tool."
+description: "Your home base for one website in Spyro AI: your SEO and GEO scores, how often AI engines mention you, which brands they name and which sites they cite."
 ---
 
-![Spyro AI Dashboard 1](/images/Spyro-dashboard-1.png "Spyro AI Dashboard 1")
-
-The dashboard is your home base for one website. It answers a single question - _how is my site doing?_ - across search rankings, AI visibility, and content. Most cards also link straight to the tool behind them, so you can jump in with one click.
-
-At the top, you'll see your website name and two quick buttons: **Run audit** and **Manage** (your workspace settings).
+The dashboard is your home base for one website (workspace). It answers one question, _how is my site doing?_, across search health and AI visibility. Open it any time from **Dashboard** at the top of the sidebar.
 
 ## Why use it
 
-Instead of opening every tool to check on things, the dashboard pulls the highlights into one screen. A quick look tells you whether your scores are going up, which keywords are moving, and whether AI assistants are mentioning you. Use it as your starting point each time you log in.
+Instead of opening every tool to check on things, the dashboard pulls the highlights into one screen. A quick look tells you whether your scores are rising, how often AI engines mention you, and which competitors they recommend instead. Use it as your starting point each time you log in.
 
 ## What you'll see
 
+### Performance overview
+
+Four cards across the top:
+
+| Card | What it shows |
+| --- | --- |
+| **SEO health** | Your site audit's SEO score out of 100, with the change since your last audit |
+| **GEO readiness** | How ready your site is to be understood and cited by AI engines, out of 100, with the change since your last audit |
+| **AI citation freq** | How often AI engines mention your brand across your tracked prompts, as a percentage, plus how many prompts you track |
+| **Domain Rating** | Your site's authority score from Ahrefs, refreshed weekly |
+
+Learn how the two audit scores work in [Understand your reports](/product/understanding-reports).
+
+### AI visibility
+
+Once your tracked prompts have been checked, four more cards appear:
+
 <CardGroup cols={2}>
-  <Card title="Your scores" icon="gauge">
-    Your **SEO health** and **AI readiness** scores, each out of 100, with a small up-or-down trend once you've run more than one audit.
+  <Card title="Visibility" icon="chart-line">
+    A weekly chart of the share of AI answers that mention each brand, you and your competitors, with your average. Choose **Details** to open [AI visibility](/product/ai-visibility).
   </Card>
-
-  <Card title="AI citation rate" icon="robot">
-    How often AI assistants mention you when answering buyer questions, plus your **domain rating** (a measure of your site's authority).
+  <Card title="Brands" icon="ranking-star">
+    The brands with the highest AI visibility for your prompts, with your brand marked **You**. It shows each brand's visibility, average position in answers and, for your brand, sentiment.
   </Card>
-
-  <Card title="Visibility over time" icon="chart-line">
-    A chart of your scores across recent audits, so you can see the direction you're heading - not just today's number.
+  <Card title="Domain types" icon="chart-pie">
+    What kind of sites the AI engines cite when answering your prompts.
   </Card>
-
-  <Card title="AI engine citations" icon="quote-left">
-    A bar for each AI assistant (ChatGPT, Gemini, Perplexity, Claude) showing how often each one cites your site.
-  </Card>
-
-  <Card title="Search performance" icon="magnifying-glass">
-    Your Google clicks and impressions for the last 28 days, with the change versus the month before. Links to [Search Console](/product/search-console).
-  </Card>
-
-  <Card title="Rank movers" icon="arrow-up-arrow-down">
-    The keywords that moved the most since the last check - gains in green, drops in red. Links to the [rank tracker](/product/rank-tracker).
+  <Card title="Top sources" icon="link">
+    The sources referenced most often across your tracked prompts in the last 30 days.
   </Card>
 </CardGroup>
 
-### Recent AI mentions
-
-When an AI assistant cites your site in an answer, the latest few show up as cards here - each with the assistant, the date, how positive the mention was, and a snippet of what it said. Tap a card to read the full mention, or choose **See all** to open the [AI mentions feed](/product/ai-mentions).
+If you haven't tracked any prompts yet, this area shows **No AI visibility data yet** instead. Add prompts on the [Prompts](/product/prompts) page to fill it.
 
 ## What to expect on your first login
 
-A brand-new workspace starts mostly empty - and that's normal. Your scores show a dash (`-`) and several panels invite you to get started. Everything fills in on its own as Spyro AI finishes its work:
+A brand-new workspace starts mostly empty, and that's normal. Scores show a dash (`-`) until the first results arrive. Everything fills in on its own as Spyro AI finishes its work:
 
 <Steps>
   <Step title="Your first audit completes">
-    Your SEO and AI-readiness scores and the visibility chart appear.
+    **SEO health** and **GEO readiness** appear.
   </Step>
-  <Step title="Your AI questions run">
-    The AI citation rate and recent mentions begin to fill in.
+  <Step title="Your domain authority is checked">
+    **Domain Rating** appears.
   </Step>
-  <Step title="You connect Search Console">
-    Your search performance card shows real clicks and impressions.
-  </Step>
-  <Step title="You track keywords">
-    The rank movers card starts showing where your keywords are moving.
+  <Step title="Your prompts are checked">
+    **AI citation freq** and the AI visibility cards fill in.
   </Step>
 </Steps>
 
 <Tip>
-  Right after setup, you may also see a status banner while Spyro AI looks over your site for the first time. It disappears automatically once your workspace is ready.
+  Right after setup you may also see a setup banner, setup notes and a content-plan progress bar while Spyro AI looks over your site. They go away once the work is done.
 </Tip>
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Site audit" icon="magnifying-glass" href="/product/audit">
-    Check SEO health, Core Web Vitals, and AI readiness.
-  </Card>
-  <Card title="Rank tracker" icon="chart-line" href="/product/rank-tracker">
-    Track your keyword rankings and position changes.
+    See what's behind your SEO health and GEO readiness scores.
   </Card>
   <Card title="AI visibility" icon="robot" href="/product/ai-visibility">
-    See how often AI engines cite your brand.
+    See how often AI engines mention your brand.
+  </Card>
+  <Card title="Tracking prompts" icon="message" href="/product/prompts">
+    Choose the buyer questions Spyro AI asks the AI engines.
   </Card>
   <Card title="Content calendar" icon="calendar" href="/product/calendar">
-    Plan and schedule your monthly blog articles.
+    Plan and schedule your blog articles.
   </Card>
 </CardGroup>

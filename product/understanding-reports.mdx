@@ -1,99 +1,87 @@
 ---
 title: "Understand your reports"
-description: "Your audit gives you two simple scores and a clear, prioritized list of fixes. Here is how to read them and decide what to do next."
+description: "Your audit gives you two scores out of 100 and a prioritized list of fixes. Here is what the scores and severity levels mean, and what to do next."
 ---
 
 After you [run an audit](/product/audit), Spyro AI shows you a report. It looks like a
-lot at first, but it's built around two simple scores and a to-do list. This page
-explains what each part means and what to do about it.
+lot at first, but it's built around two scores and a to-do list. This page explains
+what each part means and what to do about it.
 
 ## Your two scores
 
-Spyro AI grades your website out of 100 in two areas:
+Spyro AI grades your website out of 100 in two areas. The same scores have slightly different names on different screens:
 
-| Score | What it measures | In plain words |
-| --- | --- | --- |
-| **SEO health** | How well your site is set up to rank on Google | "Can Google understand and rank my pages?" |
-| **AI readiness** | How well your site is set up to be quoted by AI assistants | "Can ChatGPT and friends find and cite me?" |
+| Score | On the audit page | On the dashboard | In plain words |
+| --- | --- | --- | --- |
+| How well your site is set up to rank on Google | **Site Health** | **SEO health** | "Can Google find, understand and rank my pages?" |
+| How well your site is set up to be read and cited by AI engines | **AI Search** | **GEO readiness** | "Can ChatGPT and other AI engines understand and quote me?" |
 
-Each score comes with a simple label so you know where you stand at a glance:
+### What goes into them
 
-- **85-100 - Excellent.** You're in great shape.
-- **70-84 - Good.** Solid, with a few things to tidy up.
-- **50-69 - Needs work.** Worth spending some time here.
-- **Below 50 - Poor.** Start fixing the big issues first.
+Both scores come from the checks Spyro AI runs on every page it reads, plus a few checks of your site as a whole. The **Overview** tab shows your health in six categories:
+
+- **Technical SEO**: titles, meta descriptions, headings, broken links and redirects, structured data, indexing and image alt text.
+- **Advanced SEO**: language tags, social sharing tags, orphan and thin pages, your sitemap and your `robots.txt` rules.
+- **Performance**: Core Web Vitals and slow pages.
+- **Mobile**: whether your pages are set up for phone screens.
+- **Security**: HTTPS and mixed content.
+- **AI Visibility**: whether AI crawlers can read your site and how easy your content is for AI engines to quote.
+
+Every issue Spyro AI finds lowers the score of the page it's on. Fixing issues, starting with errors, raises it.
+
+### What the numbers mean
+
+- **85-100: Excellent.** You're in great shape.
+- **70-84: Good.** Solid, with a few things to tidy up.
+- **50-69: Needs work.** Worth spending some time here.
+- **Below 50: Poor.** Start fixing the biggest issues first.
 
 <Tip>
-Don't aim for a perfect 100. Fixing the **critical** issues first usually gives you
+Don't aim for a perfect 100. Fixing the **errors** first usually gives you
 the biggest jump for the least effort.
 </Tip>
 
 ## Your list of fixes
 
-Below the scores is the list of issues Spyro AI found. Each issue is labeled by how
-much it matters:
+The **Issues & fixes** tab lists every issue Spyro AI found, grouped by how much it matters:
 
-- **Critical** - fix these first. They can stop you from ranking or being read.
-- **Warning** - worth fixing soon.
-- **Info** - small improvements and nice-to-haves.
+| Severity | Counted as | What to do |
+| --- | --- | --- |
+| **Critical** | Errors | Fix these first. They can stop you from ranking or being read. |
+| **Warning** | Warnings | Worth fixing soon. |
+| **Notice** | Notices | Small improvements and nice-to-haves. |
 
-Every issue tells you **what's wrong**, **why it matters**, and **how to fix it** in
-plain language. Some fixes even come with an AI-written suggestion you can follow
-or hand to whoever manages your site.
+Every issue tells you **what's wrong** and **how to fix it** in plain language. For critical issues and warnings you can also choose **Suggest a fix** for an AI-written recommendation tailored to your site, which you can follow yourself or hand to whoever manages your site.
 
 ## Looking at individual pages
 
-You can switch between a few views in the report:
+The **Pages** tab gives each page its own SEO and GEO scores and a health badge (**Critical**, **Warning**, **Notice** or **Healthy**, from its most serious issue). Choose any page to open its report, with its issues and a history of its scores.
 
-<AccordionGroup>
-  <Accordion title="Pages" icon="file-lines">
-    A page-by-page breakdown with each page's own scores, so you can spot which
-    pages need the most attention.
-  </Accordion>
-  <Accordion title="Full report" icon="list-check">
-    The complete SEO and AI-readiness report in one place - the same report you can
-    download as a PDF.
-  </Accordion>
-  <Accordion title="History" icon="clock-rotate-left">
-    Past audits, so you can see your scores improve over time.
-  </Accordion>
-  <Accordion title="URL checks" icon="link">
-    Keep an eye on specific important pages and re-check them whenever you like.
-  </Accordion>
-</AccordionGroup>
+The **History** tab shows your scores over time, the change since your previous audit, your best score so far and any newly detected issues.
 
-Click any page to open its detail view, where you'll see that page's issues and a
-quick history of its scores.
+## Can AI engines read your site?
 
-## Can AI assistants read your site?
-
-Your report also checks whether popular AI assistants are **allowed** to read your
-website (some sites accidentally block them). If an important AI assistant is
-blocked, Spyro AI flags it as a critical issue so you can fix it - because if they
-can't read your site, they can't recommend you.
+Your report checks whether AI crawlers are **allowed** to read your website: GPTBot, ClaudeBot, PerplexityBot, Google-Extended, CCBot, Bytespider, Amazonbot and Applebot-Extended. Some sites block them by accident. If your `robots.txt` blocks any of them from your whole site, Spyro AI flags it as a **critical** issue, because if AI engines can't read your site, they can't recommend you.
 
 ## Download or share your report
 
-Click **Download PDF** to get a clean, branded copy of the full report. It's great
-for sharing with clients, teammates, or your web developer.
+Choose **Export report to PDF** on the audit page to get a clean copy of the full report. It's handy for sharing with clients, teammates or your web developer.
 
 ## Ask about your report
 
-Not sure what an issue means? Use the **Ask** helper on the audit page to ask Spyro AI
-questions about your report in plain English, like "What should I fix first?"
+Not sure what an issue means? Choose **Ask Spyro AI** on the audit page to ask questions about your report in plain English, like _"What should I fix first?"_ Each answer costs 10 credits.
 
 ## What to expect
 
-- Scores update each time you run a new audit.
-- Bigger sites take a little longer to crawl.
-- Improving your scores takes a few rounds - fix issues, re-run the audit, and
-  watch the numbers climb.
+- Scores update after every audit, including the automatic weekly one.
+- Bigger sites take a little longer to check.
+- Improving your scores takes a few rounds: fix issues, re-run the audit, and watch the numbers climb.
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Run your first audit" icon="magnifying-glass" href="/product/audit">Start a new site check.</Card>
-  <Card title="Google Search Console" icon="google" href="/product/search-console">See your real Google performance.</Card>
-  <Card title="AI visibility & competitors" icon="robot" href="/product/ai-visibility">Check if AI assistants mention you.</Card>
+  <Card title="GSC & Bing" icon="google" href="/product/search-console">See your real Google and Bing performance.</Card>
+  <Card title="AI visibility" icon="robot" href="/product/ai-visibility">Check if AI engines mention you.</Card>
   <Card title="Questions and answers" icon="circle-question" href="/product/faq">Common questions answered.</Card>
 </CardGroup>

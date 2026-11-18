@@ -1,89 +1,112 @@
 ---
 title: "Team members"
-description: "Invite teammates by email, understand roles in plain terms, accept an invite, and remove people - how to work together in Spyro AI."
+description: "Invite teammates by email, understand the owner, admin, manager and member roles, accept an invite, and remove people - how to work together in Spyro AI."
 ---
 
 ![Team Member Settings](/images/Team-member-settings.png "Team Member Settings")
 
-Spyro AI is built for teams. You invite people by email, choose what they can do, and decide which of your websites they can work on. This page walks through the whole thing.
-
-## Why use it
-
-Bring in writers, marketers, or clients so they can pitch in - without handing over the keys to everything. You decide who manages the account and who just works on the sites you assign them.
+Spyro AI is built for teams, and team members are unlimited on every plan. You invite people by email, choose what they can do, and decide which of your websites (workspaces) they can work on.
 
 ## Roles in plain terms
 
-There are two simple kinds of people on your team:
+Roles work at two levels: your **organization** (which holds your plan, credits and all your workspaces) and each **workspace**.
 
-- **Owners and admins** can manage everything - settings, billing, content, and the team itself, across every website.
-- **Members** get access only to the websites you assign them. They work on those sites and nothing else.
+### Organization roles
+
+| Role | What they can do |
+| --- | --- |
+| **Owner** | Everything, including switching plans, renaming the organization, transferring ownership and deleting the organization. There is one owner. |
+| **Admin** | Full access to every workspace. Invites and removes organization members and changes their roles. Opens **Plan & billing** and **Manage billing**. |
+| **Manager** | Full access to every workspace and can add new workspaces. Can't manage organization members or billing. |
+| **Member** | Works only in the workspaces they've been added to. Can't add workspaces. |
+
+### Workspace roles
+
+Owners, admins and managers are automatically admins of every workspace. People with the **Member** organization role are added to individual workspaces as either:
+
+- **Admin**: can change that workspace's settings, manage its team and API keys, and delete it.
+- **Member**: can work in the workspace but can't change its settings or manage its team.
 
 <Note>
-  There is one **owner** per account. Only the owner can change your plan, manage billing, or hand the account over to someone else.
+  Only the owner can switch the plan. Owners and admins can open billing to update the card or download invoices. See [Plans & billing](/product/billing-and-usage).
 </Note>
 
-## Inviting teammates
+## Invite people to your organization
 
 <Steps>
-  <Step title="Open your team settings">
-    Go to **Settings** in the sidebar and find the team or members section.
+  <Step title="Open Members & invites">
+    Open your profile menu (top right) at the organization level and choose **Members**, or go to your organization's settings and choose **Members & invites**.
   </Step>
   <Step title="Enter their email and pick a role">
-    Type a teammate's email and choose whether they can manage everything or just the sites you give them.
+    Under **Invite a teammate**, type their email and choose **Admin**, **Manager** or **Member**.
   </Step>
   <Step title="Send the invite">
-    Spyro AI emails them a link. You can also copy the link and share it yourself.
+    Spyro AI emails them a link and copies it for you. If the email can't be sent, use **Copy link** to share it yourself. Unaccepted invites are listed under **Pending invites**.
+  </Step>
+</Steps>
+
+Only the owner and admins can invite people to the organization.
+
+## Invite people to one workspace
+
+<Steps>
+  <Step title="Open the workspace's team">
+    In the workspace, open **Settings → Team Members**. (Only workspace admins see this tab.)
+  </Step>
+  <Step title="Invite them">
+    Enter their email, choose **Admin** or **Member**, and send the invite. If they don't have a Spyro AI account yet, they create one from the invite and land straight in this workspace.
   </Step>
 </Steps>
 
 <Tip>
-  Invite someone to a **single website** when they only need to work on one site. Invite them to the **whole account** when you want them across everything.
+  Invite someone to a **single workspace** when they only need to work on one website. Invite them to the **organization** as an admin or manager when they need every workspace.
 </Tip>
 
 ## Accepting an invite
 
-If you're the person being invited, here's all it takes:
+If you're the person being invited:
 
 <Steps>
   <Step title="Open the link">
-    Click the invite link in your email.
+    Open the invite link in your email.
   </Step>
   <Step title="Sign in with the invited email">
     Use the **same email address the invite was sent to**. A forwarded link won't work for a different account. If you don't have a Spyro AI account yet, you'll create one first.
   </Step>
   <Step title="Start working">
-    You're dropped straight into the workspace you've been given access to.
+    You land in the workspace you've been given access to.
   </Step>
 </Steps>
 
 <Warning>
-  Invites expire after **14 days**. If a link has expired, just ask for a fresh one.
+  Invites expire after **14 days**. If a link has expired, ask for a fresh one.
 </Warning>
 
 ## Changing roles and removing people
 
-- **Change a role** - pick a new role from the dropdown next to a teammate.
-- **Remove someone from a website** - unassign them from just that site; they keep access to anything else they were given.
-- **Remove someone from the account** - remove them entirely so they can't reach anything.
-- **Cancel an invite** - revoke any invite that hasn't been accepted yet.
+- **Change a role:** on **Members & invites**, choose a new role from the dropdown next to a teammate.
+- **Remove someone from a workspace:** on that workspace's **Team Members** tab, remove them. They keep access to anything else they were given.
+- **Remove someone from the organization:** remove them on **Members & invites** so they can't reach anything.
+- **Cancel an invite:** revoke any invite that hasn't been accepted yet.
+- **Transfer ownership:** the owner can hand the organization to another member, and becomes an admin.
 
 <Note>
-  The owner can't be removed or changed. Only owners and admins manage the team.
+  The owner can't be removed. Only the owner and admins manage organization members.
 </Note>
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Workspace settings" icon="sliders" href="/product/settings">
-    Manage site preferences, domains, and API keys.
+    Manage each website's settings and API keys.
   </Card>
   <Card title="Plans & billing" icon="credit-card" href="/product/billing-and-usage">
-    Review team plan limits and member seats.
+    Who can manage billing, and what each plan includes.
   </Card>
-  <Card title="Onboarding" icon="rocket" href="/product/onboarding">
-    Learn how new members navigate workspace setup.
+  <Card title="Set up your account" icon="rocket" href="/product/onboarding">
+    How new accounts and workspaces are set up.
   </Card>
-  <Card title="Frequently asked questions" icon="circle-question" href="/product/faq">
-    Answers about user permissions, seats, and account roles.
+  <Card title="Questions and answers" icon="circle-question" href="/product/faq">
+    Answers about plans, credits and access.
   </Card>
 </CardGroup>
