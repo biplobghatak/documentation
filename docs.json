@@ -21,6 +21,16 @@
       "href": "https://spyro.app/signup"
     }
   },
+  "redirects": [
+    {
+      "source": "/product/prompts",
+      "destination": "/product/ai-visibility/prompts"
+    },
+    {
+      "source": "/product/ai-mentions",
+      "destination": "/product/ai-visibility/mentions"
+    }
+  ],
   "navigation": {
     "groups": [
       {
