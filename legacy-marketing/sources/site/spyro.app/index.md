@@ -1626,7 +1626,7 @@ A comprehensive breakdown of the best AI chatbots available in 2026 - covering C
 
 [• 12 min read](https://spyro.app/blog/top-10-ai-chatbots-in-2026)
 
-![Best AI Video Makers for TikTok in 2026](https://spyro.app/_next/image?url=%2Fmarketing%2Fblogs%2Fbest-ai-video-makers-for-tiktok-veed-landing-page.jpg&w=3840&q=75)Video Tools
+![Best AI Video Makers for TikTok in 2026](https://www.spyro.app/assets/spyro-og.png)Video Tools
 
 ### Best AI Video Makers for TikTok in 2026
 
@@ -1634,7 +1634,7 @@ The top AI-powered video creation tools for TikTok creators and marketers - revi
 
 [• 10 min read](https://spyro.app/blog/best-ai-video-makers-for-tiktok-2026)
 
-![Supabase vs Firebase: Choose Your Backend in 2026](https://spyro.app/_next/image?url=%2Fmarketing%2Fblogs%2Fsupabase-vs-firebase-homepage.png&w=3840&q=75)Backend Dev
+![Supabase vs Firebase: Choose Your Backend in 2026](https://www.spyro.app/assets/spyro-og.png)Backend Dev
 
 ### Supabase vs Firebase: Choose Your Backend in 2026
 

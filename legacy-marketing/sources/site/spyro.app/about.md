@@ -44,7 +44,7 @@ Biplob Ghatak
 
 Co-founder
 
-[@biplob\_ghatak](https://x.com/biplob_ghatak)
+[@biplobghatak](https://x.com/biplobghatak)
 
 From the founders
 
