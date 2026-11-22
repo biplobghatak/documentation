@@ -32,57 +32,106 @@
     }
   ],
   "navigation": {
-    "groups": [
+    "anchors": [
       {
-        "group": "Get started",
-        "pages": [
-          "product/overview",
-          "product/onboarding",
-          "product/dashboard"
+        "anchor": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "product/overview",
+              "product/onboarding",
+              "product/dashboard"
+            ]
+          },
+          {
+            "group": "Audits & SEO",
+            "pages": [
+              "product/audit",
+              "product/understanding-reports",
+              "product/rank-tracker",
+              "product/search-console"
+            ]
+          },
+          {
+            "group": "AI visibility",
+            "pages": [
+              "product/ai-visibility",
+              "product/competitors",
+              "product/competitor-research",
+              "product/ai-visibility/prompts",
+              "product/ai-visibility/mentions"
+            ]
+          },
+          {
+            "group": "Blog content",
+            "pages": [
+              "product/calendar",
+              "product/writer",
+              "product/spyro-ai-agent",
+              "product/article-settings"
+            ]
+          },
+          {
+            "group": "Account",
+            "pages": [
+              "product/settings",
+              "product/team-members",
+              "product/billing-and-usage"
+            ]
+          },
+          {
+            "group": "More",
+            "pages": [
+              "product/integrations",
+              "product/free-tools",
+              "product/faq"
+            ]
+          }
         ]
       },
       {
-        "group": "Audits & SEO",
-        "pages": [
-          "product/audit",
-          "product/understanding-reports",
-          "product/rank-tracker",
-          "product/search-console"
-        ]
-      },
-      {
-        "group": "AI visibility",
-        "pages": [
-          "product/ai-visibility",
-          "product/competitors",
-          "product/competitor-research",
-          "product/ai-visibility/prompts",
-          "product/ai-visibility/mentions"
-        ]
-      },
-      {
-        "group": "Blog content",
-        "pages": [
-          "product/calendar",
-          "product/writer",
-          "product/spyro-ai-agent",
-          "product/article-settings"
-        ]
-      },
-      {
-        "group": "Account",
-        "pages": [
-          "product/settings",
-          "product/team-members",
-          "product/billing-and-usage"
-        ]
-      },
-      {
-        "group": "More",
-        "pages": [
-          "product/integrations",
-          "product/free-tools",
-          "product/faq"
+        "anchor": "MCP",
+        "icon": "plug",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "product/mcp-overview",
+              "product/mcp-agent-setup",
+              "product/mcp-connect"
+            ]
+          },
+          {
+            "group": "Using MCP",
+            "pages": [
+              "product/mcp-tools",
+              "product/mcp-credits-and-limits",
+              "product/mcp-manage-access",
+              "product/mcp-troubleshooting"
+            ]
+          },
+          {
+            "group": "Guides by app",
+            "pages": [
+              "product/mcp-claude",
+              "product/mcp-claude-code",
+              "product/mcp-chatgpt",
+              "product/mcp-gemini",
+              "product/mcp-gemini-cli",
+              "product/mcp-codex",
+              "product/mcp-cursor",
+              "product/mcp-vscode"
+            ]
+          },
+          {
+            "group": "For developers",
+            "pages": [
+              "product/mcp-developers",
+              "product/mcp-oauth"
+            ]
+          }
         ]
       }
     ]

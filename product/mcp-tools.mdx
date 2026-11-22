@@ -1,0 +1,244 @@
+---
+title: "Tools reference"
+description: "Every Spyro AI MCP tool your AI app can use, what it answers, what it costs, and example prompts to get the most out of it."
+---
+
+Your AI app picks the right tool for your question, so you rarely need to name one. This page shows what is available, so you know what to ask for.
+
+<Note>
+  The nine **manage** tools change things in Spyro AI. They appear only when your key or sign-in allows **Read and take actions**, and every change waits for you to confirm it. See [Confirming changes](#confirming-changes). Everything else works with **Read**.
+</Note>
+
+## At a glance
+
+### Read your own data (free)
+
+| Tool | What it answers |
+| --- | --- |
+| `getWorkspaceSnapshot` | Overview of your site, business profile, scores, competitors |
+| `searchMySite` | Finds your own pages about a topic |
+| `analyzeSiteKeywords` | Keywords your site already targets or ranks for |
+| `getAuditIssues` | SEO and GEO issues from your latest audit |
+| `getSiteAudit` | The full audit: overview, issue groups, pages, history, URL watchlist, ready-to-paste fixes |
+| `getRankSummary` | Top tracked keyword positions and biggest movers |
+| `getKeywords` | Saved keyword searches, keyword analyses, tracked keywords and rank history |
+| `getSearchPerformance` | Google Search Console data |
+| `getBingPerformance` | Bing Webmaster Tools data |
+| `getAiVisibility` | AI citations, raw AI answers, AI Overviews |
+| `getVisibilityDiagnosis` | Ranked actions to get cited more by AI |
+| `getPrompts` | Your tracked AI prompts, their answers, engine searches, suggestions and gap analyses |
+| `getCompetitors` | Your competitor research scans: verdict, gaps, topics, profiles, pages to beat |
+| `getCompetitorKeywords` | What a competitor's pages target |
+| `getContentSchedule` | What is on your content calendar |
+| `getContentInventory` | Every page you have or plan, to avoid overlap |
+| `getArticle` | Your Spyro AI articles, or one article as Markdown, HTML or an `.mdx` file |
+| `getPublishing` | Your publishing destinations and scheduled publishes |
+| `getInternalLinks` | Pages in internal linking and their suggested fixes |
+| `suggestInternalLinks` | Internal link ideas for an indexed page |
+| `getSettings` | Workspace settings, plan, credits left, connected integrations |
+| `loadPlaybook` | A step-by-step SEO method (audit, topic cluster, brief and more) |
+
+### Research and ideas (10 credits per call)
+
+| Tool | What it answers |
+| --- | --- |
+| `researchWeb` | Answers from a live web search, with sources |
+| `readPage` | Reads any public page |
+| `auditPage` | GEO check of one page with top fixes |
+| `analyzeCitedSources` | Why AI engines cite certain pages |
+| `recommendBlogIdeas` | Fresh article ideas for your site |
+| `planContentCalendar` | A proposed calendar (nothing is saved) |
+
+### Make changes (Read and take actions)
+
+| Tool | What it changes |
+| --- | --- |
+| `manageCalendar` | Add, update, move or delete calendar ideas, send an idea to the writer |
+| `manageArticle` | Edit an article, set its keyword or SEO fields, retry, rewrite a passage, delete |
+| `managePublishing` | Publish or schedule an article, cancel a schedule, pause or resume a destination |
+| `managePrompts` | Track, pause, re-time, run or delete AI prompts, suggest prompts, turn them into articles |
+| `manageKeywords` | Run keyword research, analyze a keyword, track or untrack a keyword in the rank tracker |
+| `manageSiteAudit` | Run an audit, add pages, mark issues fixed, manage the URL watchlist |
+| `manageInternalLinks` | Add pages, scan for link fixes, apply or skip a fix |
+| `manageCompetitors` | Start a competitor scan, refresh your data, track or remove competitors, write an article for a gap |
+| `manageSettings` | Change workspace settings, re-crawl, re-derive brand or voice, re-sync Search Console, Bing or GA4 |
+
+The manage tools themselves cost nothing. Some actions spend credits, just as they do in the dashboard. See [Credits and limits](/product/mcp-credits-and-limits#what-actions-cost).
+
+## Your site
+
+<AccordionGroup>
+  <Accordion title="getWorkspaceSnapshot and searchMySite">
+    **getWorkspaceSnapshot** returns your business profile, competitors, SEO and GEO scores, audit issues, keywords and recent content. It shows only the workspace you connected.
+
+    **searchMySite** takes a `query` (2 to 200 characters) and `k` (1 to 10 results). It searches your indexed pages and returns the URL, title, heading and an excerpt.
+
+    Try: *"Which of my pages already cover cold brew coffee?"*
+  </Accordion>
+  <Accordion title="getAuditIssues and getSiteAudit">
+    **getAuditIssues** is the quick list. Optional filters: `severity` (`critical`, `warning`, `info`), `category` (`seo`, `geo`) and `limit` (1 to 25). Returns each issue with the page, a plain-English message and a suggested fix, most severe first.
+
+    **getSiteAudit** reads the whole audit. It takes a `view`:
+
+    * `overview` (default): scores, status, issue counts, blocked AI crawlers.
+    * `issues`: one group per issue type. Pass `type` for that type's pages. Add `withFixes: true` to get ready-to-paste code (file, where to put it, language) for robots.txt AI crawler rules, canonical tags, the viewport tag, Open Graph tags, Organization schema and a draft `llms.txt`.
+    * `pages`, `page` (one page with its issues and score history), `history` and `trackedUrls`.
+
+    Try: *"Show my critical audit issues with fixes, then apply them in this repo."*
+  </Accordion>
+  <Accordion title="getRankSummary and getKeywords">
+    **getRankSummary** returns your top tracked keywords by position and the five biggest improvements.
+
+    **getKeywords** takes a `view`: `searches` (saved keyword searches), `keywords` (the rows of a search, with `questions` or `gems` filters), `analysis` (a keyword your organization already analyzed), `tracked`, `rankHistory` and `rankSummary`.
+
+    Try: *"Which keywords moved up the most this week?"*
+  </Accordion>
+  <Accordion title="getContentInventory, suggestInternalLinks and getInternalLinks">
+    **getContentInventory** lists every page you have or plan, from Search Console, your crawl, Spyro AI articles and your calendar. Pass an optional `keyword` to see which page already covers it.
+
+    **suggestInternalLinks** takes the `url` of an indexed page and returns up to 5 pages to link to. **getInternalLinks** reads the pages you added to internal linking and their verified fixes.
+
+    Try: *"Do I already have a page for 'best travel backpacks' before I write one?"*
+  </Accordion>
+  <Accordion title="getSettings">
+    Takes a `view`: `settings` (every workspace setting, the brand and the writing voice), `account` (plan, trial, credits left, articles and keyword searches left this month, prompt and keyword slots) or `integrations` (Search Console, Bing, GA4 and publishing destinations).
+
+    Try: *"How many credits and articles do I have left this month?"*
+  </Accordion>
+</AccordionGroup>
+
+## Search data
+
+**getSearchPerformance** (Google Search Console) takes a `view`:
+
+`overview`, `live`, `queries`, `countries`, `sitemaps`, `lowCtr`, `almostRanking`, `decay`, `trend`, `branded`, `appearance`, `discover`, `indexing`, `inspectUrl`.
+
+Other options: `window` (`28d` or `90d`), `sortBy` (`clicks` or `impressions`), `limit` (1 to 50), `days` (7, 28, 90 for `trend`), and `url` (required for `inspectUrl`). URL inspection is limited to 20 per workspace per day. If Search Console is not connected, you get a clear "not connected" answer.
+
+**getBingPerformance** takes a `view`: `overview`, `queries`, `pages`, `crawl`, `crawlIssues`, `links`, `sitemaps`, `keyword`.
+
+Search Console and Bing data is read live and cached for about three hours.
+
+Try: *"Which queries have lots of impressions but a low click rate? Suggest new titles."* or *"Which pages are losing traffic?"*
+
+## AI visibility
+
+**getAiVisibility** takes a `view`:
+
+* `citations`: which prompts cite you, the sources AI engines use, and which competitors are cited instead.
+* `responses`: the raw answers from ChatGPT, Gemini, Claude, Perplexity and Google AI Overviews, with sentiment.
+* `aiOverviews`: whether Google shows an AI Overview for your tracked keywords and whether you are cited.
+
+**getVisibilityDiagnosis** returns a ranked list of actions based on your audit and tracked prompts.
+
+**getPrompts** goes deeper. Its views: `list` (every prompt with its citation rate over the last 4 checks), `prompt` (one prompt's trend, results per engine and rivals), `answers`, `mentions` (every answer of the last 30 days), `fanout` (the searches the engines ran while answering), `search`, `suggestions` and `gapAnalysis`.
+
+**analyzeCitedSources** (10 credits) takes 1 to 5 `urls` that AI engines cite and explains why they win, with content actions you can copy.
+
+Try: *"Where am I losing AI citations to competitors, and what should I publish to fix it?"*
+
+## Research
+
+| Tool | Parameters | Notes |
+| --- | --- | --- |
+| `researchWeb` | `query` | Live web search with citations. 10 credits |
+| `readPage` | `url` | Public http or https pages only. 10 credits |
+| `auditPage` | `url` | GEO score, what passed, top 5 fixes, `llms.txt` status. 10 credits |
+| `getCompetitorKeywords` | `domain` | Shows what their pages target, not what they rank for. Free |
+| `getCompetitors` | `view` | Your stored scans: `overview`, `status`, `gaps`, `topics`, `competitors`, `profile`, `pages`, `history`, `tracked`. Free |
+
+For keyword volume, difficulty and Google results, use `manageKeywords` with `research` or `analyze`, then read the result with `getKeywords`.
+
+Try: *"Run keyword research for espresso machines, then show me the low-difficulty questions."*
+
+## Content and articles
+
+**recommendBlogIdeas** (10 credits) and **planContentCalendar** (10 credits) propose ideas. They never write to your calendar. `count` is 1 to 10, and `topic` and `seedKeywords` steer the ideas.
+
+**getArticle** lists your articles (20 a page, newest first, with status, keyword, word count and SEO score). With `article` (its id or exact title) it returns one article with its SEO fields and full body as `markdown` or `html`. With `format: "mdx"` a finished article comes back as one `.mdx` file with frontmatter and JSON-LD, ready to save in your site's repo.
+
+## Making changes
+
+Each manage tool takes an `action` and the fields that action needs. Name an existing item by its id or its exact title or text. If two items match, the tool returns the candidates so the app can pick one by id.
+
+<AccordionGroup>
+  <Accordion title="manageCalendar">
+    `add` (title and primary keyword, date optional), `update` (title, brief, writer options, listed websites), `move` (to a date, swapping with any idea already there), `delete`, `sendToWriter` (writes the article now, 250 credits) and `findWebsites` (searches again for the websites a list article features). New ideas are checked against Google as they are added.
+  </Accordion>
+  <Accordion title="manageArticle">
+    `edit` (replace the Markdown), `setKeyword`, `setSeo` (meta title, meta description, slug, focus keywords), `delete`, `retry` (a failed article, 250 credits when it finishes), `skipImages` (open an article whose images are stuck) and `rewrite` (one passage, 10 credits). `rewrite` returns the new text without saving it; save it with `edit`.
+  </Accordion>
+  <Accordion title="managePublishing">
+    `publish`, `schedule` (an ISO 8601 time up to 365 days ahead), `cancelSchedule`, `pause` and `resume` (workspace admins only). Name the destination by its id or name. Free. Connecting a destination stays in the dashboard.
+  </Accordion>
+  <Accordion title="managePrompts">
+    `add`, `pause`, `resume`, `setFrequency` (daily or weekly), `delete`, `runNow` (once per 24 hours), `retry` (engines that failed), `suggest` (up to 10 new prompts, free, 3 runs a day), `trackSuggested`, `draftFromSearches` (article ideas from the searches AI engines ran), `analyzeGap` (why answers cite other sites, free, 20 a day) and `gapToCalendar`. Each check costs 10 credits per engine, 20 for Claude.
+  </Accordion>
+  <Accordion title="manageKeywords">
+    `research` (10 credits and one of your monthly keyword searches), `deleteSearch`, `analyze` (20 credits the first time your organization analyzes that keyword in a market, then free for 30 days), `track` (each rank check costs 2 credits) and `untrack`.
+  </Accordion>
+  <Accordion title="manageSiteAudit">
+    `run`, `addPages` (up to 10 pages), `markFixed`, `markNotFixed`, `trackUrl`, `recheckUrl` and `untrackUrl`. All free.
+  </Accordion>
+  <Accordion title="manageInternalLinks">
+    `addPage`, `addArticle`, `scan` (20 credits, only when it finds a verified fix), `applyFix`, `skipFix`, `deletePage` and `indexPages`. Fixes change Spyro AI's copy of the page, never your live site.
+  </Accordion>
+  <Accordion title="manageCompetitors">
+    `startScan` (up to 5 competitors in one country, 100 credits per competitor fetched, free when fetched in the last 30 days), `refreshOwnData` (free, 3 a day), `deleteCompetitor`, `writeArticle` (an article for a keyword gap), `track` and `dismiss`.
+  </Accordion>
+  <Accordion title="manageSettings">
+    `update` (any workspace setting; read the current values with `getSettings` first), `recrawl`, `regenerateBrand`, `regenerateTone` and `resync` (`gsc`, `bing` or `ga4`, once an hour each). Free. Billing, team, keys, connecting integrations and deleting the workspace stay in the dashboard.
+  </Accordion>
+</AccordionGroup>
+
+## Confirming changes
+
+Nothing changes until you confirm it in Spyro AI:
+
+* **Apps that can ask you in the chat** show a Spyro AI confirmation with a summary of the change. Confirm there.
+* **Other apps** get a link like `https://spyro.app/mcp/confirm/...`. Open it, check the summary and click **Confirm**. Then ask the app to repeat the same call, and it returns the result.
+
+A link works once, only for the person who connected the app, and expires after 10 minutes. If the app calls again while the link is still open, it gets the same link back. The summary names any credits the change will spend.
+
+<Warning>
+  Read the summary before you confirm. An AI app can misread your request, and some actions (delete, publish) cannot be undone.
+</Warning>
+
+## Prompts for coding agents
+
+Apps that support MCP prompts get three ready-made prompts. In Claude Code they appear as slash commands named after your server, such as `/mcp__spyro-ai__fix-audit`.
+
+| Prompt | What it does |
+| --- | --- |
+| `fix-audit` | Fixes your audit issues in the code base you have open. Optional `severity` |
+| `weekly-report` | A short report of your search and AI visibility this week |
+| `publish-article` | Saves a finished article in your repo as an `.mdx` file. Takes `article` and an optional `folder` |
+
+They use only free read tools.
+
+## Working with several workspaces
+
+When you sign in and connect more than one workspace, the app gets one extra free tool, **listWorkspaces**, and every tool accepts a `workspace` argument (the workspace id from that list). The app should call `listWorkspaces` first. Keys connect one workspace only, so they never need this.
+
+## Example prompts
+
+<CardGroup cols={2}>
+  <Card title="Weekly SEO review" icon="clipboard-check">
+    "Check my audit issues, rank changes and Search Console for the last 28 days. Give me the 5 most important things to do this week."
+  </Card>
+  <Card title="Find content gaps" icon="magnifying-glass-chart">
+    "Show my competitor gaps, find topics they cover that I don't, and check my content inventory so you don't repeat anything."
+  </Card>
+  <Card title="Plan a month" icon="calendar-days">
+    "Recommend 8 blog ideas for next month, check each against my existing pages, then add them to my calendar on Tuesdays and Thursdays."
+  </Card>
+  <Card title="Win AI citations" icon="sparkles">
+    "Run a visibility diagnosis, show where competitors are cited instead of me, and audit my top page for what to change."
+  </Card>
+</CardGroup>
+
+## Related
+
+* [Credits and limits](/product/mcp-credits-and-limits)
+* [Connect your AI app](/product/mcp-connect)
+* [AI agent](/product/spyro-ai-agent)

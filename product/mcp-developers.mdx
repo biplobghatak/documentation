@@ -1,0 +1,296 @@
+---
+title: "Developer guide"
+description: "Connect Spyro AI MCP from your own code: endpoint and transport, key authentication, raw JSON-RPC calls, and examples for the MCP SDKs, the Anthropic API, the OpenAI API and the AI SDK."
+---
+
+This page is for developers who want to call the Spyro AI MCP server from their own agent, script or app. If you only want to use Spyro AI inside Claude, ChatGPT or Cursor, see [Connect your AI app](/product/mcp-connect).
+
+## At a glance
+
+| | |
+| --- | --- |
+| **Endpoint** | `https://mcp.spyro.app/mcp` |
+| **Transport** | Streamable HTTP, stateless (no session id, no standing event stream) |
+| **Methods** | `POST` and `OPTIONS` only. `GET` and `DELETE` return `405` |
+| **Auth** | `Authorization: Bearer sk_mcp_...` or `X-API-Key: sk_mcp_...`, or OAuth 2.1 (see [OAuth for developers](/product/mcp-oauth)) |
+| **Scope of a key** | One workspace, `read` or `read_actions` |
+| **Origin** | Browser requests must come from an `https://` origin (or `http://localhost`). Anything else gets `403` |
+| **CORS** | `Access-Control-Allow-Origin: *`, no credentials |
+| **Caching** | Every response sends `Cache-Control: private, no-cache, no-store` |
+| **Server name** | `spyro` |
+
+<Note>
+  Spyro AI never reads a credential from the URL or query string. Always use a header.
+</Note>
+
+## Get a key
+
+Create a key in **Settings → MCP → Create MCP key** (workspace admins only). It starts with `sk_mcp_`, is shown once, and works for one workspace. See [Manage keys and apps](/product/mcp-manage-access).
+
+Keep it in an environment variable:
+
+```bash
+export SPYRO_AI_MCP_KEY="sk_mcp_..."
+```
+
+## Call it with curl
+
+MCP uses JSON-RPC 2.0 over HTTP `POST`. Send an `Accept` header that allows both JSON and event-stream responses, as the Streamable HTTP spec requires.
+
+<Steps>
+  <Step title="Initialize">
+    ```bash
+    curl -sS https://mcp.spyro.app/mcp \
+      -H "Authorization: Bearer $SPYRO_AI_MCP_KEY" \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json, text/event-stream" \
+      -d '{
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-06-18",
+          "capabilities": {},
+          "clientInfo": { "name": "my-client", "version": "1.0.0" }
+        }
+      }'
+    ```
+
+    The result includes the server name `spyro` and a short `instructions` text that explains the tools to the model.
+  </Step>
+  <Step title="List the tools">
+    ```bash
+    curl -sS https://mcp.spyro.app/mcp \
+      -H "Authorization: Bearer $SPYRO_AI_MCP_KEY" \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json, text/event-stream" \
+      -d '{ "jsonrpc": "2.0", "id": 2, "method": "tools/list" }'
+    ```
+
+    Each tool has a `name`, a human `title`, a `description` that states its credit cost, an `inputSchema` (JSON Schema) and four annotations: `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint`.
+  </Step>
+  <Step title="Call a tool">
+    ```bash
+    curl -sS https://mcp.spyro.app/mcp \
+      -H "Authorization: Bearer $SPYRO_AI_MCP_KEY" \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json, text/event-stream" \
+      -d '{
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "getAuditIssues",
+          "arguments": { "severity": "critical", "limit": 5 }
+        }
+      }'
+    ```
+  </Step>
+</Steps>
+
+### Reading results
+
+A successful call returns the result as JSON text in one `text` content block:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": [{ "type": "text", "text": "{\"audit\":{...},\"issues\":[...]}" }]
+  }
+}
+```
+
+Parse `content[0].text` as JSON. A failed call sets `"isError": true` and puts a readable message in the same block.
+
+<Warning>
+  The server is stateless, so each request must carry its own credential. Do not rely on a session id.
+</Warning>
+
+## Use an MCP SDK
+
+<CodeGroup>
+
+```typescript TypeScript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+const transport = new StreamableHTTPClientTransport(
+  new URL("https://mcp.spyro.app/mcp"),
+  {
+    requestInit: {
+      headers: { Authorization: `Bearer ${process.env.SPYRO_AI_MCP_KEY}` },
+    },
+  },
+);
+
+const client = new Client({ name: "my-client", version: "1.0.0" });
+await client.connect(transport);
+
+const { tools } = await client.listTools();
+console.log(tools.map((t) => t.name));
+
+const result = await client.callTool({
+  name: "getAuditIssues",
+  arguments: { severity: "critical", limit: 5 },
+});
+console.log(result.content);
+```
+
+```python Python
+import asyncio, os
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+
+URL = "https://mcp.spyro.app/mcp"
+HEADERS = {"Authorization": f"Bearer {os.environ['SPYRO_AI_MCP_KEY']}"}
+
+async def main():
+    async with streamablehttp_client(URL, headers=HEADERS) as (read, write, _):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            tools = await session.list_tools()
+            print([t.name for t in tools.tools])
+            result = await session.call_tool(
+                "getAuditIssues", {"severity": "critical", "limit": 5}
+            )
+            print(result.content)
+
+asyncio.run(main())
+```
+
+</CodeGroup>
+
+## Give the tools to a model
+
+You can let a hosted model call Spyro AI directly, without running a client yourself.
+
+<Tabs>
+  <Tab title="Anthropic API">
+    The Messages API has an MCP connector. Pass the server and your key as the token:
+
+    ```json
+    {
+      "model": "claude-sonnet-5-5",
+      "max_tokens": 1024,
+      "messages": [
+        { "role": "user", "content": "List my critical SEO issues using Spyro AI." }
+      ],
+      "mcp_servers": [
+        {
+          "type": "url",
+          "url": "https://mcp.spyro.app/mcp",
+          "name": "spyro-ai",
+          "authorization_token": "sk_mcp_..."
+        }
+      ]
+    }
+    ```
+
+    The connector is a beta feature and needs a beta header. Check the current header name in Anthropic's MCP connector documentation.
+  </Tab>
+  <Tab title="OpenAI Responses API">
+    ```json
+    {
+      "model": "gpt-5",
+      "input": "List my critical SEO issues using Spyro AI.",
+      "tools": [
+        {
+          "type": "mcp",
+          "server_label": "spyro_ai",
+          "server_url": "https://mcp.spyro.app/mcp",
+          "authorization": "sk_mcp_...",
+          "require_approval": "always"
+        }
+      ]
+    }
+    ```
+
+    Keep `require_approval` on `always` if the key has **Read + actions** access.
+  </Tab>
+  <Tab title="Vercel AI SDK">
+    ```typescript
+    import { createMCPClient } from "@ai-sdk/mcp";
+    import { generateText } from "ai";
+
+    const mcp = await createMCPClient({
+      transport: {
+        type: "http",
+        url: "https://mcp.spyro.app/mcp",
+        headers: { Authorization: `Bearer ${process.env.SPYRO_AI_MCP_KEY}` },
+      },
+    });
+
+    const { text } = await generateText({
+      model: "anthropic/claude-sonnet-5-5",
+      tools: await mcp.tools(),
+      prompt: "List my critical SEO issues using Spyro AI.",
+    });
+
+    await mcp.close();
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  SDK and API names change quickly. If a snippet does not match your installed version, use it as a guide and check that SDK's own MCP documentation. The server side stays the same: one `POST` endpoint with a bearer key.
+</Note>
+
+## Stdio-only clients
+
+For clients that can only start a local process, use the `mcp-remote` bridge. It opens your browser to sign in:
+
+```bash
+npx -y mcp-remote https://mcp.spyro.app/mcp
+```
+
+To use a key with it, pass the header from an environment variable so the key is not on the command line:
+
+```json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote", "https://mcp.spyro.app/mcp",
+        "--header", "Authorization:${SPYRO_AI_MCP_AUTH}"
+      ],
+      "env": { "SPYRO_AI_MCP_AUTH": "Bearer sk_mcp_..." }
+    }
+  }
+}
+```
+
+## Design your client well
+
+* **Read the credit cost.** Each paid tool's description says "Costs N Spyro credits per call". Use `tools/list` to show or gate it.
+* **Treat annotations as hints.** `destructiveHint: true` marks the nine `manage*` tools.
+* **Handle write confirmation.** Every `manage*` call waits for the user. If your client declares the elicitation capability, Spyro AI asks the user in your UI. Otherwise the result is a `Confirm in Spyro AI: https://spyro.app/mcp/confirm/...` link: show it to the user and, after they confirm, call the tool again with the same arguments to get the result. A link lasts 10 minutes and works once.
+* **Reuse results.** An identical paid call within 10 minutes runs free up to 2 times, then is refused. Cache results instead of re-asking.
+* **Back off on limits.** Honor the retry time in rate limit messages (60 calls per minute per key).
+* **Keep keys server side.** Never ship a key in a browser or mobile app. Use [sign-in](/product/mcp-oauth) for user-facing apps.
+* **Use one key per integration**, with a low daily cap, so you can revoke it alone.
+
+## Authentication errors
+
+| Status | Body | Meaning |
+| --- | --- | --- |
+| `401` | `{"error":"Missing credential"}` | No key or token was sent |
+| `401` | `{"error":"Invalid MCP key"}` | Wrong, revoked or expired key, or the creator is no longer an admin |
+| `401` | `{"error":"Invalid or expired access token"}` | OAuth token has expired or was revoked |
+| `401` | `{"error":"No workspace is connected to this app"}` | The OAuth connection lost all its workspaces |
+| `403` | `{"error":"MCP is not included in your plan"}` | AppSumo License Tier 1 (keys) |
+| `403` | `{"error":"Your Spyro subscription is not active"}` | Billing is not active (keys) |
+| `403` | `Forbidden: Origin not allowed` | Browser request from a non-https origin |
+| `405` | none | You used `GET` or `DELETE` |
+
+A `401` also carries a `WWW-Authenticate` header that points to the OAuth discovery document, so OAuth-capable clients can start sign-in on their own.
+
+Tool-level messages (rate limits, daily cap, empty credit pool, and plan or billing problems on an OAuth connection) come back as a normal result with `isError: true`. See [Troubleshooting](/product/mcp-troubleshooting) and [Credits and limits](/product/mcp-credits-and-limits).
+
+## Related
+
+* [OAuth for developers](/product/mcp-oauth)
+* [Tools reference](/product/mcp-tools)
+* [Credits and limits](/product/mcp-credits-and-limits)

@@ -53,3 +53,11 @@ Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/sett
 
 ### Resources
 - [Mintlify documentation](https://mintlify.com/docs)
+
+## Spyro AI agent skill
+
+The MCP agent skill lives in `.mintlify/skills/spyro-ai/SKILL.md` (Mintlify serves it at `/.well-known/agent-skills/` for `npx skills add https://spyro.app/docs`). After editing it, rebuild the claude.ai download from `.mintlify/skills` in PowerShell:
+
+```
+tar.exe -a -c -f ..\..\downloads\spyro-ai-skill.zip spyro-ai
+```

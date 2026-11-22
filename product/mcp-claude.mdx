@@ -1,0 +1,74 @@
+---
+title: "Claude"
+description: "Connect Spyro AI to claude.ai and Claude Desktop as a custom connector, then ask about your rankings, audits and AI visibility in any chat."
+icon: "/images/mcp/claude.png"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="claude" />
+
+
+Use Spyro AI inside Claude on the web and in Claude Desktop. Claude connects through a **custom connector** and signs in with your Spyro AI account, so you do not need a key.
+
+## Before you start
+
+* You are an admin of a Spyro AI workspace on a plan that includes MCP. See [MCP server overview](/product/mcp-overview).
+* Your Claude plan allows custom connectors. Availability and limits depend on your Claude plan, so check Claude's settings if you do not see the option.
+
+## Connect
+
+<Steps>
+  <Step title="Open connectors">
+    In Claude, open **Customize → Connectors**, click **+ Add**, then **Add custom connector**.
+  </Step>
+  <Step title="Add the server">
+    Name it **Spyro AI** and paste the address:
+
+    ```text
+    https://mcp.spyro.app/mcp
+    ```
+
+    Leave the advanced OAuth client fields empty. Claude registers itself.
+  </Step>
+  <Step title="Sign in">
+    Click **Add**, then **Connect**. Sign in to Spyro AI, tick the workspaces Claude may use, choose **Read your data** or **Read and take actions**, and click **Allow**.
+  </Step>
+  <Step title="Turn it on in a chat">
+    Start a chat and make sure the Spyro AI connector is enabled from the tools or connectors menu for that chat.
+  </Step>
+</Steps>
+
+<Note>
+  **Team and Enterprise plans:** an owner first adds the connector in **Organization settings → Connectors** by choosing **Add → Custom → Web** and pasting the address. Members then open **Customize → Connectors** and click **Connect** to sign in themselves.
+</Note>
+
+## Check that it works
+
+Ask: *"Use Spyro AI to give me an overview of my workspace."* Claude should show it is calling a Spyro AI tool and answer from your data. The first time a tool runs, Claude may ask you to allow it.
+
+## Try these prompts
+
+* *"What are my 5 most important SEO issues? Explain each in plain English."*
+* *"Which of my keywords moved up or down this week?"*
+* *"Where do AI engines cite my competitors instead of me?"*
+* *"Recommend 5 blog ideas and add them to my calendar."* (needs **Read and take actions**)
+
+## Tips
+
+* Choose **Read your data** unless you want Claude to make changes in Spyro AI.
+* If you connect several workspaces, Claude first calls `listWorkspaces`. Name the site in your prompt so it picks the right one.
+* Claude asks before using a tool. Every change also waits for you to confirm it in Spyro AI: open the link Claude shows, check the summary and click **Confirm**, then ask Claude to continue.
+* To disconnect, remove the connector in Claude, and revoke the app in **Settings → MCP → Connected apps** in Spyro AI.
+
+## If it fails
+
+* **Cannot connect or sign in loops:** remove the connector and add it again. Make sure the address has no extra characters.
+* **Workspace is greyed out on the approval screen:** you must be an admin, and the plan and subscription must be active.
+* Other errors: see [Troubleshooting](/product/mcp-troubleshooting).
+
+Claude's own guide: [Custom connectors](https://claude.com/docs/connectors/custom).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Tools reference](/product/mcp-tools)

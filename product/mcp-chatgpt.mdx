@@ -1,0 +1,70 @@
+---
+title: "ChatGPT"
+description: "Add Spyro AI to ChatGPT as a custom MCP server with sign-in, and know what depends on your ChatGPT plan and workspace settings."
+icon: "/images/mcp/chatgpt.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="chatgpt" />
+
+
+ChatGPT can use Spyro AI as a custom MCP server. It connects through sign-in, so you do not need a key.
+
+## Before you start
+
+* You are an admin of a Spyro AI workspace on a plan that includes MCP.
+* Your ChatGPT plan and workspace allow custom MCP servers. This depends on your plan, and on Business, Enterprise and Education workspaces an admin may need to turn it on first.
+* The server address must be reachable from the internet. `https://mcp.spyro.app/mcp` is.
+
+## Connect
+
+<Steps>
+  <Step title="Open the plugin settings">
+    Go to **chatgpt.com/plugins**, click the plus button, then **Add custom MCP server**.
+  </Step>
+  <Step title="Enter the server">
+    Name it **Spyro AI**. Paste the address under **Connection** and choose **OAuth**:
+
+    ```text
+    https://mcp.spyro.app/mcp
+    ```
+  </Step>
+  <Step title="Accept the notice">
+    Read the risk notice, click **I understand and want to continue**, then **Create as a plugin**. Install the plugin from your plugins list.
+  </Step>
+  <Step title="Sign in to Spyro AI">
+    Sign in, tick the workspaces ChatGPT may use, choose the access level and click **Allow**. You return to ChatGPT.
+  </Step>
+</Steps>
+
+<Note>
+  ChatGPT's menu names change often. If you do not see **plugins**, look in **Settings** for **Connectors** or **Apps**, and for a **developer mode** switch.
+</Note>
+
+## Check that it works
+
+Start a new chat, enable Spyro AI from the tools menu, and ask: *"Use Spyro AI to show my top 5 SEO issues."*
+
+## Try these prompts
+
+* *"Using Spyro AI, which pages are close to ranking on page one in Google?"*
+* *"Where do ChatGPT and Perplexity cite my competitors instead of me?"*
+* *"Plan 8 blog ideas for next month based on my content gaps."*
+
+## Tips
+
+* Choose **Read your data** if you only want answers. ChatGPT can show the action tools only when you allow actions.
+* Every change waits for you to confirm it in Spyro AI. Open the link ChatGPT shows, check the summary and click **Confirm**, then ask ChatGPT to continue.
+* Mention your site in the prompt if you connected more than one workspace.
+* To disconnect, remove the plugin in ChatGPT and revoke it in **Settings → MCP → Connected apps** in Spyro AI.
+
+## If it fails
+
+* **No option to add a custom server:** your plan or workspace does not allow it. Ask your ChatGPT admin.
+* **Sign-in fails:** remove the plugin and add it again, then retry.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Tools reference](/product/mcp-tools)

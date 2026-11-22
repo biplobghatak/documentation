@@ -1,0 +1,173 @@
+---
+title: "OAuth for developers"
+description: "How sign-in works for Spyro AI MCP: discovery documents, client registration, PKCE flow, scopes, token lifetimes and the limits to design around."
+---
+
+Spyro AI runs its own OAuth 2.1 authorization server for MCP. Compliant MCP clients do this automatically from the server address alone. Read this page if you build a client, an app directory listing or a custom integration.
+
+<Note>
+  Use a [key](/product/mcp-developers) for scripts and servers. Use OAuth for apps that act on behalf of a person, so no secret is stored in a file.
+</Note>
+
+## How a client finds everything
+
+<Steps>
+  <Step title="Call the endpoint without a credential">
+    `POST https://mcp.spyro.app/mcp` returns `401` with a header like:
+
+    ```text
+    WWW-Authenticate: Bearer resource_metadata="https://mcp.spyro.app/.well-known/oauth-protected-resource/mcp", scope="spyro.read"
+    ```
+  </Step>
+  <Step title="Read the protected resource metadata">
+    `GET https://mcp.spyro.app/.well-known/oauth-protected-resource/mcp` (RFC 9728) returns the resource, the authorization server, and `scopes_supported`: `spyro.read` and `spyro.actions`.
+  </Step>
+  <Step title="Read the authorization server metadata">
+    `GET https://mcp.spyro.app/.well-known/oauth-authorization-server` (RFC 8414) lists the endpoints below.
+  </Step>
+</Steps>
+
+| Item | Value |
+| --- | --- |
+| Issuer | `https://mcp.spyro.app` |
+| Authorization endpoint | `https://spyro.app/mcp/authorize` |
+| Token endpoint | `https://mcp.spyro.app/oauth/token` |
+| Registration endpoint | `https://mcp.spyro.app/oauth/register` |
+| Revocation endpoint | `https://mcp.spyro.app/oauth/revoke` |
+| Response types | `code` |
+| Grant types | `authorization_code`, `refresh_token` |
+| PKCE | `S256` only, required |
+| Token endpoint auth | `none`, `client_secret_post`, `client_secret_basic` |
+| Client ID Metadata Documents | Supported |
+| `iss` in authorization responses | Supported |
+
+The sign-in page is on the main `spyro.app` host, and the token, registration and revocation endpoints are on the issuer host `mcp.spyro.app`. These endpoints answer CORS with `*` and send `no-store`.
+
+## Register a client
+
+Pick one of three ways:
+
+<Tabs>
+  <Tab title="Client ID metadata document">
+    Use an `https` URL you host as your `client_id`. Spyro AI fetches it (5 second timeout, 64 KB limit) to read your name and redirect URIs. Verified vendors such as claude.ai, claude.com and chatgpt.com use this.
+  </Tab>
+  <Tab title="Dynamic registration">
+    `POST /oauth/register` with your client metadata. You get a `client_id` starting `spyro_cl_`. Unused registrations are removed after 30 days. Identical public clients (same name and redirect URIs) are reused.
+  </Tab>
+  <Tab title="Manual client">
+    For apps that need a fixed client ID and secret (Gemini Enterprise, for example), create one in **Settings → MCP → OAuth clients**. The secret starts with `spyro_cs_` and is shown once. See [Manage keys and apps](/product/mcp-manage-access).
+  </Tab>
+</Tabs>
+
+### Redirect URI rules
+
+* Any `https://` URI, matched exactly.
+* `http://` on `localhost`, `127.0.0.1` or `[::1]`, with any port.
+* The one custom scheme `cursor://anysphere.cursor-mcp/oauth/callback`.
+
+An invalid client or redirect URI never redirects. The user sees an error page instead. Unverified clients cannot use a name containing "Spyro".
+
+## Authorization code flow
+
+<Steps>
+  <Step title="Send the user to the authorization endpoint">
+    ```text
+    GET https://spyro.app/mcp/authorize
+      ?response_type=code
+      &client_id=<your client id>
+      &redirect_uri=<registered uri>
+      &code_challenge=<S256 challenge>
+      &code_challenge_method=S256
+      &scope=spyro.read
+      &state=<random>
+      &resource=https://mcp.spyro.app/mcp
+    ```
+
+    `resource` must be the MCP address. PKCE with `S256` is required.
+  </Step>
+  <Step title="The user approves">
+    The user signs in, picks the workspaces, chooses **Read** or **Read and take actions**, sets a daily credit limit and clicks **Allow**. The granted scope can differ from what you asked for, so read it from the token response.
+  </Step>
+  <Step title="Receive the code">
+    The user returns to your `redirect_uri` with `code`, `state` and `iss`. Check `state` and `iss`. A code lives **60 seconds** and works **once**. Reusing a code revokes the whole grant.
+  </Step>
+  <Step title="Exchange the code">
+    ```bash
+    curl -sS https://mcp.spyro.app/oauth/token \
+      -d grant_type=authorization_code \
+      -d code=<code> \
+      -d redirect_uri=<registered uri> \
+      -d client_id=<your client id> \
+      -d code_verifier=<verifier> \
+      -d resource=https://mcp.spyro.app/mcp
+    ```
+
+    ```json
+    {
+      "access_token": "spyro_at_...",
+      "token_type": "Bearer",
+      "expires_in": 3600,
+      "refresh_token": "spyro_rt_...",
+      "scope": "spyro.read spyro.actions"
+    }
+    ```
+  </Step>
+  <Step title="Call the MCP endpoint">
+    Send `Authorization: Bearer spyro_at_...` as you would with a key.
+  </Step>
+</Steps>
+
+## Scopes
+
+| Scope | Gives | Same as key access |
+| --- | --- | --- |
+| `spyro.read` | Read tools and paid research tools | `read` |
+| `spyro.actions` | Also the nine manage tools (calendar, articles, publishing, prompts, keywords, audit, internal links, competitors, settings). Each write is confirmed by the user | `read_actions` |
+
+The 401 challenge asks for `spyro.read` only. The user decides on the approval screen whether to raise or lower it.
+
+## Tokens
+
+| Token | Prefix | Lifetime |
+| --- | --- | --- |
+| Authorization code | `spyro_ac_` | 60 seconds, single use |
+| Access token | `spyro_at_` | 1 hour |
+| Refresh token | `spyro_rt_` | 90 days idle |
+
+Refresh with `grant_type=refresh_token`. For public clients the refresh token **rotates**: use the new one from each response. A retry within 60 seconds of the first use is tolerated and returns a fresh pair, but a later reuse revokes the grant. Confidential clients and Google-hosted clients keep the same refresh token.
+
+Tokens, codes and secrets are stored only as hashes. To disconnect, `POST /oauth/revoke` with the token. It always returns `200` and revokes the whole grant.
+
+## Several workspaces
+
+One approval can cover several workspaces. In that case the server adds a free `listWorkspaces` tool, and every tool takes an optional `workspace` argument (the workspace id). Call `listWorkspaces` first and pass the id on later calls. If you omit it with several workspaces connected, the tool returns an error that lists the valid ids. Every call re-checks that the user is still a workspace admin, the plan includes MCP, billing is active and the scope allows the tool. For a signed-in connection, a plan or billing problem comes back as a tool error (`MCP is not included in this workspace's plan.` or `This workspace's Spyro AI subscription is not active.`), not as an HTTP `403`.
+
+## Limits to design around
+
+| Limit | Value |
+| --- | --- |
+| Dynamic registrations | 20 per IP per hour, 2,000 new per day overall |
+| Token and revoke calls | 6,000 per IP per hour, then 3,000 per client and IP per hour |
+| Authorization requests | 60 per IP per hour |
+| Approvals | 30 per user per hour |
+| Live grants | 10 per user per client. The least recently used is revoked when an 11th is approved |
+
+## Common errors
+
+| Message | Fix |
+| --- | --- |
+| `PKCE with code_challenge_method=S256 is required.` | Send `code_challenge` and `S256` |
+| `resource must be this MCP server.` | Use `https://mcp.spyro.app/mcp` as `resource` |
+| `response_type must be code.` | Use the code flow |
+| `redirect_uri does not match.` | Use exactly a registered URI |
+| `code_verifier does not match.` | Send the verifier that matches the challenge |
+| `The authorization code was already used.` | Codes work once. Start again |
+| `The authorization code expired.` | Exchange within 60 seconds |
+| `The refresh token was already used.` | Store the newest refresh token. Reconnect |
+| `Too many client registrations. Try again later.` | Reuse an existing registration |
+
+## Related
+
+* [Developer guide](/product/mcp-developers)
+* [Manage keys and apps](/product/mcp-manage-access)
+* [Troubleshooting](/product/mcp-troubleshooting)

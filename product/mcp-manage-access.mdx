@@ -1,0 +1,120 @@
+---
+title: "Manage keys and apps"
+description: "Create and revoke MCP keys, see which apps are connected to your workspace, understand the sign-in approval screen, and keep your access secure."
+---
+
+Open your workspace and go to **Settings → MCP**. Only workspace **admins** can manage MCP access. Other members see a short message instead.
+
+## Set up per workspace, billed per organization
+
+MCP access is configured **per workspace**, not per organization:
+
+* A **key** belongs to one workspace, and you create it under that workspace's **Settings → MCP**. Each workspace can have up to 5 keys.
+* A **sign-in connection** can cover several workspaces in one approval, but each workspace gets its own access level and daily credit limit, and you can revoke each one separately.
+* **OAuth clients** belong to you and work in every workspace where you are an admin.
+
+Credits are the exception. All MCP calls spend your **organization's** shared credit pool, whichever workspace they come from.
+
+## Who can set up MCP
+
+You need to be an **admin of the workspace** to create keys, approve app connections, see connected apps and revoke access.
+
+| Your role | Can configure MCP? |
+| --- | --- |
+| Organization **owner**, **admin** or **manager** | Yes. You are a workspace admin on every workspace in the organization. |
+| Organization **member** assigned to the workspace as **admin** | Yes, for that workspace. |
+| Organization **member** assigned to the workspace as **member** | No. You see "Only workspace admins can manage MCP." |
+| Not part of the workspace | No. |
+
+A key or app connection keeps working only while the person who created it is still a workspace admin. If their role is removed or lowered, their keys and apps stop working. Credits are always spent from the organization's pool. See [Team members](/product/team-members) to change roles.
+
+The page has four parts:
+
+* **Server URL** - the address to paste into your AI app, with a **Copy** button.
+* **MCP keys** - keys for tools that send a header.
+* **Connected apps** - apps that signed in with their own approval.
+* **OAuth clients** - an advanced option for a few enterprise apps.
+
+## Create a key
+
+<Steps>
+  <Step title="Open Create MCP key">
+    Under **MCP keys**, click **Create MCP key**. You can have up to **5 keys per workspace**.
+  </Step>
+  <Step title="Name it">
+    Name the key after the app that will use it (for example *Claude Code laptop*), so you can revoke the right one later. Up to 60 characters.
+  </Step>
+  <Step title="Choose what it can do">
+    * **Read** reads your site data and runs research.
+    * **Read + actions** can also change your calendar, articles, publishing, AI prompts, keywords, audits, internal links, competitors and settings. You confirm each change in Spyro AI.
+  </Step>
+  <Step title="Set a daily credit cap">
+    Default is 500 credits per day, from 50 to 10,000. See [Credits and limits](/product/mcp-credits-and-limits).
+  </Step>
+  <Step title="Copy the key">
+    Click **Create key**, then copy the key right away. It starts with `sk_mcp_` and is **shown only once**.
+  </Step>
+</Steps>
+
+<Warning>
+  Treat a key like a password. Anyone who has it can use your workspace's MCP tools and spend your credits. Store it in an environment variable or a password manager, never in a shared file or a web address.
+</Warning>
+
+Each key row shows its name, access level, the start of the key, when it was created and last used, its daily cap, and credits used this month.
+
+## Revoke a key
+
+Click the revoke icon on the key, then **Revoke key**. Any app still using it stops working at once and gets a 401 error. This cannot be undone, so create a new key if you need one later.
+
+A key also stops working if its creator is no longer an admin of the workspace, or the workspace is deleted.
+
+## Connect an app by signing in
+
+When an app opens the Spyro AI sign-in page, the **Connect an app to Spyro AI** screen shows:
+
+* **The app's name**, marked **Verified** or **Unverified**. Spyro AI verifies a few well-known web apps: claude.ai, ChatGPT, Perplexity and Cursor's web agents. Apps running on your own computer (Claude Code, Cursor, VS Code, Codex, Gemini CLI and others), Gemini, and any app Spyro AI has not verified show a warning. That is expected. Only continue if you started the connection yourself.
+* **Workspaces it can use.** Pick one or more. A workspace is greyed out if you are not its admin, its plan does not include MCP, or its subscription is not active.
+* **What it can do.** **Read your data**, or **Read and take actions**. With actions, you still confirm each change in Spyro AI before it runs.
+* **Daily credit limit per workspace.** Default 500, from 50 to 10,000.
+
+Click **Allow** to connect, or **Cancel** to stop. **Allow** stays off until you pick at least one workspace.
+
+Each approval creates a separate connection with its own access and cap. Access tokens last one hour and refresh on their own. A connection that goes unused for 90 days expires.
+
+## See and revoke connected apps
+
+**Connected apps** lists each app with who connected it, its access, when it connected, when it was last used and the credits it used this month. Click revoke to disconnect it from this workspace right away. To use it again, connect it again from the app.
+
+## OAuth clients (advanced)
+
+Most apps connect with sign-in alone. Create an **OAuth client** only when an app asks for a client ID and secret, such as Gemini Enterprise.
+
+<Steps>
+  <Step title="Open OAuth clients">
+    On **Settings → MCP**, expand **OAuth clients** and click **Create OAuth client**.
+  </Step>
+  <Step title="Enter the details">
+    Give it a name (it can't contain "Spyro") and one redirect URI per line, using the values your app gives you. Use `https` URLs, or `http` only for `localhost`, `127.0.0.1` or `[::1]`.
+  </Step>
+  <Step title="Copy the client ID and secret">
+    The secret is shown once. Clients belong to you and work in every workspace you manage.
+  </Step>
+</Steps>
+
+Deleting a client disconnects every app that signed in with it.
+
+## Security checklist
+
+* Use sign-in whenever your app supports it, because it needs no secret in a file.
+* Choose **Read** unless the app really needs to make changes.
+* Read each confirmation summary before you click **Confirm**.
+* Keep the daily cap low for new connections, then raise it if you need.
+* Use one key per app so you can revoke it alone.
+* Revoke connections you no longer use, and check **Last used** now and then.
+* If a key leaks, revoke it and create a new one.
+
+## Related
+
+* [Connect your AI app](/product/mcp-connect)
+* [Credits and limits](/product/mcp-credits-and-limits)
+* [Team members](/product/team-members)

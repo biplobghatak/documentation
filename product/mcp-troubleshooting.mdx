@@ -1,0 +1,123 @@
+---
+title: "MCP troubleshooting and FAQ"
+description: "Fix common Spyro AI MCP problems: sign-in errors, 401 and 403 responses, credit and rate limit messages, and apps that cannot connect."
+---
+
+Start with the symptom you see. Most issues come from the app's own settings, an expired or revoked access, or a limit.
+
+## Connecting
+
+<AccordionGroup>
+  <Accordion title="My app cannot find or connect to the server">
+    * Check the address is exactly `https://mcp.spyro.app/mcp` with no extra spaces or trailing text.
+    * The server uses streamable HTTP. If your app has a transport option, choose **HTTP** or **Streamable HTTP**, not SSE. In Cline set `"type": "streamableHttp"`.
+    * Restart your app after editing a config file. Some apps read it only at launch.
+    * Check that your app supports remote MCP servers on your plan.
+  </Accordion>
+  <Accordion title="The sign-in page says the request expired or was already used">
+    Sign-in requests last a few minutes and work once. Start the connection again from your app.
+  </Accordion>
+  <Accordion title="The sign-in page says the app's return address does not match">
+    The app sent a return address that does not match its registration. Remove the connector in your app, add it again, and retry. If you use an OAuth client, check its redirect URIs match the app exactly.
+  </Accordion>
+  <Accordion title="I cannot tick my workspace on the approval screen">
+    A workspace can connect only if you are its admin, its plan includes MCP and its subscription is active. The screen tells you which one is missing. AppSumo License Tier 1 does not include MCP.
+  </Accordion>
+  <Accordion title="The app shows a warning that it is unverified">
+    Spyro AI verifies only a few web apps (claude.ai, ChatGPT, Perplexity). Apps on your own computer, such as Claude Code, Cursor, VS Code, Codex and Gemini CLI, and Gemini always show this warning. It still works. Continue only if you started the connection yourself, and check the address it will send you back to.
+  </Accordion>
+  <Accordion title="ChatGPT or Gemini has no custom MCP option">
+    These options depend on your plan and workspace settings, and may need a workspace admin to turn them on or to enable developer mode. Check your app's own help.
+  </Accordion>
+</AccordionGroup>
+
+## Errors your app may show
+
+<AccordionGroup>
+  <Accordion title="401: Invalid MCP key, Invalid or expired access token, Missing credential">
+    * **Invalid MCP key**: the key was revoked, mistyped, or its creator is no longer a workspace admin. Create a new key.
+    * **Missing credential**: the app did not send a key or sign in. Check the header is `Authorization: Bearer sk_mcp_...` or `X-API-Key: sk_mcp_...`. Keys in a URL are ignored.
+    * **Invalid or expired access token**: sign in again from the app. Tokens refresh on their own, but a revoked or long-unused connection must be reconnected.
+    * **No workspace is connected to this app**: the connection lost all its workspaces. Reconnect and tick a workspace.
+  </Accordion>
+  <Accordion title="403: MCP is not included in your plan / subscription is not active">
+    MCP is included on every plan except AppSumo License Tier 1, and your subscription (or trial) must be active. Check [Plans, billing & usage](/product/billing-and-usage). With a sign-in connection the same problem shows as a tool message instead: "MCP is not included in this workspace's plan" or "This workspace's Spyro AI subscription is not active".
+  </Accordion>
+  <Accordion title="Your organization is out of credits">
+    Paid tools (10 credits) and actions that spend credits stop when the pool is empty. The message shows the date credits reset. Free tools keep working. You can upgrade your plan to continue sooner.
+  </Accordion>
+  <Accordion title="This connection reached its daily credit limit">
+    The daily cap resets at midnight UTC. To raise it, create a new key with a higher cap, or disconnect the app and connect it again with a higher limit.
+  </Accordion>
+  <Accordion title="Confirm in Spyro AI: https://spyro.app/mcp/confirm/...">
+    Every change waits for your confirmation. Open the link, check the summary and click **Confirm**, then ask your app to run the same request again to get the result. Nothing changes until you confirm. See [Confirming changes](/product/mcp-tools#confirming-changes).
+  </Accordion>
+  <Accordion title="The confirmation link sent earlier is still open">
+    Your app asked for the same change again before you confirmed. Open the link you already have and click **Confirm**. It expires 10 minutes after it was created.
+  </Accordion>
+  <Accordion title="This confirmation expired / was not found">
+    Links last 10 minutes, work once, and only for the person who connected the app. Ask your app to make the change again to get a new link.
+  </Accordion>
+  <Accordion title="You cancelled this in Spyro AI. Nothing was changed">
+    You clicked **Cancel** on the confirmation page. Ask your app again if you change your mind.
+  </Accordion>
+  <Accordion title="Too many calls right now. Try again in N seconds">
+    You hit the rate limit of 60 calls per minute per connection, or a per-tool daily limit. Wait the time shown. See [Credits and limits](/product/mcp-credits-and-limits).
+  </Accordion>
+  <Accordion title="You just ran this exact call several times">
+    The same paid call ran 3 times in 10 minutes. Reuse the earlier answer or change the request.
+  </Accordion>
+  <Accordion title="An identical call is already running">
+    The same paid call is still in progress. Wait a moment and ask again.
+  </Accordion>
+  <Accordion title="This tool failed. Try again in a moment">
+    A temporary problem on the data side. The credits for a failed paid call are refunded. Try again, and contact support at hello@spyro.app if it keeps happening.
+  </Accordion>
+  <Accordion title="Several workspaces are connected / That workspace is not connected">
+    You signed in with more than one workspace. The app must call `listWorkspaces` and pass one of the returned ids as `workspace`. Ask it: *"List my Spyro AI workspaces, then use the one for example.com."*
+  </Accordion>
+  <Accordion title="This app was not allowed to take actions in this workspace">
+    You approved **Read** only. Disconnect the app and connect it again with **Read and take actions**. For a key, create a new key with **Read + actions**.
+  </Accordion>
+</AccordionGroup>
+
+## Questions about answers
+
+<AccordionGroup>
+  <Accordion title="Search Console or Bing data says 'not connected'">
+    Connect it in Spyro AI first. See [Google Search Console](/product/search-console). Bing's and Google's AI performance reports have no public data feed yet, so they are not available.
+  </Accordion>
+  <Accordion title="The app says the site is not indexed or there is no audit">
+    New workspaces need their first crawl and audit to finish. Check your [dashboard](/product/dashboard), then ask again.
+  </Accordion>
+  <Accordion title="Why did a free question cost nothing but another spent credits?">
+    Reading your own Spyro AI data is free. Tools that search the web, read other pages or run a model cost 10 credits. Some actions, such as writing an article or running keyword research, cost what they cost in the dashboard. See [Credits and limits](/product/mcp-credits-and-limits).
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Is it safe to connect my AI app?">
+    Signing in gives the app a token that works for Spyro AI only, never your password. You choose the workspaces, the access level and a daily credit cap, and you can revoke it any time. Spyro AI stores which tool ran and the credits used, not the results.
+  </Accordion>
+  <Accordion title="Can the app see other people's data or my other workspaces?">
+    No. A key works for one workspace. A sign-in works only for the workspaces you ticked, and each call re-checks that you are still an admin there.
+  </Accordion>
+  <Accordion title="Do I need to be a developer?">
+    No. Apps like Claude, ChatGPT and Gemini need only a web address and a sign-in.
+  </Accordion>
+  <Accordion title="How is this different from the in-app AI agent?">
+    It reads the same data and shares most read and research tools, plus MCP-only tools that make changes and read deeper into each area. A few agent tools, such as live keyword data and SERP lookups, are not on MCP; use `manageKeywords` instead. The in-app [AI agent](/product/spyro-ai-agent) charges a flat 10 credits per answer. Over MCP each tool call is priced on its own, and most are free.
+  </Accordion>
+</AccordionGroup>
+
+## Still stuck?
+
+Email **hello@spyro.app** with the app you use, the time of the problem and the exact message you saw. Never include a key.
+
+## Related
+
+* [Connect your AI app](/product/mcp-connect)
+* [Manage keys and apps](/product/mcp-manage-access)
+* [Credits and limits](/product/mcp-credits-and-limits)

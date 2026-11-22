@@ -1,0 +1,308 @@
+---
+title: "Connect your AI app"
+description: "Step-by-step setup for Spyro AI MCP in Claude, Claude Code, ChatGPT, Gemini, Gemini CLI, Codex, Cursor and VS Code, plus a quick table for other apps."
+---
+
+<Tip>
+  Want your AI agent to set it up? Copy one prompt or install the Spyro AI skill: [Set up with your AI agent](/product/mcp-agent-setup).
+</Tip>
+
+Every app uses the same server address:
+
+```text
+https://mcp.spyro.app/mcp
+```
+
+Choose how to sign in:
+
+* **Sign in** - the app opens a Spyro AI page where you approve access. Use this whenever the app supports it.
+* **Key** - you create an MCP key and the app sends it in a header. See [Manage keys and apps](/product/mcp-manage-access) to create one.
+
+Each of the eight main apps has a full guide with tips and troubleshooting:
+
+<CardGroup cols={4}>
+  <Card title="Claude" icon="/images/mcp/claude.png" href="/product/mcp-claude" />
+  <Card title="Claude Code" icon="/images/mcp/claude.png" href="/product/mcp-claude-code" />
+  <Card title="ChatGPT" icon="/images/mcp/chatgpt.svg" href="/product/mcp-chatgpt" />
+  <Card title="Gemini" icon="/images/mcp/gemini.svg" href="/product/mcp-gemini" />
+  <Card title="Gemini CLI" icon="/images/mcp/gemini.svg" href="/product/mcp-gemini-cli" />
+  <Card title="Codex" icon="/images/mcp/codex.svg" href="/product/mcp-codex" />
+  <Card title="Cursor" icon="/images/mcp/cursor.svg" href="/product/mcp-cursor" />
+  <Card title="VS Code" icon="/images/mcp/vscode.svg" href="/product/mcp-vscode" />
+</CardGroup>
+
+<Note>
+  AI apps change their menus often. If a button has moved, search your app's settings for "connectors", "MCP" or "custom connector", or check the app's own documentation.
+</Note>
+
+## Claude (claude.ai and Claude Desktop)
+
+<Steps>
+  <Step title="Add a custom connector">
+    Open **Customize → Connectors**, click **+ Add**, then **Add custom connector**.
+  </Step>
+  <Step title="Enter the address">
+    Name it **Spyro AI** and paste the server address. Leave the advanced OAuth fields empty.
+  </Step>
+  <Step title="Connect">
+    Click **Add**, then **Connect**. Sign in to Spyro AI, pick your workspaces and click **Allow**.
+  </Step>
+</Steps>
+
+<Note>
+  On Team and Enterprise plans an owner adds the connector first in **Organization settings → Connectors** (**Add → Custom → Web**). Members then click **Connect**.
+</Note>
+
+## Claude Code
+
+<Tabs>
+  <Tab title="Sign in">
+    ```bash
+    claude mcp add --transport http spyro-ai https://mcp.spyro.app/mcp
+    ```
+
+    Then run `/mcp` inside Claude Code, pick **spyro-ai**, and sign in in your browser.
+  </Tab>
+  <Tab title="Key">
+    Set the key in your shell, then add this to `.mcp.json`:
+
+    ```bash
+    export SPYRO_AI_MCP_KEY="sk_mcp_..."
+    ```
+
+    ```json .mcp.json
+    {
+      "mcpServers": {
+        "spyro-ai": {
+          "type": "http",
+          "url": "https://mcp.spyro.app/mcp",
+          "headers": {
+            "Authorization": "Bearer ${SPYRO_AI_MCP_KEY}"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## ChatGPT
+
+<Steps>
+  <Step title="Open the connector settings">
+    Go to **chatgpt.com/plugins**, click the plus button, then **Add custom MCP server**.
+  </Step>
+  <Step title="Enter the address">
+    Name it **Spyro AI**, paste the server address under **Connection** and choose **OAuth**.
+  </Step>
+  <Step title="Accept and sign in">
+    Read the risk notice, click **I understand and want to continue**, then **Create as a plugin**.
+  </Step>
+  <Step title="Install and sign in">
+    Install the plugin from your plugins list and sign in to Spyro AI.
+  </Step>
+</Steps>
+
+<Note>
+  Custom MCP servers in ChatGPT depend on your plan and workspace settings. On Business, Enterprise and Education workspaces an admin may need to allow them first.
+</Note>
+
+## Gemini
+
+<Steps>
+  <Step title="Open Developer Mode">
+    Go to **gemini.google.com/devmode** (also in **Settings → Gemini Apps Developer Mode**).
+  </Step>
+  <Step title="Create the server">
+    Click **+ Create new** and paste the server address as the **MCP Server URL**. Leave the client settings empty.
+  </Step>
+  <Step title="Connect">
+    Accept the confirmation, click **Connect**, name the app **Spyro AI** and sign in.
+  </Step>
+</Steps>
+
+<Accordion title="Gemini Enterprise (admins)">
+  Gemini Enterprise needs its own OAuth client.
+
+  1. In Spyro AI open **Settings → MCP → OAuth clients** and create a client with this redirect URI: `https://vertexaisearch.cloud.google.com/oauth-redirect`. Copy the client ID and secret.
+  2. In the Google Cloud console open **Gemini Enterprise → Apps → your app → Connected data stores → New data store**, search for **Custom MCP Server** and click **Add MCP server**.
+  3. Choose **OAuth 2.0**, enter these values plus your client ID and secret, and turn on **Enable PKCE Support** (Spyro AI requires it):
+
+  ```text
+  Server URL:         https://mcp.spyro.app/mcp
+  Authorization URL:  https://spyro.app/mcp/authorize
+  Token URL:          https://mcp.spyro.app/oauth/token
+  Scopes:             spyro.read
+  Enable PKCE:        on
+  ```
+
+  4. Finish the steps and turn the connector on. For **Read and take actions**, use the scopes `spyro.read spyro.actions`. If the **Custom MCP Server** option is missing, a Google Cloud organization policy may block it.
+</Accordion>
+
+## Gemini CLI
+
+Add the server to `~/.gemini/settings.json`. The `httpUrl` field selects the streamable HTTP transport:
+
+```json ~/.gemini/settings.json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "httpUrl": "https://mcp.spyro.app/mcp"
+    }
+  }
+}
+```
+
+Then run `/mcp auth spyro-ai` inside Gemini CLI and sign in in your browser.
+
+## Codex
+
+<Tabs>
+  <Tab title="Sign in">
+    Add the server to `~/.codex/config.toml`:
+
+    ```toml ~/.codex/config.toml
+    [mcp_servers.spyro-ai]
+    url = "https://mcp.spyro.app/mcp"
+    ```
+
+    Then sign in:
+
+    ```bash
+    codex mcp login spyro-ai
+    ```
+  </Tab>
+  <Tab title="Key">
+    Set the key in your shell, and point Codex at the variable name (not the key itself):
+
+    ```bash
+    export SPYRO_AI_MCP_KEY="sk_mcp_..."
+    ```
+
+    ```toml ~/.codex/config.toml
+    [mcp_servers.spyro-ai]
+    url = "https://mcp.spyro.app/mcp"
+    bearer_token_env_var = "SPYRO_AI_MCP_KEY"
+    ```
+  </Tab>
+</Tabs>
+
+## Cursor
+
+<Tabs>
+  <Tab title="Sign in">
+    Add the server to `mcp.json` (project `.cursor/mcp.json` or global `~/.cursor/mcp.json`). Cursor asks you to sign in on first use.
+
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "spyro-ai": {
+          "url": "https://mcp.spyro.app/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Key">
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "spyro-ai": {
+          "url": "https://mcp.spyro.app/mcp",
+          "headers": {
+            "Authorization": "Bearer ${env:SPYRO_AI_MCP_KEY}"
+          }
+        }
+      }
+    }
+    ```
+
+    Set `SPYRO_AI_MCP_KEY` in your environment and restart Cursor.
+  </Tab>
+</Tabs>
+
+## VS Code (GitHub Copilot)
+
+<Tabs>
+  <Tab title="Sign in">
+    Add the server to `.vscode/mcp.json`. VS Code asks you to sign in.
+
+    ```json .vscode/mcp.json
+    {
+      "servers": {
+        "spyro-ai": {
+          "type": "http",
+          "url": "https://mcp.spyro.app/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Key">
+    VS Code asks for the key once and stores it securely.
+
+    ```json .vscode/mcp.json
+    {
+      "inputs": [
+        {
+          "type": "promptString",
+          "id": "spyro-ai-key",
+          "description": "Spyro AI MCP key",
+          "password": true
+        }
+      ],
+      "servers": {
+        "spyro-ai": {
+          "type": "http",
+          "url": "https://mcp.spyro.app/mcp",
+          "headers": {
+            "Authorization": "Bearer ${input:spyro-ai-key}"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Other apps
+
+| App | How to connect |
+| --- | --- |
+| Windsurf | Add `{"mcpServers":{"spyro-ai":{"serverUrl":"https://mcp.spyro.app/mcp"}}}` to `~/.config/devin/mcp_config.json` (Windows: `%AppData%\devin\mcp_config.json`), then sign in on first use. |
+| Zed | Add `{"context_servers":{"spyro-ai":{"url":"https://mcp.spyro.app/mcp"}}}` to your Zed `settings.json`, with no Authorization header. Zed asks you to sign in. |
+| Cline | Key only. Add the server to `cline_mcp_settings.json` with `"type": "streamableHttp"` and an `Authorization` header. Without that type, Cline uses the old SSE transport and cannot connect. |
+| Kiro | Add the server to `mcp.json` and sign in. In Kiro web and mobile, use a key header instead. |
+| JetBrains AI Assistant | Add a command server: `npx -y mcp-remote https://mcp.spyro.app/mcp`. Needs Node.js. Your browser opens to sign in. |
+| Mistral Le Chat | Admins: **Connectors → + Add Connector → Custom MCP Connector**. Name it `SpyroAI` (no spaces), paste the address and click **Connect**. |
+| Microsoft Copilot Studio | **Tools → Add a tool → New tool → Model Context Protocol**. Choose **OAuth 2.0** with **Dynamic discovery**. For a key, choose **API key**, type **Header**, name `X-API-Key`. Never choose Query. |
+| Perplexity | **Plugins → Add custom → Add MCP connector → Remote**. Paste the address, and under **Advanced** choose **OAuth** and **Streamable HTTP**. |
+| n8n | **MCP Client Tool** node: paste the address as the endpoint and choose **HTTP Streamable**. For sign-in, create an **MCP OAuth2 API** credential and keep dynamic client registration on. |
+
+### Any other app
+
+Apps that speak MCP over streamable HTTP: paste the address and sign in. Apps without sign-in can send a key as `Authorization: Bearer sk_mcp_...` or `X-API-Key: sk_mcp_...`.
+
+Apps that only run local (stdio) servers can use `mcp-remote`, which opens your browser to sign in:
+
+```bash
+npx -y mcp-remote https://mcp.spyro.app/mcp
+```
+
+<Warning>
+  Never put a key in the server address or a query string. Spyro AI only reads keys from the `Authorization` or `X-API-Key` header. Keep keys in an environment variable, not in a file you commit.
+</Warning>
+
+## Check that it works
+
+Ask your app: *"List the Spyro AI tools you can use."* then *"Use Spyro AI to give me an overview of my workspace."* If you connected more than one workspace, the app first asks which one to use.
+
+If something fails, see [Troubleshooting](/product/mcp-troubleshooting).
+
+Building your own client or agent? See the [Developer guide](/product/mcp-developers).
+
+## Related
+
+* [MCP server overview](/product/mcp-overview)
+* [Manage keys and apps](/product/mcp-manage-access)
+* [Tools reference](/product/mcp-tools)

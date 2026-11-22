@@ -1,0 +1,88 @@
+---
+title: "Gemini"
+description: "Connect Spyro AI to the Gemini app in Developer Mode, or to Gemini Enterprise with your own OAuth client."
+icon: "/images/mcp/gemini.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="gemini" />
+
+
+There are two ways to use Spyro AI in Gemini. Individuals use **Developer Mode** in the Gemini app. Organizations use **Gemini Enterprise**, where an admin sets up a connected app.
+
+## Gemini app (Developer Mode)
+
+<Steps>
+  <Step title="Open Developer Mode">
+    Go to **gemini.google.com/devmode**. You can also find it in **Settings → Gemini Apps Developer Mode**.
+  </Step>
+  <Step title="Create the server">
+    Click **+ Create new** and paste the address as the **MCP Server URL**:
+
+    ```text
+    https://mcp.spyro.app/mcp
+    ```
+
+    Leave the client settings empty.
+  </Step>
+  <Step title="Connect and sign in">
+    Accept the confirmation, click **Connect**, name the app **Spyro AI** and sign in. Tick your workspaces, choose the access level and click **Allow**.
+  </Step>
+</Steps>
+
+Then ask: *"Use Spyro AI to give me an overview of my workspace."*
+
+## Gemini Enterprise (admins)
+
+Gemini Enterprise needs a client ID and secret, so you create an OAuth client in Spyro AI first.
+
+<Steps>
+  <Step title="Create an OAuth client in Spyro AI">
+    Open **Settings → MCP → OAuth clients → Create OAuth client**. Use this redirect URI, then copy the client ID and secret (the secret is shown once):
+
+    ```text
+    https://vertexaisearch.cloud.google.com/oauth-redirect
+    ```
+  </Step>
+  <Step title="Add the MCP server in Gemini Enterprise">
+    In the Google Cloud console open **Gemini Enterprise → Apps → your app → Connected data stores → New data store**, search for **Custom MCP Server** and click **Add MCP server**.
+  </Step>
+  <Step title="Enter the OAuth settings">
+    Choose **OAuth 2.0**, enter these values with your client ID and secret, and turn on **Enable PKCE Support**. Spyro AI requires PKCE, so sign-in fails without it.
+
+    ```text
+    Server URL:         https://mcp.spyro.app/mcp
+    Authorization URL:  https://spyro.app/mcp/authorize
+    Token URL:          https://mcp.spyro.app/oauth/token
+    Scopes:             spyro.read
+    Enable PKCE:        on
+    ```
+  </Step>
+  <Step title="Finish and turn it on">
+    Finish the steps, sign in and turn the connector on. If the **Custom MCP Server** option is missing, a Google Cloud organization policy may block it.
+  </Step>
+</Steps>
+
+## Try these prompts
+
+* *"Use Spyro AI to find my biggest SEO issues and rank them by impact."*
+* *"Which queries have many impressions but few clicks in Google Search Console?"*
+* *"Compare my AI visibility against my competitors."*
+
+## Tips
+
+* Gemini asks before it calls a tool. Read the request before you approve it.
+* To let Gemini make changes, approve **Read and take actions** on the Spyro AI screen. Use **Read** otherwise. You still confirm each change in Spyro AI.
+* For Gemini Enterprise, scope `spyro.read` gives read access. Use `spyro.read spyro.actions` only if the team needs to make changes.
+* The Spyro AI sign-in screen marks Gemini as **Unverified**. That is expected.
+
+## If it fails
+
+* **Developer Mode is missing:** it depends on your Google account and region. Check Google's own help.
+* **Sign-in fails in Gemini Enterprise:** check that **Enable PKCE Support** is on, the redirect URI, the client ID and the secret, and that the three URLs match exactly.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+## Related
+
+* [Gemini CLI](/product/mcp-gemini-cli)
+* [Manage keys and apps](/product/mcp-manage-access)

@@ -1,0 +1,100 @@
+---
+title: "VS Code"
+description: "Add Spyro AI to Visual Studio Code with GitHub Copilot agent mode, using sign-in or a key that VS Code prompts for and stores securely."
+icon: "/images/mcp/vscode.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="vscode" />
+
+
+VS Code supports MCP servers in Copilot's **agent mode**. With Spyro AI connected, the agent can read your audit, ranking and Search Console data while you work.
+
+## Connect with sign-in
+
+<Steps>
+  <Step title="Add the server">
+    Create or open `.vscode/mcp.json` in your project, or run **MCP: Add Server** from the Command Palette and choose **HTTP**. Use `servers`, not `mcpServers`:
+
+    ```json .vscode/mcp.json
+    {
+      "servers": {
+        "spyro-ai": {
+          "type": "http",
+          "url": "https://mcp.spyro.app/mcp"
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step title="Start and sign in">
+    Click **Start** above the server in the file, or run **MCP: List Servers**. VS Code asks you to sign in. Pick your workspaces and click **Allow**.
+  </Step>
+</Steps>
+
+## Connect with a key
+
+Use an `inputs` entry so VS Code prompts for the key once and stores it securely. It never sits in the file:
+
+```json .vscode/mcp.json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "spyro-ai-key",
+      "description": "Spyro AI MCP key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "spyro-ai": {
+      "type": "http",
+      "url": "https://mcp.spyro.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${input:spyro-ai-key}"
+      }
+    }
+  }
+}
+```
+
+## Use it
+
+<Steps>
+  <Step title="Open Copilot Chat in agent mode">
+    Open Chat and choose **Agent** in the mode picker.
+  </Step>
+  <Step title="Check the tools">
+    Open the tools picker and make sure the **spyro-ai** tools are ticked. You can untick the nine `manage*` tools to keep the agent read only.
+  </Step>
+  <Step title="Ask">
+    *"Use Spyro AI to give me an overview of my workspace."*
+  </Step>
+</Steps>
+
+## Try these prompts
+
+* *"Use Spyro AI to list my critical audit issues, then fix the ones in this repo."*
+* *"Find pages with a low click rate in Search Console and rewrite their meta descriptions."*
+* *"Check my AI visibility with Spyro AI and suggest content to add."*
+
+## Tips
+
+* Put the file in `.vscode/mcp.json` for a team, or add the server to your user settings for all projects.
+* Add `.vscode/mcp.json` to `.gitignore` if it holds anything sensitive. The `inputs` form keeps the key itself out of it.
+* VS Code asks you to confirm tool calls. Read action requests before you accept.
+* Check **MCP: List Servers** and **Show Output** if a server does not start.
+
+## If it fails
+
+* **Server is not found:** the top-level key must be `servers`. Copying an `mcpServers` example from another editor will not work here.
+* **Cannot start:** check `type` is `"http"` and the address is exact.
+* **401 error:** sign in again, or re-enter the key when VS Code prompts.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+VS Code's reference: [MCP configuration](https://code.visualstudio.com/docs/agents/reference/mcp-configuration).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Tools reference](/product/mcp-tools)

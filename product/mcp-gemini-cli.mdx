@@ -1,0 +1,109 @@
+---
+title: "Gemini CLI"
+description: "Add Spyro AI to Gemini CLI with browser sign-in or a key, restrict which tools it can use, and manage the server from the terminal."
+icon: "/images/mcp/gemini.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="gemini-cli" />
+
+
+Gemini CLI is Google's open source agent for the terminal. It can call Spyro AI tools while it works on your project.
+
+## Connect with sign-in
+
+<Steps>
+  <Step title="Add the server">
+    Add it to `~/.gemini/settings.json` (or `.gemini/settings.json` for one project). The `httpUrl` field selects the streamable HTTP transport:
+
+    ```json ~/.gemini/settings.json
+    {
+      "mcpServers": {
+        "spyro-ai": {
+          "httpUrl": "https://mcp.spyro.app/mcp"
+        }
+      }
+    }
+    ```
+
+    Or use the command: `gemini mcp add --transport http spyro-ai https://mcp.spyro.app/mcp`
+  </Step>
+  <Step title="Sign in">
+    Start Gemini CLI and run:
+
+    ```text
+    /mcp auth spyro-ai
+    ```
+
+    Sign in in your browser, pick your workspaces and click **Allow**.
+  </Step>
+</Steps>
+
+## Connect with a key
+
+Use a key for headless or CI use. Create it in **Settings → MCP**.
+
+```json ~/.gemini/settings.json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "httpUrl": "https://mcp.spyro.app/mcp",
+      "headers": {
+        "Authorization": "Bearer $SPYRO_AI_MCP_KEY"
+      }
+    }
+  }
+}
+```
+
+Set `SPYRO_AI_MCP_KEY` in your environment first. If your version does not expand the variable, check Gemini CLI's configuration guide, and keep the key out of any file you commit.
+
+## Limit which tools it can use
+
+Gemini CLI can allow or block individual tools per server. This is useful to keep it away from the tools that make changes:
+
+```json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "httpUrl": "https://mcp.spyro.app/mcp",
+      "excludeTools": [
+        "manageCalendar",
+        "manageArticle",
+        "managePublishing",
+        "managePrompts",
+        "manageKeywords",
+        "manageSiteAudit",
+        "manageInternalLinks",
+        "manageCompetitors",
+        "manageSettings"
+      ]
+    }
+  }
+}
+```
+
+A key or approval with **Read** access already hides these tools. Excluding them is a second layer.
+
+## Manage it
+
+Inside Gemini CLI, `/mcp` lists servers, their status and the tools they offer. Use it to confirm the Spyro AI tools loaded.
+
+## Try these prompts
+
+* *"Use Spyro AI to list my critical audit issues and fix the ones in this repo."*
+* *"Ask Spyro AI which pages lost the most clicks in the last 28 days."*
+* *"Audit https://example.com/blog/post with Spyro AI and rewrite the intro."*
+
+## If it fails
+
+* **Server not listed in `/mcp`:** check the JSON is valid and the key is `httpUrl`, not `url` (which means the older SSE transport).
+* **401 error:** sign in again with `/mcp auth spyro-ai`, or check the key.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+Google's guide: [MCP servers with Gemini CLI](https://geminicli.com/docs/tools/mcp-server).
+
+## Related
+
+* [Gemini app and Gemini Enterprise](/product/mcp-gemini)
+* [All connection options](/product/mcp-connect)

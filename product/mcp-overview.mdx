@@ -1,0 +1,109 @@
+---
+title: "MCP server overview"
+description: "Use Spyro AI inside Claude, ChatGPT, Gemini, Cursor, VS Code and any other AI app. Ask about your rankings, audits, AI visibility and content calendar without leaving the chat."
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+The **Spyro AI MCP server** connects your Spyro AI workspace to the AI apps you already use. Once connected, you can ask Claude, ChatGPT, Gemini, Cursor or a coding agent things like *"What are my biggest SEO issues this week?"* and get an answer based on your real Spyro AI data.
+
+MCP stands for **Model Context Protocol**. It is an open standard that lets an AI app call tools in another product. You do not need to know how it works. You paste one web address into your AI app, sign in, and it can use your Spyro AI data.
+
+```text
+https://mcp.spyro.app/mcp
+```
+
+## What you can do with it
+
+<CardGroup cols={2}>
+  <Card title="Check your site" icon="magnifying-glass">
+    Audit issues, rankings, Google Search Console and Bing data, and your content inventory.
+  </Card>
+  <Card title="See your AI visibility" icon="sparkles">
+    Which AI answers cite you, who they cite instead, and a ranked list of fixes.
+  </Card>
+  <Card title="Research" icon="chart-line">
+    Keyword research, competitor scans, live web search, and any page on the web.
+  </Card>
+  <Card title="Plan, write and publish" icon="calendar">
+    Get blog ideas, manage your calendar and articles, track AI prompts and keywords, and publish. Every change waits for your confirmation.
+  </Card>
+</CardGroup>
+
+Most read and research tools are the ones the in-app [AI agent](/product/spyro-ai-agent) uses, plus MCP tools that read deeper and make changes. See [Tools reference](/product/mcp-tools) for the full list.
+
+## Two ways to connect
+
+<CardGroup cols={2}>
+  <Card title="Sign in (recommended)" icon="right-to-bracket">
+    Paste the address into your app and sign in with your Spyro AI account. You choose which workspaces it can use, whether it can only read or also take actions, and a daily credit limit. Best for Claude, ChatGPT, Gemini, Cursor and VS Code.
+  </Card>
+  <Card title="Use a key" icon="key">
+    Create an MCP key in Spyro AI and send it as a header. Best for coding agents, scripts and tools that cannot open a sign-in page.
+  </Card>
+</CardGroup>
+
+## What you need
+
+* A Spyro AI workspace where you are an **admin**.
+* An active subscription (a trial counts). MCP is included on every plan except **AppSumo License Tier 1**.
+* An AI app that supports remote MCP servers. Some apps limit this to certain plans, so check your app's own settings.
+
+## Works with your favorite apps
+
+<CardGroup cols={4}>
+  <Card title="Claude" icon="/images/mcp/claude.png" href="/product/mcp-claude" />
+  <Card title="Claude Code" icon="/images/mcp/claude.png" href="/product/mcp-claude-code" />
+  <Card title="ChatGPT" icon="/images/mcp/chatgpt.svg" href="/product/mcp-chatgpt" />
+  <Card title="Gemini" icon="/images/mcp/gemini.svg" href="/product/mcp-gemini" />
+  <Card title="Gemini CLI" icon="/images/mcp/gemini.svg" href="/product/mcp-gemini-cli" />
+  <Card title="Codex" icon="/images/mcp/codex.svg" href="/product/mcp-codex" />
+  <Card title="Cursor" icon="/images/mcp/cursor.svg" href="/product/mcp-cursor" />
+  <Card title="VS Code" icon="/images/mcp/vscode.svg" href="/product/mcp-vscode" />
+</CardGroup>
+
+Any other app that supports remote MCP servers works too. See [Connect your AI app](/product/mcp-connect).
+
+## Quickstart
+
+Let your AI agent do it: copy this prompt into Claude Code, Cursor, Codex or any AI agent. To install the Spyro AI skill as well, see [Set up with your AI agent](/product/mcp-agent-setup).
+
+<CopyPrompt app="any" />
+
+Or set it up yourself:
+
+<Steps>
+  <Step title="Pick your app">
+    Open [Connect your AI app](/product/mcp-connect) and choose Claude, ChatGPT, Gemini, Cursor, VS Code or another app.
+  </Step>
+  <Step title="Paste the address and sign in">
+    Add a custom connector or MCP server with the address `https://mcp.spyro.app/mcp`. When your app opens the Spyro AI sign-in page, pick your workspaces and click **Allow**.
+  </Step>
+  <Step title="Ask a question">
+    Try: *"Use Spyro AI to show my top 5 SEO issues and tell me which to fix first."*
+  </Step>
+</Steps>
+
+<Tip>
+  Name the connector **Spyro AI** wherever your app asks for a name. In config files the server is called `spyro-ai`.
+</Tip>
+
+## What it costs
+
+Reading your own data is **free**. Tools that search the web, read pages or run a model spend **10 credits** per call from your organization's normal credit pool. Actions cost what they cost in the dashboard: for example an article costs 250 credits when it is written, and keyword research 10. See [Credits and limits](/product/mcp-credits-and-limits).
+
+## Privacy and control
+
+* Spyro AI logs which tool ran and how many credits it used, never the results.
+* Signing in gives the app its own access token for Spyro AI only, never your password.
+* Nothing changes in Spyro AI until you confirm it. See [Confirming changes](/product/mcp-tools#confirming-changes).
+* You can disconnect any app or revoke any key at any time. See [Manage keys and apps](/product/mcp-manage-access).
+
+Results your AI app asks for are sent to that app's provider under your account with them.
+
+## Related
+
+* [Connect your AI app](/product/mcp-connect)
+* [Tools reference](/product/mcp-tools)
+* [Credits and limits](/product/mcp-credits-and-limits)
+* [Manage keys and apps](/product/mcp-manage-access)
+* [Troubleshooting](/product/mcp-troubleshooting)

@@ -1,0 +1,86 @@
+---
+title: "Codex"
+description: "Connect Spyro AI to OpenAI Codex with browser sign-in or a key, using config.toml or the codex mcp commands."
+icon: "/images/mcp/codex.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="codex" />
+
+
+Codex is OpenAI's coding agent. It stores MCP servers in `config.toml` and works in the CLI and the IDE extension.
+
+## Connect with sign-in
+
+<Steps>
+  <Step title="Add the server">
+    Add it to `~/.codex/config.toml`:
+
+    ```toml ~/.codex/config.toml
+    [mcp_servers.spyro-ai]
+    url = "https://mcp.spyro.app/mcp"
+    ```
+
+    Or use the command: `codex mcp add spyro-ai --url https://mcp.spyro.app/mcp`
+  </Step>
+  <Step title="Sign in">
+    ```bash
+    codex mcp login spyro-ai
+    ```
+
+    Sign in in your browser, choose your workspaces and click **Allow**.
+  </Step>
+</Steps>
+
+## Connect with a key
+
+`bearer_token_env_var` holds the **name** of an environment variable, not the key. If the variable is missing when Codex starts, the server fails to connect.
+
+```bash
+export SPYRO_AI_MCP_KEY="sk_mcp_..."
+```
+
+```toml ~/.codex/config.toml
+[mcp_servers.spyro-ai]
+url = "https://mcp.spyro.app/mcp"
+bearer_token_env_var = "SPYRO_AI_MCP_KEY"
+```
+
+You can also set it with the command: `codex mcp add spyro-ai --url https://mcp.spyro.app/mcp --bearer-token-env-var SPYRO_AI_MCP_KEY`.
+
+## Scope it to one project
+
+Codex can read a project's `.codex/config.toml`, but only in projects you have trusted. Put the server there to share a setup with your team, and keep the key in each person's environment.
+
+## Manage it
+
+```bash
+codex mcp list    # configured servers
+```
+
+Inside the Codex terminal UI, `/mcp` shows connected servers and tools.
+
+## Try these prompts
+
+* *"Use Spyro AI to find my critical SEO issues and open fixes for the ones in this repo."*
+* *"Check Spyro AI for the keywords I am almost ranking for and update those pages' headings."*
+* *"Ask Spyro AI for my competitor keyword gaps and write a content brief."*
+
+## Tips
+
+* The key name in the file is snake case: `mcp_servers`, not `mcpServers`.
+* Keep the key at **Read** access. Raise it only for a pipeline that should make changes. Each change still needs a person to confirm it in Spyro AI.
+* If your Codex version supports tool approval settings, keep approval on for the nine `manage*` tools. Spyro AI also asks you to confirm each change.
+
+## If it fails
+
+* **Server fails to start:** check the environment variable is set in the same shell that starts Codex.
+* **401 error:** run `codex mcp login spyro-ai` again, or check the key.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+OpenAI's guide: [Codex and MCP](https://developers.openai.com/codex/mcp).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Developer guide](/product/mcp-developers)

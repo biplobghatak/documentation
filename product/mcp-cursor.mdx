@@ -1,0 +1,82 @@
+---
+title: "Cursor"
+description: "Add Spyro AI to Cursor with mcp.json, using sign-in or a key, and keep keys out of your repo."
+icon: "/images/mcp/cursor.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="cursor" />
+
+
+Cursor is an AI code editor. With Spyro AI connected, its agent can use your audit, ranking and Search Console data while you edit your site.
+
+## Connect with sign-in
+
+<Steps>
+  <Step title="Add the server">
+    Add it to `mcp.json`. Use `.cursor/mcp.json` in a project, or `~/.cursor/mcp.json` for all projects:
+
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "spyro-ai": {
+          "url": "https://mcp.spyro.app/mcp"
+        }
+      }
+    }
+    ```
+
+    You can also add it from Cursor's MCP settings.
+  </Step>
+  <Step title="Sign in">
+    Cursor asks you to sign in on first use and opens your browser. Pick your workspaces, choose the access level and click **Allow**. You return to Cursor.
+  </Step>
+</Steps>
+
+## Connect with a key
+
+Cursor expands `${env:NAME}` in `url` and `headers`, so the key stays out of the file:
+
+```json mcp.json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "url": "https://mcp.spyro.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:SPYRO_AI_MCP_KEY}"
+      }
+    }
+  }
+}
+```
+
+Set `SPYRO_AI_MCP_KEY` in your environment, then restart Cursor. Cursor reads the file when it starts.
+
+## Check that it works
+
+Open Cursor's MCP settings and look for **spyro-ai** with a green status and its tool list. Then ask the agent: *"Use Spyro AI to give me an overview of my workspace."*
+
+## Try these prompts
+
+* *"Use Spyro AI to list my critical audit issues and fix the ones in this codebase."*
+* *"Which pages have a low click rate in Search Console? Rewrite their title tags."*
+* *"Audit this page's URL with Spyro AI and add the missing schema markup."*
+
+## Tips
+
+* Cursor asks you to approve tool calls by default. Keep that on for the nine `manage*` tools. Spyro AI also asks you to confirm each change.
+* If you committed `mcp.json`, use the `${env:...}` form so no one's key is in the repo.
+* Cursor uses one fixed callback for all MCP sign-ins, which Spyro AI already allows. You do not need an OAuth client.
+
+## If it fails
+
+* **Server shows an error:** restart Cursor after editing the file.
+* **401 error:** sign in again from the MCP settings, or check the key and that the variable is set.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+Cursor's guide: [Model Context Protocol](https://cursor.com/docs/mcp).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Tools reference](/product/mcp-tools)

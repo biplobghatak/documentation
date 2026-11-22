@@ -1,0 +1,86 @@
+---
+title: "Credits and limits"
+description: "What each Spyro AI MCP call costs, how the daily credit cap works, and the rate limits that keep your account safe."
+---
+
+MCP calls use the same **credit pool** as the rest of your organization. There is no separate MCP bill. See [Plans, billing & usage](/product/billing-and-usage) for your plan's monthly credits.
+
+## What each call costs
+
+| Credits | Tools |
+| --- | --- |
+| **0 (free)** | Every tool that reads your own data (overview, site search, audit, ranks, keywords, Search Console, Bing, AI visibility, prompts, competitors, calendar, articles, publishing, internal links, settings, playbooks), `getCompetitorKeywords`, and all nine manage tools as calls |
+| **10** | `researchWeb`, `readPage`, `auditPage`, `analyzeCitedSources`, `recommendBlogIdeas`, `planContentCalendar` |
+
+If a paid call fails, the credits are refunded.
+
+## What actions cost
+
+The manage tools are free to call, but some actions spend credits exactly as they do in the dashboard. The confirmation summary always names the credits before you confirm.
+
+| Action | Credits |
+| --- | --- |
+| Write an article (`manageCalendar` `sendToWriter`, `manageArticle` `retry`) | 250 when the article is written |
+| Rewrite a passage (`manageArticle` `rewrite`) | 10 |
+| Keyword research (`manageKeywords` `research`) | 10, plus one of your monthly keyword searches |
+| Keyword analysis (`manageKeywords` `analyze`) | 20 the first time your organization analyzes a keyword in a market, then free for 30 days |
+| Rank tracking (`manageKeywords` `track`) | 2 per keyword per check |
+| AI prompt check (`managePrompts` `add`, `runNow`, scheduled checks) | 10 per engine, 20 for Claude |
+| Internal link scan (`manageInternalLinks` `scan`) | 20, only when it finds a verified fix |
+| Competitor scan (`manageCompetitors` `startScan`) | 100 per competitor fetched; free if fetched in the last 30 days |
+| Articles from AI searches, gap analyses or competitor gaps | 250 each when written |
+| Audits, settings, publishing, suggestions, gap analyses | Free |
+
+Spyro AI checks your credits and your monthly article limit before an action starts.
+
+## Repeat calls are free
+
+If your app asks the exact same paid question again within 10 minutes, the repeat runs free, up to 2 times. After that, Spyro AI asks the app to reuse the earlier result. This stops an app from loop-spending on one question.
+
+## Daily credit cap
+
+Each connection has a **daily credit cap** for paid calls. You choose it when you create a key or approve an app: default **500**, from **50 to 10,000** credits per day.
+
+* It counts only the 10-credit tools above. Free calls are never blocked by the cap.
+* It resets at **midnight UTC**.
+* It is a soft limit. One call can push you slightly past it.
+* It does not cover what actions spend (articles, keyword research, prompt checks, scans and the rest), because those are charged by Spyro AI itself, as in the dashboard. Your confirmation is the control for those.
+
+To change a cap, create a new key with a different cap, or disconnect the app and connect it again. See [Manage keys and apps](/product/mcp-manage-access).
+
+## Rate limits
+
+| Limit | Value |
+| --- | --- |
+| Calls per connection | 60 per minute |
+| Calls per workspace | 3,000 per day |
+| `getSearchPerformance` with `inspectUrl` | 20 per workspace per day |
+| `manageCalendar` `add` and `findWebsites` | 20 confirmed runs per workspace per day |
+| `managePrompts` `suggest` | 3 runs per workspace per day |
+| `managePrompts` `analyzeGap` | 20 analyses per workspace per day |
+| `managePrompts` `runNow` | Once per prompt per 24 hours |
+| `manageCompetitors` own-site refresh | 3 per workspace per day |
+| `manageSettings` `resync` | Once an hour per source |
+
+When you hit a limit, the tool tells your app how long to wait.
+
+## Read and actions access
+
+* **Read** can read your data and run the 10-credit research tools. It cannot change anything.
+* **Read and take actions** also gets the nine manage tools: calendar, articles, publishing, AI prompts, keywords and rank tracking, site audit, internal links, competitors and workspace settings. You confirm every change in Spyro AI.
+
+Choose Read unless you want your AI app to make changes.
+
+## Who pays
+
+Calls spend the credits of the **organization** that owns the workspace, whoever sets up the connection. If the pool runs out, paid tools return a message with the date your credits reset. Free tools keep working.
+
+## Privacy
+
+Spyro AI records the tool name, workspace, credits, success and duration for each call, and keeps these records for 90 days. It does not store the results or what your app asked.
+
+## Related
+
+* [Tools reference](/product/mcp-tools)
+* [Manage keys and apps](/product/mcp-manage-access)
+* [Troubleshooting](/product/mcp-troubleshooting)

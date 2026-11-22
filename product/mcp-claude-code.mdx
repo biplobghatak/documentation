@@ -1,0 +1,96 @@
+---
+title: "Claude Code"
+description: "Add Spyro AI to Claude Code with one command, using browser sign-in or a key, and share the setup with your team through a project file."
+icon: "/images/mcp/claude.png"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="claude-code" />
+
+
+Claude Code is Anthropic's coding agent for the terminal. With Spyro AI connected, it can check your audit issues, rankings and content calendar while you work on your site's code.
+
+## Connect with sign-in
+
+<Steps>
+  <Step title="Add the server">
+    ```bash
+    claude mcp add --transport http spyro-ai https://mcp.spyro.app/mcp
+    ```
+  </Step>
+  <Step title="Sign in">
+    Start Claude Code and run `/mcp`. Pick **spyro-ai** and sign in in your browser. Choose the workspaces and the access level, then click **Allow**.
+  </Step>
+</Steps>
+
+## Connect with a key
+
+Use a key for scripts, CI or machines without a browser. Create one in **Settings → MCP**. See [Manage keys and apps](/product/mcp-manage-access).
+
+```bash
+export SPYRO_AI_MCP_KEY="sk_mcp_..."
+
+claude mcp add --transport http spyro-ai https://mcp.spyro.app/mcp \
+  --header "Authorization: Bearer $SPYRO_AI_MCP_KEY"
+```
+
+## Choose where it is saved
+
+Claude Code can store the server at three levels with `--scope`:
+
+| Scope | Where | Use for |
+| --- | --- | --- |
+| `local` (default) | Just you, in this project | Trying it out |
+| `project` | `.mcp.json` in the repo, shared with your team | A team that all connects to Spyro AI |
+| `user` | All your projects | Your own default |
+
+For a shared `.mcp.json`, never commit a key. Use an environment variable that each person sets:
+
+```json .mcp.json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "type": "http",
+      "url": "https://mcp.spyro.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${SPYRO_AI_MCP_KEY}"
+      }
+    }
+  }
+}
+```
+
+## Manage it
+
+```bash
+claude mcp list            # all servers and their status
+claude mcp get spyro-ai    # details for this server
+claude mcp remove spyro-ai # remove it
+```
+
+Inside Claude Code, `/mcp` shows status and lets you sign in again.
+
+## Try these prompts
+
+* *"Use Spyro AI to list my critical audit issues, then find the files in this repo that cause them."*
+* *"Check Spyro AI for pages with a low click rate and rewrite their title tags."*
+* *"Use Spyro AI to audit https://example.com/pricing and apply the top fixes to our pricing page."*
+* *"Which of my pages are losing traffic in Search Console? Suggest code changes."*
+
+## Tips
+
+* Pair audit and Search Console data with code edits. This is where a coding agent adds the most.
+* Keep the connection on **Read**. If you allow actions, keep Claude Code's tool approval on. Each change also waits for you to confirm it in Spyro AI.
+* Run `/mcp__spyro-ai__fix-audit`, `/mcp__spyro-ai__weekly-report` or `/mcp__spyro-ai__publish-article` for ready-made workflows (the middle part is the server name you chose). See [Prompts for coding agents](/product/mcp-tools#prompts-for-coding-agents).
+* One key per machine or pipeline, with a low daily cap, so you can revoke it alone.
+
+## If it fails
+
+* **401 error:** the key is wrong or revoked, or you need to sign in again with `/mcp`.
+* **Server shows as failed:** run `claude mcp get spyro-ai` and check the address.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Developer guide](/product/mcp-developers)
