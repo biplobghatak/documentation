@@ -69,10 +69,10 @@ export const CopyPrompt = ({ app = "any" }) => {
     any: wrap(
       "Connect the Spyro AI MCP server to the AI app or agent you are running in, and learn how to use it.",
       [
-        "1. Work out which app you are running in (for example Claude Code, Codex, Cursor, VS Code with Copilot, Gemini CLI, Windsurf, claude.ai, ChatGPT or Gemini). If you are not sure, ask me.",
+        "1. Work out which app you are running in (for example Claude Code, Codex, Cursor, VS Code with Copilot, Gemini CLI, Antigravity, Windsurf, claude.ai, ChatGPT or Gemini). If you are not sure, ask me.",
         "2. If you can run commands and your app supports agent skills, install the Spyro AI skill: npx -y skills add https://spyro.app/docs --skill spyro-ai. If you cannot install it, read https://spyro.app/docs/.well-known/agent-skills/spyro-ai/SKILL.md and follow it.",
         "3. Check whether spyro-ai is already connected. If it is, skip to the verification.",
-        "4. Add the server with browser sign in, using your app's own method:\n- Claude Code: claude mcp add --transport http spyro-ai " + URL_ + ", then tell me to run /mcp and sign in.\n- Codex: codex mcp add spyro-ai --url " + URL_ + ", then tell me to run codex mcp login spyro-ai.\n- Cursor: under \"mcpServers\" in .cursor/mcp.json or ~/.cursor/mcp.json add \"spyro-ai\": { \"url\": \"" + URL_ + "\" }, then tell me to restart Cursor and sign in from its MCP settings.\n- VS Code: under \"servers\" (not \"mcpServers\") in .vscode/mcp.json add \"spyro-ai\": { \"type\": \"http\", \"url\": \"" + URL_ + "\" }, then tell me to click Start and sign in.\n- Gemini CLI: under \"mcpServers\" in ~/.gemini/settings.json add \"spyro-ai\": { \"httpUrl\": \"" + URL_ + "\" }, then tell me to run /mcp auth spyro-ai.\n- Windsurf: under \"mcpServers\" in ~/.config/devin/mcp_config.json add \"spyro-ai\": { \"serverUrl\": \"" + URL_ + "\" }.\n- An app that only runs local servers: use the command npx -y mcp-remote " + URL_ + ".\n- Anything else: follow https://spyro.app/docs/product/mcp-connect",
+        "4. Add the server with browser sign in, using your app's own method:\n- Claude Code: claude mcp add --transport http spyro-ai " + URL_ + ", then tell me to run /mcp and sign in.\n- Codex: codex mcp add spyro-ai --url " + URL_ + ", then tell me to run codex mcp login spyro-ai.\n- Cursor: under \"mcpServers\" in .cursor/mcp.json or ~/.cursor/mcp.json add \"spyro-ai\": { \"url\": \"" + URL_ + "\" }, then tell me to restart Cursor and sign in from its MCP settings.\n- VS Code: under \"servers\" (not \"mcpServers\") in .vscode/mcp.json add \"spyro-ai\": { \"type\": \"http\", \"url\": \"" + URL_ + "\" }, then tell me to click Start and sign in.\n- Gemini CLI: under \"mcpServers\" in ~/.gemini/settings.json add \"spyro-ai\": { \"httpUrl\": \"" + URL_ + "\" }, then tell me to run /mcp auth spyro-ai.\n- Antigravity (app or IDE): under \"mcpServers\" in ~/.gemini/config/mcp_config.json add \"spyro-ai\": { \"serverUrl\": \"" + URL_ + "\" }, then tell me to click Authenticate next to spyro-ai in MCP Servers, sign in, and paste the code Antigravity shows into Enter authorization code.\n- Windsurf: under \"mcpServers\" in ~/.config/devin/mcp_config.json add \"spyro-ai\": { \"serverUrl\": \"" + URL_ + "\" }.\n- An app that only runs local servers: use the command npx -y mcp-remote " + URL_ + ".\n- Anything else: follow https://spyro.app/docs/product/mcp-connect",
         "5. Ask me before you write to a project file shared with my team or to a global config file.",
         "6. If you are a chat app that cannot change its own settings (claude.ai, Claude Desktop, ChatGPT, Gemini), guide me one step at a time instead: give one step, wait for me to confirm, then give the next. The steps for each app are at https://spyro.app/docs/product/mcp-connect",
         "7. Tell me to sign in in my browser, tick the workspaces the app may use, choose Read your data and click Allow.",
@@ -120,6 +120,17 @@ export const CopyPrompt = ({ app = "any" }) => {
         "4. Tell me to click Start above the server in the file (or run MCP: List Servers) and sign in when VS Code asks.",
         "5. Tell me to open Copilot Chat, switch to Agent mode and check that the spyro-ai tools are ticked in the tools picker. Suggest unticking the nine manage tools (manageCalendar, manageArticle, managePublishing, managePrompts, manageKeywords, manageSiteAudit, manageInternalLinks, manageCompetitors, manageSettings) to stay read only.",
         "6. Suggest adding .vscode/mcp.json to .gitignore if it holds anything sensitive.",
+      ],
+    ),
+    antigravity: wrap(
+      "Connect the Spyro AI MCP server to Google Antigravity (the desktop app or the IDE).",
+      [
+        "1. Decide the file: ~/.gemini/config/mcp_config.json for all projects, or .agents/mcp_config.json in this project only. Ask me which one. Create it if missing and keep every existing server.",
+        "2. Under \"mcpServers\" add (serverUrl selects streamable HTTP; httpUrl is not supported):\n\"spyro-ai\": { \"serverUrl\": \"" + URL_ + "\" }",
+        "3. Optional, to stay read only, add \"disabledTools\": [\"manageCalendar\", \"manageArticle\", \"managePublishing\", \"managePrompts\", \"manageKeywords\", \"manageSiteAudit\", \"manageInternalLinks\", \"manageCompetitors\", \"manageSettings\"] to the same entry.",
+        "4. Tell me to open MCP Servers (app: Customizations, then Installed; IDE: the ... menu of the agent panel, then MCP Servers, Manage MCP Servers), click Authenticate next to spyro-ai and sign in in my browser, then paste the authorization code the browser shows into Enter authorization code and click Submit.",
+        "5. Only if sign in is impossible, add a key header \"headers\": { \"Authorization\": \"Bearer <key>\" } in the global file, never in a project file that is committed, because the key is stored as plain text.",
+        "6. Tell me to check that spyro-ai shows a green status dot and its tools.",
       ],
     ),
     "gemini-cli": wrap(

@@ -120,6 +120,7 @@
               "product/mcp-chatgpt",
               "product/mcp-gemini",
               "product/mcp-gemini-cli",
+              "product/mcp-antigravity",
               "product/mcp-codex",
               "product/mcp-cursor",
               "product/mcp-vscode"

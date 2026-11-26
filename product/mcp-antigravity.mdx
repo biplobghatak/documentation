@@ -1,0 +1,97 @@
+---
+title: "Antigravity"
+description: "Add Spyro AI to Google Antigravity, the desktop app and the IDE, with mcp_config.json and browser sign-in or a key."
+icon: "/images/mcp/antigravity.svg"
+---
+import { CopyPrompt } from "/snippets/copy-prompt.jsx";
+
+<CopyPrompt app="antigravity" />
+
+
+Antigravity is Google's agent-first coding app. It comes as a desktop app and as an IDE. With Spyro AI connected, its agent can use your audit, ranking and Search Console data while it works on your site.
+
+Both read the server from `mcp_config.json`:
+
+* `~/.gemini/config/mcp_config.json` for all your projects
+* `.agents/mcp_config.json` in a project, for that project only
+
+## Connect with sign-in
+
+<Steps>
+  <Step title="Open the config file">
+    * **Antigravity app:** click **Customizations** in the sidebar, then **Installed**, and scroll to **MCP Servers**. **Copy Config File Path** shows where the file is.
+    * **Antigravity IDE:** click **...** at the top of the agent side panel, then **MCP Servers**, **Manage MCP Servers** and **View raw config**.
+  </Step>
+  <Step title="Add the server">
+    Add `spyro-ai` under `mcpServers` and keep any servers already there:
+
+    ```json mcp_config.json
+    {
+      "mcpServers": {
+        "spyro-ai": {
+          "serverUrl": "https://mcp.spyro.app/mcp"
+        }
+      }
+    }
+    ```
+
+    Save the file. In the app, restart the server from **More actions (⋮) → Restart** if it does not appear.
+  </Step>
+  <Step title="Sign in">
+    Click **Authenticate** next to **spyro-ai**. Your browser opens a Spyro AI page: pick your workspaces, choose the access level and click **Allow**.
+
+    Antigravity then shows an authorization code in the browser. Copy it, paste it into **Enter authorization code** in Antigravity and click **Submit**.
+  </Step>
+</Steps>
+
+Antigravity registers itself with Spyro AI, so you do not need an OAuth client.
+
+## Connect with a key
+
+If you cannot use sign-in, send an MCP key in a header. See [Manage keys and apps](/product/mcp-manage-access) to create one.
+
+```json mcp_config.json
+{
+  "mcpServers": {
+    "spyro-ai": {
+      "serverUrl": "https://mcp.spyro.app/mcp",
+      "headers": {
+        "Authorization": "Bearer sk_mcp_..."
+      }
+    }
+  }
+}
+```
+
+<Warning>
+  The key is stored as plain text in the file. Put it in the global `~/.gemini/config/mcp_config.json`, never in a project's `.agents/mcp_config.json` that you commit. Prefer sign-in when you can.
+</Warning>
+
+## Check that it works
+
+Open **MCP Servers** and look for **spyro-ai** with a green status dot and its tools. Then ask the agent: *"Use Spyro AI to give me an overview of my workspace."*
+
+## Try these prompts
+
+* *"Use Spyro AI to list my critical audit issues and fix the ones in this codebase."*
+* *"Which pages have a low click rate in Search Console? Rewrite their title tags."*
+* *"Audit this page's URL with Spyro AI and add the missing schema markup."*
+
+## Tips
+
+* Antigravity asks before it runs an MCP tool by default. Keep that on for the nine `manage*` tools. Spyro AI's write tools change your calendar, articles and settings.
+* To stay read only, add `"disabledTools": ["manageCalendar", "manageArticle", "managePublishing", "managePrompts", "manageKeywords", "manageSiteAudit", "manageInternalLinks", "manageCompetitors", "manageSettings"]` to the `spyro-ai` entry.
+* The sign-in page marks Google Antigravity as **Unverified**. That is expected. Only continue if you started the connection yourself.
+
+## If it fails
+
+* **Red status dot or "Unauthorized":** click **Authenticate** and sign in again, or check the key.
+* **Server does not connect:** use `serverUrl`, not `httpUrl`. Antigravity supports streamable HTTP only, which is what Spyro AI uses.
+* More: [Troubleshooting](/product/mcp-troubleshooting).
+
+Antigravity's guide: [MCP](https://antigravity.google/docs/mcp).
+
+## Related
+
+* [All connection options](/product/mcp-connect)
+* [Tools reference](/product/mcp-tools)
