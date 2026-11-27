@@ -3,8 +3,9 @@
   "name": "Spyro AI",
   "theme": "luma",
   "colors": {
-    "primary": "#141414",
-    "light": "#ea580c"
+    "primary": "#ec5a00",
+    "light": "#ec5a00",
+    "dark": "#ec5a00"
   },
   "logo": {
     "light": "https://media.brand.dev/f625a23d-23e8-420d-9098-0c12b8ef77be.svg",

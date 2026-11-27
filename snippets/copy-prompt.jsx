@@ -204,7 +204,7 @@ export const CopyPrompt = ({ app = "any" }) => {
           onClick={copy}
           aria-label="Copy configuration prompt"
           className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium text-white"
-          style={{ backgroundColor: "#f47c04" }}
+          style={{ backgroundColor: "#ec5a00" }}
         >
           {copied ? "Copied" : "Copy prompt"}
         </button>
